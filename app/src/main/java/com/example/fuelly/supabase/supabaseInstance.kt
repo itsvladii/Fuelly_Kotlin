@@ -2,6 +2,7 @@ package com.example.fuelly.supabase
 
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.auth.*
 
 object SupabaseInstance {
     // Per ora mettiamoli qui per testare, poi li sposteremo in BuildConfig
@@ -11,4 +12,5 @@ object SupabaseInstance {
     val client = createSupabaseClient(URL, KEY) {
         install(Postgrest)
     }
+
 }
