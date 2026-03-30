@@ -18,7 +18,7 @@ class Splash : AppCompatActivity() {
 
         //aspetta 2 secondi e poi apre l'activity principale
         Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, MapsActivity::class.java)
             startActivity(intent)
             //finish() // Chiude lo splash così non torna indietro premendo il tasto back
         }, 2000)
