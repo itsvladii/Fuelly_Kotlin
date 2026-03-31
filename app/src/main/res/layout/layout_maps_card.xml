@@ -39,17 +39,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/chakra_petch_semibold"
-                    android:text="BENZINAIO ABC"
                     android:textColor="#000000"
                     android:textSize="18sp"
-                    android:textStyle="bold|italic" />
+                    android:textStyle="bold|italic"
+                    android:maxLines="2"
+                    android:ellipsize="end"/>
 
                 <TextView
                     android:id="@+id/txtStationAddress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/dm_sans_medium"
-                    android:text="Via Ancona 123"
                     android:textColor="#333333" />
 
                 <TextView

@@ -1,21 +1,22 @@
 package com.example.fuelly
 
 import android.content.res.Resources
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-
+import android.view.View
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.example.fuelly.classes.Benzinai
+import com.example.fuelly.databinding.ActivityMapsBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.example.fuelly.databinding.ActivityMapsBinding
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
-import android.view.View
-
+import com.google.android.gms.maps.model.MarkerOptions
+import androidx.core.view.isVisible
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -24,66 +25,81 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+
         try {
-            mMap = googleMap
+            // 1. Configurazione Estetica (Stile Dark e impostazioni UI)
+            val success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style))
+            if (!success) Log.e("Fuelly", "Errore nel caricamento dello stile JSON.")
 
-            //1. imposto lo stile custom in JSON della mappa
-            val success = mMap.setMapStyle(
-                MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style)
-            )
-            if (!success) Log.e("Maps", "Errore nello stile della mappa.")
+            mMap.isBuildingsEnabled = false
+            mMap.uiSettings.isTiltGesturesEnabled = false
+            mMap.uiSettings.isRotateGesturesEnabled = false // Opzionale: blocca rotazione per UX più pulita
+
+            // 2. Caricamento Marker dal Companion Object
+            val benzinaiDaMostrare = Benzinai.listaVicini
+            val iconaCustom = BitmapDescriptorFactory.fromResource(R.drawable.pin_fuel)
+
+            if (benzinaiDaMostrare.isNotEmpty()) {
+                for (stazione in benzinaiDaMostrare) {
+                    val marker = mMap.addMarker(
+                        MarkerOptions()
+                            .position(LatLng(stazione.lat, stazione.lon))
+                            .icon(iconaCustom)
+                            .anchor(0.5f, 0.5f)
+                    )
+                    // Associao l'oggetto stazione al marker
+                    marker?.tag = stazione
+                }
 
 
-            //2. aggiungi un marker
-
-            //imposto le coordinate per il marker
-            val posIniziale = LatLng(43.587378338300255, 13.516612657024158)
-            //aggiungo il marker alla mappa
-            mMap.addMarker(MarkerOptions().position(posIniziale))
-                ?.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.pin_fuel))
-            //sposta la visuale alla posizione del marker
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(posIniziale))
-            //zoom della mappa alla posizione del marker
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posIniziale, 15f))
-
-            //3. rimuovo la visualizazzione degli edifici in 3D
-            mMap.isBuildingsEnabled=false
-            mMap.uiSettings.isTiltGesturesEnabled=false
-
-            mMap.setOnMarkerClickListener{
-                marker ->
-                // Rendiamo la card visibile
-                val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
-                card.setVisibility(View.VISIBLE)
-                true
+                // SPOSTA LA CAMERA SUL PRIMO BENZINAIO TROVATO
+                val focus = LatLng(benzinaiDaMostrare[0].lat, benzinaiDaMostrare[0].lon)
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 12f))
+                mMap.uiSettings.isMapToolbarEnabled = false
             }
 
+            val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
+            // 3. Gestione Click sul Marker (Mostra Card)
+            mMap.setOnMarkerClickListener { marker ->
+                val stazione = marker.tag as? Benzinai
+                if (stazione != null) {
+                    // Popoliamo i testi della card con i dati dell'oggetto cliccato
+                    findViewById<TextView>(R.id.txtStationName).text = stazione.nomeImpianto
+                    findViewById<TextView>(R.id.txtStationAddress).text = stazione.indirizzo
+                    findViewById<TextView>(R.id.txtPrice).text = "1.789 €/L" // Per ora fisso, o stazione.prezzo se presente
 
 
+                    // Mostriamo la card con una piccola animazione
+                    card.visibility = View.VISIBLE
+                    card.alpha = 0f
+                    card.animate().alpha(1f).setDuration(300).start()
+                }
+                false // Ritorna false per far sì che la mappa faccia comunque l'animazione di default sul marker
+            }
+
+            // 4. Gestione Click sulla Mappa (Nascondi Card)
+            mMap.setOnMapClickListener {
+                if (card.isVisible) {
+                    card.animate()
+                        .alpha(0f)
+                        .setDuration(200)
+                        .withEndAction { card.visibility = View.GONE }
+                        .start()
+                }
+            }
 
         } catch (e: Resources.NotFoundException) {
-            Log.e("Maps", "File dello stile non trovato: ", e)
+            Log.e("Fuelly", "File map_style non trovato: ", e)
         }
-
     }
 }

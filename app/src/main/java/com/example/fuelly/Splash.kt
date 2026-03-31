@@ -5,6 +5,7 @@ import android.os.*
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.fuelly.classes.Benzinai
 import com.example.fuelly.supabase.SupabaseInstance
 import com.google.android.gms.location.LocationServices
 import io.github.jan.supabase.postgrest.*
@@ -43,7 +44,8 @@ class Splash : AppCompatActivity() {
                     if (location != null) {
                         //effettuo la funzione rpc su supabase
                         Log.d("Fuelly", "Posizione trovata: ${location.latitude}, ${location.longitude}")
-                        SupabaseInstance.client.postgrest.rpc(
+                        Log.d("Fuelly", "Sto cercando benzinai vicino a: ${location.latitude}, ${location.longitude}")
+                        val response= SupabaseInstance.client.postgrest.rpc(
                             function = "get_benzinai_vicini",
                             parameters = mapOf(
                                 "user_lat" to location.latitude,
@@ -51,7 +53,10 @@ class Splash : AppCompatActivity() {
                                 "raggio_km" to 25.0
                             )
                         )
-                        Log.d("Fuelly", "Dati vicini scaricati!")
+                        // Chiami il parser direttamente dalla classe!
+                        val listaTutti = Benzinai.parseLista(response.data)
+                        Benzinai.listaVicini = listaTutti
+                        Log.d("Fuelly", "Lista di benzinai vicini: ${Benzinai.listaVicini.count()}")
                     }
                 } catch (e: Exception) {
                     Log.e("Fuelly", "Errore Supabase: ${e.message}")
