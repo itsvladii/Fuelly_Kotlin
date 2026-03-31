@@ -14,6 +14,8 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.example.fuelly.databinding.ActivityMapsBinding
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.MapStyleOptions
+import android.view.View
+
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -67,6 +69,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             //3. rimuovo la visualizazzione degli edifici in 3D
             mMap.isBuildingsEnabled=false
             mMap.uiSettings.isTiltGesturesEnabled=false
+
+            mMap.setOnMarkerClickListener{
+                marker ->
+                // Rendiamo la card visibile
+                val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
+                card.setVisibility(View.VISIBLE)
+                true
+            }
 
 
 
