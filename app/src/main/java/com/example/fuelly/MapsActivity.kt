@@ -12,6 +12,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.fuelly.databinding.ActivityMapsBinding
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.MapStyleOptions
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -44,20 +45,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         try {
             mMap = googleMap
 
-            //imposto lo stile custom in JSON della mappa
+            //1. imposto lo stile custom in JSON della mappa
             val success = mMap.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style)
             )
             if (!success) Log.e("Maps", "Errore nello stile della mappa.")
 
 
-            //aggiungi un marker
+            //2. aggiungi un marker
+
+            //imposto le coordinate per il marker
             val posIniziale = LatLng(43.587378338300255, 13.516612657024158)
-            mMap.addMarker(MarkerOptions().position(posIniziale).title("Marker in Sydney"))
+            //aggiungo il marker alla mappa
+            mMap.addMarker(MarkerOptions().position(posIniziale))
+                ?.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.pin_fuel))
             //sposta la visuale alla posizione del marker
             mMap.moveCamera(CameraUpdateFactory.newLatLng(posIniziale))
             //zoom della mappa alla posizione del marker
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posIniziale, 15f))
+
+            //3. rimuovo la visualizazzione degli edifici in 3D
+            mMap.isBuildingsEnabled=false
+            mMap.uiSettings.isTiltGesturesEnabled=false
+
+
 
 
         } catch (e: Resources.NotFoundException) {
