@@ -1,11 +1,10 @@
 package com.example.fuelly.classes
 
 import android.util.Log
-import com.google.android.gms.maps.model.LatLng
 import org.json.JSONArray
 
 
-data class Benzinai(
+data class Benzinaio(
     val id: Int,
     val gestore: String,
     val bandiera: String,
@@ -19,12 +18,11 @@ data class Benzinai(
 ){
     //contenitore di benzinai vicini
     companion object {
-        var listaVicini: List<Benzinai> = emptyList()
+        var listaVicini: List<Benzinaio> = emptyList()
 
 
-
-        fun parseLista(data: Any?): List<Benzinai> {
-            val lista = mutableListOf<Benzinai>()
+        fun parseLista(data: Any?): List<Benzinaio> {
+            val lista = mutableListOf<Benzinaio>()
 
             // 1. Prendiamo la stringa che abbiamo visto nel log
             val jsonString = data?.toString() ?: return emptyList()
@@ -41,7 +39,7 @@ data class Benzinai(
                     // 3. Estraiamo i dati usando i nomi esatti (Case Sensitive!)
                     // Nota: Con JSONObject usiamo getString, getDouble, getInt
                     lista.add(
-                        Benzinai(
+                        Benzinaio(
                             id = obj.optInt("idImpianto", 0),
                             gestore = obj.optString("Gestore", "N/A"),
                             bandiera = obj.optString("Bandiera", "-"),

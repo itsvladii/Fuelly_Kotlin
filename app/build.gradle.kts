@@ -51,11 +51,12 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     // Supabase Core + Postgrest (Database)
-    implementation(platform("io.github.jan-tennert.supabase:bom:3.0.0"))
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.4.1"))
     implementation("io.github.jan-tennert.supabase:postgrest-kt")
     implementation("com.google.android.gms:play-services-location:21.3.0")
-    // Questa libreria serve per far "parlare" le Coroutines con i Task di Google (Play Services)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
     // Ktor
-    implementation("io.ktor:ktor-client-android:3.0.0")
+    implementation("io.ktor:ktor-client-android:3.4.2")
+    //libreria per le chiamate HTTP
+    implementation("com.squareup.okhttp3:okhttp:5.3.2")
 }

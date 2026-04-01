@@ -5,11 +5,15 @@ import android.os.*
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.fuelly.classes.Benzinai
+import com.example.fuelly.classes.Benzinaio
+import com.example.fuelly.classes.ColonninaEV
 import com.example.fuelly.supabase.SupabaseInstance
 import com.google.android.gms.location.LocationServices
 import io.github.jan.supabase.postgrest.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 class Splash : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +25,7 @@ class Splash : AppCompatActivity() {
             //richiedo i permessi alla mappa
             requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 100)
 
-            //carico i dati dal db
+            //carico i dati dei benzinai e delle colonnine
             avviaPrecaricamento()
         }
         catch (e: SecurityException) {
@@ -53,15 +57,20 @@ class Splash : AppCompatActivity() {
                                 "raggio_km" to 25.0
                             )
                         )
-                        // Chiami il parser direttamente dalla classe!
-                        val listaTutti = Benzinai.parseLista(response.data)
-                        Benzinai.listaVicini = listaTutti
-                        Log.d("Fuelly", "Lista di benzinai vicini: ${Benzinai.listaVicini.count()}")
+                        //salvo i benzinai vicini in una lista
+                        val listaTutti = Benzinaio.parseLista(response.data)
+                        Benzinaio.listaVicini = listaTutti
+                        Log.d("Fuelly", "Lista di benzinai vicini: ${Benzinaio.listaVicini.count()}")
+
+                        //raccolgo le colonnine di ricarica vicine tramite la chiamata API e le salvo in una lista
+                        val jsonEV = fetchColonnineEV(location.latitude, location.longitude)
+                        ColonninaEV.listaVicini = ColonninaEV.parseLista(jsonEV)
+                        Log.d("Fuelly", "Caricate ${ColonninaEV.listaVicini.size} colonnine elettriche!")
                     }
                 } catch (e: Exception) {
                     Log.e("Fuelly", "Errore Supabase: ${e.message}")
                 } finally {
-                    //finita la query (o se non riesce ad eseguirla), passo all'activity della mappa
+                    //finita la query (o se non riesce a eseguirla), passo all'activity della mappa comunque
                     goToMappa()
                 }
             }
@@ -82,6 +91,24 @@ class Splash : AppCompatActivity() {
             val intent = Intent(this, MapsActivity::class.java)
             startActivity(intent)
             finish()
+        }
+    }
+
+    // Funzione di fetching dei dati da OpenChargeMap tramite chiamata API
+    private suspend fun fetchColonnineEV(lat: Double, lon: Double): String {
+        //inizializzo il client con la chiave e l'url di richiesta
+        val client = okhttp3.OkHttpClient()
+        val apiKey = "fd460f11-3769-451b-b8c9-28a711261ae0" //non proprio una buona pratica ma funziona
+        val url = "https://api.openchargemap.io/v3/poi/?output=json&latitude=$lat&longitude=$lon&distance=25&distanceunit=KM&key=$apiKey" //url della richiesta
+
+        //effettuo la richiesta
+        val request = okhttp3.Request.Builder().url(url).build()
+
+        //eseguo la richiesta in un thread separato
+        return withContext(Dispatchers.IO) {
+            client.newCall(request).execute().use { response ->
+                response.body?.string() ?: ""
+            }
         }
     }
 
