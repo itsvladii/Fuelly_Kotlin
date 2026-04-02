@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.fuelly.classes.*
@@ -122,6 +123,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             //CARICAMENTO DELLA CARD UNA VOLTA CLICCATO UN MARKER
             val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
+            val bottomNav = findViewById<LinearLayout>(R.id.customBottomNav)
+
             //event handler per il click sul marker
             mMap.setOnMarkerClickListener { marker ->
                 val data = marker.tag
@@ -132,6 +135,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 } else if (data is ColonninaEV) {
                     setupCardElettrica(data)
                 }
+
+                //animazione di scomparsa della bottomNav
+                bottomNav.animate()
+                    .translationY(400f) // La sposta fuori dallo schermo in basso
+                    .setDuration(300)
+                    .start()
 
                 // animazione di comparsa della card
                 card.visibility = View.VISIBLE
@@ -151,6 +160,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         .setDuration(200)
                         .withEndAction { card.visibility = View.GONE }
                         .start()
+
+                    //mostro la bottomNav
+                    bottomNav.animate()
+                        .translationY(0f) //torna alla posizione iniziale
+                        .setDuration(300)
+                        .start()
                 }
             }
 
@@ -162,28 +177,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     //funzione di setup della card per i benzinai e per le colonnine
     private fun setupCardBenzinaio(b: Benzinaio) {
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
-        // Colore Giallo Fuelly
+        //impostazione del colore della card
         card.setCardBackgroundColor("#DFFF00".toColorInt())
 
-        // Testi
+        //testo della card
         findViewById<TextView>(R.id.txtStationName).text = b.nomeImpianto
         findViewById<TextView>(R.id.txtStationAddress).text = b.indirizzo
         findViewById<TextView>(R.id.txtPrice).text = "6.767 €/L"
 
-        // Icona Pompa
+        //icona
         findViewById<ImageView>(R.id.imgPompa).setImageResource(R.drawable.fuel_logo)
     }
     private fun setupCardElettrica(ev: ColonninaEV) {
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
-        // Colore Azzurro/Verde Acqua (come nel tuo mockup)
+        //impostazione del colore della card//impostazione del colore della card
         card.setCardBackgroundColor(android.graphics.Color.parseColor("#00FFC2"))
 
-        // Testi
+        //testo della card
         findViewById<TextView>(R.id.txtStationName).text = ev.titolo
         findViewById<TextView>(R.id.txtStationAddress).text = ev.indirizzo
-        findViewById<TextView>(R.id.txtPrice).text = "${ev.potenzaKW} kW"
 
-        // Icona Fulmine
+        val infoElettrica = "${ev.potenzaKW} kW • ${ev.numPunti} prese"
+        findViewById<TextView>(R.id.txtPrice).text = infoElettrica
+        //icona
         findViewById<ImageView>(R.id.imgPompa).setImageResource(R.drawable.ev_logo)
     }
 

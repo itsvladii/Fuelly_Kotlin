@@ -79,7 +79,7 @@ class Splash : AppCompatActivity() {
         //se non ho la posizione, passo all'activity della mappa comunque
         Handler(Looper.getMainLooper()).postDelayed({
             goToMappa()
-        }, 3000)
+        }, 10000)
     }
 
 

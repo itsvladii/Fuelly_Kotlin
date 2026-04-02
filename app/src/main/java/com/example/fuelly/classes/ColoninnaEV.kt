@@ -8,7 +8,8 @@ data class ColonninaEV(
     val indirizzo: String,
     val lat: Double,
     val lon: Double,
-    val potenzaKW: Double
+    val potenzaKW: Double,
+    val numPunti: Int
 ) {
     companion object {
         //contenitore di tutte le colonnine vicine
@@ -16,27 +17,27 @@ data class ColonninaEV(
 
         //funzione di parsing della risposta JSON
         fun parseLista(jsonString: String): List<ColonninaEV> {
-            //lista vuota di colonnine
             val lista = mutableListOf<ColonninaEV>()
-            //array degli elementi JSON dal output della chiamata
             val array = JSONArray(jsonString)
-            //ciclo tutti gli elementi dell'array
             for (i in 0 until array.length()) {
-                //prendo l'elemento JSON in posizione i
                 val poi = array.getJSONObject(i)
                 val address = poi.getJSONObject("AddressInfo")
-                // Estraiamo la potenza dal primo connettore disponibile
+
+                //estrazione del numero di punti di ricarica
+                val nPoints = poi.optInt("NumberOfPoints", 1)
+
+                //estrazione della potenza in kw
                 val connections = poi.optJSONArray("Connections")
                 val kw = connections?.optJSONObject(0)?.optDouble("PowerKW", 0.0) ?: 0.0
 
-                //aggiungo la colonnina alla lista
                 lista.add(ColonninaEV(
                     id = poi.getInt("ID"),
                     titolo = address.optString("Title", "Colonnina"),
                     indirizzo = address.optString("AddressLine1", "Indirizzo N.D."),
                     lat = address.getDouble("Latitude"),
                     lon = address.getDouble("Longitude"),
-                    potenzaKW = kw
+                    potenzaKW = kw,
+                    numPunti = nPoints
                 ))
             }
             return lista
