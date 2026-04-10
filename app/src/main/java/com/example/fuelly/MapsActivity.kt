@@ -181,9 +181,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         card.setCardBackgroundColor("#DFFF00".toColorInt())
 
         //testo della card
-        findViewById<TextView>(R.id.txtStationName).text = b.nomeImpianto
+        findViewById<TextView>(R.id.txtStationName).text = b.bandiera
         findViewById<TextView>(R.id.txtStationAddress).text = b.indirizzo
-        findViewById<TextView>(R.id.txtPrice).text = "6.767 €/L"
+        //prezzi della card
+        val benzinaStr = if (b.prezzoBenzina > 0) "${b.prezzoBenzina}" else "N.D."
+        val dieselStr = if (b.prezzoDiesel > 0) "${b.prezzoDiesel}" else "N.D."
+
+        val testoPrezzi = "Self | B: $benzinaStr · D: $dieselStr"
+        findViewById<TextView>(R.id.txtPrice).text = testoPrezzi
 
         //icona
         findViewById<ImageView>(R.id.imgPompa).setImageResource(R.drawable.fuel_logo)
@@ -191,7 +196,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun setupCardElettrica(ev: ColonninaEV) {
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
         //impostazione del colore della card//impostazione del colore della card
-        card.setCardBackgroundColor(android.graphics.Color.parseColor("#00FFC2"))
+        card.setCardBackgroundColor("#00FFC2".toColorInt())
 
         //testo della card
         findViewById<TextView>(R.id.txtStationName).text = ev.titolo

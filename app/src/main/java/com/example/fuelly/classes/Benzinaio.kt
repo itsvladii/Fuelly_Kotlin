@@ -14,7 +14,9 @@ data class Benzinaio(
     val comune: String,
     val provincia: String,
     val lat: Double,
-    val lon: Double
+    val lon: Double,
+    val prezzoBenzina: Double,
+    val prezzoDiesel: Double
 ){
     //contenitore di benzinai vicini
     companion object {
@@ -49,7 +51,9 @@ data class Benzinaio(
                             comune = obj.optString("Comune", "-"),
                             provincia = obj.optString("Provincia", "-"),
                             lat = obj.optDouble("Latitudine", 0.0),
-                            lon = obj.optDouble("Longitudine", 0.0)
+                            lon = obj.optDouble("Longitudine", 0.0),
+                            prezzoBenzina = obj.optDouble("prezzo_benzina", 0.0),
+                            prezzoDiesel = obj.optDouble("prezzo_diesel", 0.0)
                         )
                     )
                 }
