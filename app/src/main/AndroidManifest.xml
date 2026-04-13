@@ -15,7 +15,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Fuelly">
-
+        <activity
+            android:name=".DettagliActivity"
+            android:exported="false" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -38,8 +40,7 @@
             android:name=".MapsActivity"
             android:exported="false"
             android:label="@string/title_activity_maps"
-        android:screenOrientation="portrait"
-        />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Splash"
             android:exported="true">

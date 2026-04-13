@@ -1,5 +1,6 @@
 package com.example.fuelly
 
+import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
@@ -20,6 +21,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import androidx.core.view.isVisible
 import androidx.core.graphics.toColorInt
+import kotlin.jvm.java
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -147,6 +149,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 card.alpha = 0f
                 card.animate().alpha(1f).setDuration(300).start()
 
+                val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
+                card.setOnClickListener {
+                    if (data is Benzinaio) {
+                        apriDettaglio(data.id.toLong(), "BENZINA")
+                    } else if (data is ColonninaEV) {
+                        apriDettaglio(data.id.toLong(), "EV")
+                    }
+                }
+
                 false
 
             }
@@ -168,6 +179,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         .start()
                 }
             }
+
 
         } catch (e: Resources.NotFoundException) {
             Log.e("Fuelly", "File map_style non trovato: ", e)
@@ -216,4 +228,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
         card.visibility = View.GONE
     }
+
+    private fun apriDettaglio(id: Long, tipo: String) {
+        val intent = Intent(this, DettagliActivity::class.java)
+        intent.putExtra("ID_ELEMENTO", id)
+        intent.putExtra("TIPO_ELEMENTO", tipo)
+        startActivity(intent)
+    }
+
 }
