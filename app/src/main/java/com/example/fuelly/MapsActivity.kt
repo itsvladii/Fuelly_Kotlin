@@ -190,9 +190,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun setupCardBenzinaio(b: Benzinaio) {
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
         //impostazione del colore della card
-        card.setCardBackgroundColor("#DFFF00".toColorInt())
+        card.setCardBackgroundColor("#0B3D2E".toColorInt())
 
         //testo della card
+        findViewById<TextView>(R.id.txtStationName).setTextColor("#DFFF00".toColorInt())
+        findViewById<TextView>(R.id.txtStationAddress).setTextColor("#DFFF00".toColorInt())
+        findViewById<TextView>(R.id.txtPrice).setTextColor("#DFFF00".toColorInt())
         findViewById<TextView>(R.id.txtStationName).text = b.bandiera
         findViewById<TextView>(R.id.txtStationAddress).text = b.indirizzo
         //prezzi della card
@@ -203,22 +206,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         findViewById<TextView>(R.id.txtPrice).text = testoPrezzi
 
 
-        val logoRes = b.getLogoResource() // 'b' è il tuo oggetto Benzinaio
+        val logoRes = b.getLogoResource() //ricavo l'icona
         findViewById<ImageView>(R.id.imgPompa).setImageResource(logoRes)
     }
     private fun setupCardElettrica(ev: ColonninaEV) {
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
         //impostazione del colore della card//impostazione del colore della card
-        card.setCardBackgroundColor("#00FFC2".toColorInt())
+        card.setCardBackgroundColor("#0B101E".toColorInt())
 
         //testo della card
+        findViewById<TextView>(R.id.txtStationName).setTextColor("#00FFC2".toColorInt())
+        findViewById<TextView>(R.id.txtStationAddress).setTextColor("#00FFC2".toColorInt())
+        findViewById<TextView>(R.id.txtPrice).setTextColor("#00FFC2".toColorInt())
         findViewById<TextView>(R.id.txtStationName).text = ev.titolo
         findViewById<TextView>(R.id.txtStationAddress).text = ev.indirizzo
 
         val infoElettrica = "${ev.potenzaKW} kW • ${ev.numPunti} prese"
         findViewById<TextView>(R.id.txtPrice).text = infoElettrica
-        //icona
-        findViewById<ImageView>(R.id.imgPompa).setImageResource(R.drawable.ev_logo)
+        val logoRes = ev.getLogoResource() //ricavo l'icona
+        findViewById<ImageView>(R.id.imgPompa).setImageResource(logoRes)
     }
 
     //funzione di filtro dei marker in base al booleano passato

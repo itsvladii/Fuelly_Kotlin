@@ -99,7 +99,7 @@ class Splash : AppCompatActivity() {
         //inizializzo il client con la chiave e l'url di richiesta
         val client = okhttp3.OkHttpClient()
         val apiKey = "fd460f11-3769-451b-b8c9-28a711261ae0" //non proprio una buona pratica ma funziona
-        val url = "https://api.openchargemap.io/v3/poi/?output=json&latitude=$lat&longitude=$lon&distance=10&distanceunit=KM&key=$apiKey" //url della richiesta
+        val url = "https://api.openchargemap.io/v3/poi/?output=json&latitude=$lat&longitude=$lon&distance=20&distanceunit=KM&key=$apiKey" //url della richiesta
 
         //effettuo la richiesta
         val request = okhttp3.Request.Builder().url(url).build()

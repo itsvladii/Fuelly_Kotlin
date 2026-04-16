@@ -42,27 +42,40 @@ class DettagliActivity : AppCompatActivity() {
     //funzioni di popolamento della card con i dati del benzinaio o della colonnina EV
     private fun setupUIBenzina(b: Benzinaio) {
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
-        card.setCardBackgroundColor("#DFFF00".toColorInt())
+        //impostazione del colore della card
+        card.setCardBackgroundColor("#0B3D2E".toColorInt())
 
+        //testo della card
+        findViewById<TextView>(R.id.txtStationName).setTextColor("#DFFF00".toColorInt())
+        findViewById<TextView>(R.id.txtStationAddress).setTextColor("#DFFF00".toColorInt())
+        findViewById<TextView>(R.id.txtPrice).setTextColor("#DFFF00".toColorInt())
         findViewById<TextView>(R.id.txtStationName).text = b.bandiera
         findViewById<TextView>(R.id.txtStationAddress).text = b.indirizzo
+        //prezzi della card
+        val benzinaStr = if (b.prezzoBenzina > 0) "${b.prezzoBenzina}" else "N.D."
+        val dieselStr = if (b.prezzoDiesel > 0) "${b.prezzoDiesel}" else "N.D."
 
-        // Qui puoi mostrare tutti i prezzi che vuoi
-        val prezziFull = "Benzina: ${b.prezzoBenzina}€\nDiesel: ${b.prezzoDiesel}€"
-        findViewById<TextView>(R.id.txtPrice).text = prezziFull
+        findViewById<TextView>(R.id.txtPrice).text =""
 
-        val logoRes = b.getLogoResource() // 'b' è il tuo oggetto Benzinaio
+        val logoRes = b.getLogoResource() //ricavo l'icona
         findViewById<ImageView>(R.id.imgPompa).setImageResource(logoRes)
     }
 
     private fun setupUIElettrica(ev: ColonninaEV) {
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
-        card.setCardBackgroundColor("#00FFC2".toColorInt())
+        //impostazione del colore della card//impostazione del colore della card
+        card.setCardBackgroundColor("#0B101E".toColorInt())
 
+        //testo della card
+        findViewById<TextView>(R.id.txtStationName).setTextColor("#00FFC2".toColorInt())
+        findViewById<TextView>(R.id.txtStationAddress).setTextColor("#00FFC2".toColorInt())
+        findViewById<TextView>(R.id.txtPrice).setTextColor("#00FFC2".toColorInt())
         findViewById<TextView>(R.id.txtStationName).text = ev.titolo
         findViewById<TextView>(R.id.txtStationAddress).text = ev.indirizzo
-        findViewById<TextView>(R.id.txtPrice).text = "${ev.potenzaKW} kW - ${ev.numPunti} Prese"
 
-        findViewById<ImageView>(R.id.imgPompa).setImageResource(R.drawable.ev_logo)
+        val infoElettrica = "${ev.numPunti} prese"
+        findViewById<TextView>(R.id.txtPrice).text = infoElettrica
+        val logoRes = ev.getLogoResource() //ricavo l'icona
+        findViewById<ImageView>(R.id.imgPompa).setImageResource(logoRes)
     }
 }

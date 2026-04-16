@@ -79,8 +79,9 @@ data class Benzinaio(
             brand.contains("shell") -> R.drawable.logo_shell
             brand.contains("beyfin") -> R.drawable.logo_beyfin
             brand.contains("lukoil") -> R.drawable.logo_lukoil
+            brand.contains("retitalia")-> R.drawable.logo_retitalia
             // Fallback: se non è nessuno di questi, usa la pompa generica
-            else -> R.drawable.fuel_logo
+            else -> R.drawable.fuelly_logo_foreground
         }
     }
 }
