@@ -1,6 +1,7 @@
 package com.example.fuelly.classes
 
 import android.util.Log
+import com.example.fuelly.R
 import org.json.JSONArray
 
 
@@ -62,6 +63,24 @@ data class Benzinaio(
             }
 
             return lista
+        }
+    }
+
+    fun getLogoResource(): Int {
+        // Puliamo la stringa come prima
+        val brand = this.bandiera.lowercase()
+
+        return when {
+            brand.contains("eni") || brand.contains("agip") -> R.drawable.logo_agipeni
+            brand.contains("ip") -> R.drawable.logo_ip
+            brand.contains("q8") -> R.drawable.logo_q8
+            brand.contains("esso") -> R.drawable.logo_esso
+            brand.contains("tamoil") -> R.drawable.logo_tamoil
+            brand.contains("shell") -> R.drawable.logo_shell
+            brand.contains("beyfin") -> R.drawable.logo_beyfin
+            brand.contains("lukoil") -> R.drawable.logo_lukoil
+            // Fallback: se non è nessuno di questi, usa la pompa generica
+            else -> R.drawable.fuel_logo
         }
     }
 }

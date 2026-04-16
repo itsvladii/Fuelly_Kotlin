@@ -202,8 +202,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val testoPrezzi = "Self | B: $benzinaStr · D: $dieselStr"
         findViewById<TextView>(R.id.txtPrice).text = testoPrezzi
 
-        //icona
-        findViewById<ImageView>(R.id.imgPompa).setImageResource(R.drawable.fuel_logo)
+
+        val logoRes = b.getLogoResource() // 'b' è il tuo oggetto Benzinaio
+        findViewById<ImageView>(R.id.imgPompa).setImageResource(logoRes)
     }
     private fun setupCardElettrica(ev: ColonninaEV) {
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
@@ -235,5 +236,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         intent.putExtra("TIPO_ELEMENTO", tipo)
         startActivity(intent)
     }
+
+
 
 }

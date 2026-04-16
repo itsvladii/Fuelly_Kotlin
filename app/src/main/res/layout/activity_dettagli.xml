@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     android:backgroundTint="@color/white"
     tools:context=".DettagliActivity">
 
@@ -84,27 +85,31 @@
         android:id="@+id/imageButton4"
         android:layout_width="32dp"
         android:layout_height="38dp"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="16dp"
         android:background="#00FFFFFF"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/bookmark_svg"
-        tools:layout_editor_absoluteX="363dp"
-        tools:layout_editor_absoluteY="36dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/bookmark_svg" />
 
     <ImageButton
         android:id="@+id/imageButton5"
         android:layout_width="32dp"
         android:layout_height="38dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="36dp"
         android:background="#00FFFFFF"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/backarrow"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="36dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/backarrow" />
 
     <View
         android:id="@+id/divider"
         android:layout_width="376dp"
         android:layout_height="2dp"
-        android:background="?android:attr/listDivider"
+        android:background="@color/cardview_dark_background"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.542"
