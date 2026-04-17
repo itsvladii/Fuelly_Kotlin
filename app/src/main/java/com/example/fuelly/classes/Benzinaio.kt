@@ -80,7 +80,7 @@ data class Benzinaio(
             brand.contains("beyfin") -> R.drawable.logo_beyfin
             brand.contains("lukoil") -> R.drawable.logo_lukoil
             brand.contains("retitalia")-> R.drawable.logo_retitalia
-            // Fallback: se non è nessuno di questi, usa la pompa generica
+            //se non ho il logo: usa l'SVG generico della pompa
             else -> R.drawable.fuelly_logo_foreground
         }
     }

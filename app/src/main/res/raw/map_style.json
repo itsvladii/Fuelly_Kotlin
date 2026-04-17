@@ -24,20 +24,20 @@
     ]
   },
   {
+    "featureType": "administrative",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
     "featureType": "administrative.country",
     "elementType": "geometry.stroke",
     "stylers": [
       {
         "color": "#4b6878"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.land_parcel",
-    "elementType": "labels",
-    "stylers": [
-      {
-        "visibility": "off"
       }
     ]
   },
@@ -79,19 +79,18 @@
   },
   {
     "featureType": "poi",
-    "elementType": "geometry",
     "stylers": [
       {
-        "color": "#283d6a"
+        "visibility": "off"
       }
     ]
   },
   {
     "featureType": "poi",
-    "elementType": "labels.text",
+    "elementType": "geometry",
     "stylers": [
       {
-        "visibility": "off"
+        "color": "#283d6a"
       }
     ]
   },
@@ -110,14 +109,6 @@
     "stylers": [
       {
         "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.business",
-    "stylers": [
-      {
-        "visibility": "off"
       }
     ]
   },
@@ -208,15 +199,6 @@
     "stylers": [
       {
         "color": "#023e58"
-      }
-    ]
-  },
-  {
-    "featureType": "road.local",
-    "elementType": "labels",
-    "stylers": [
-      {
-        "visibility": "off"
       }
     ]
   },

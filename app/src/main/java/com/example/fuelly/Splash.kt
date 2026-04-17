@@ -1,18 +1,17 @@
 package com.example.fuelly
 
+import android.Manifest
 import android.content.Intent
 import android.os.*
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.fuelly.classes.Benzinaio
-import com.example.fuelly.classes.ColonninaEV
+import com.example.fuelly.classes.*
 import com.example.fuelly.supabase.SupabaseInstance
 import com.google.android.gms.location.LocationServices
 import io.github.jan.supabase.postgrest.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class Splash : AppCompatActivity() {
 
@@ -23,7 +22,7 @@ class Splash : AppCompatActivity() {
 
         try {
             //richiedo i permessi alla mappa
-            requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 100)
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 100)
 
             //carico i dati dei benzinai e delle colonnine
             avviaPrecaricamento()
@@ -34,7 +33,8 @@ class Splash : AppCompatActivity() {
 
     }
 
-    //Funzione di caricamento dei benzinai vicini dal DB
+    //Funzione di caricamento dei benzinai vicini dal DB (necessario il permesso di geolocalizzazione)
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun avviaPrecaricamento(){
 
         //imposto il client per la geolocalizzazione
@@ -46,7 +46,7 @@ class Splash : AppCompatActivity() {
                 try {
                     //se ho la posizione, prendo i benzinai vicini alla posizione dell'utente
                     if (location != null) {
-                        //effettuo la funzione rpc su supabase
+                        //effettuo la funzione del DB (get_benzinai_vicini) di fetching dei benzinai vicini
                         Log.d("Fuelly", "Posizione trovata: ${location.latitude}, ${location.longitude}")
                         Log.d("Fuelly", "Sto cercando benzinai vicino a: ${location.latitude}, ${location.longitude}")
                         val response= SupabaseInstance.client.postgrest.rpc(
@@ -75,14 +75,7 @@ class Splash : AppCompatActivity() {
                 }
             }
         }
-
-        //se non ho la posizione, passo all'activity della mappa comunque
-        Handler(Looper.getMainLooper()).postDelayed({
-            goToMappa()
-        }, 10000)
     }
-
-
 
     //Funzione di passaggio all'activity della mappa
     private fun goToMappa() {
@@ -98,8 +91,8 @@ class Splash : AppCompatActivity() {
     private suspend fun fetchColonnineEV(lat: Double, lon: Double): String {
         //inizializzo il client con la chiave e l'url di richiesta
         val client = okhttp3.OkHttpClient()
-        val apiKey = "fd460f11-3769-451b-b8c9-28a711261ae0" //non proprio una buona pratica ma funziona
-        val url = "https://api.openchargemap.io/v3/poi/?output=json&latitude=$lat&longitude=$lon&distance=20&distanceunit=KM&key=$apiKey" //url della richiesta
+        val apiKey = BuildConfig.EV_API_KEY
+        val url = "https://api.openchargemap.io/v3/poi/?output=json&latitude=$lat&longitude=$lon&distance=15&distanceunit=KM&key=$apiKey" //url della richiesta
 
         //effettuo la richiesta
         val request = okhttp3.Request.Builder().url(url).build()
@@ -107,7 +100,7 @@ class Splash : AppCompatActivity() {
         //eseguo la richiesta in un thread separato
         return withContext(Dispatchers.IO) {
             client.newCall(request).execute().use { response ->
-                response.body?.string() ?: ""
+                response.body.string()
             }
         }
     }
