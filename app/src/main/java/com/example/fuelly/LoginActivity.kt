@@ -35,27 +35,26 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun startGoogleSignIn() {
-        // 1. Configura l'opzione specifica per il Pulsante (GetSignInWithGoogleOption)
-        // Questa opzione è specifica per quando l'utente clicca esplicitamente sul tasto
+        //vado a ricavare le credenziali google
         val signInWithGoogleOption = GetSignInWithGoogleOption.Builder(serverClientId = WEB_CLIENT_ID)
             .setNonce(generateNonce()) // Opzionale ma raccomandato per sicurezza
             .build()
 
-        // 2. Crea la richiesta
+        //creo la richiesta
         val request = GetCredentialRequest.Builder()
             .addCredentialOption(signInWithGoogleOption)
             .build()
 
-        // 3. Lancia il flusso in una Coroutine
+        //lancio la richiesta
         lifecycleScope.launch {
             try {
                 val result = credentialManager.getCredential(
                     request = request,
                     context = this@LoginActivity
                 )
+                //gestisco il risultato
                 handleSignIn(result)
             } catch (e: GetCredentialException) {
-                // Gestisci l'errore (es. l'utente ha annullato il login)
                 Log.e("Auth", "Errore Google Sign-In: ${e.message}")
             }
         }
@@ -70,7 +69,7 @@ class LoginActivity : AppCompatActivity() {
 
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
 
-            // LANCIO SU SUPABASE
+            //salvo l'utente su Supabase Auth
             lifecycleScope.launch {
                 try {
                     Log.d("Supabase_Debug", "Sto inviando il token a Supabase...")
@@ -83,7 +82,6 @@ class LoginActivity : AppCompatActivity() {
                     goToMappa()
 
                 } catch (e: Exception) {
-                // Questo stamperà l'errore preciso nei log di Android Studio
                 Log.e("Supabase_Error", "Errore completo: ", e)
                 e.printStackTrace()
             }
@@ -92,7 +90,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun generateNonce(): String {
-        // Genera una stringa casuale sicura per prevenire attacchi "replay"
         return UUID.randomUUID().toString()
     }
 

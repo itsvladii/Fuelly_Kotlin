@@ -3,6 +3,13 @@
     <style name="Base.Theme.Fuelly" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
+        <item name="colorPrimary">@color/fuelly_green_dark</item>
+
+        <item name="colorAccent">@color/fuelly_yellow_fluo</item>
+
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/fuelly_yellow_fluo</item>
+        <item name="colorOnSecondary">@color/black</item>
     </style>
 
     <style name="Theme.Fuelly" parent="Base.Theme.Fuelly" />

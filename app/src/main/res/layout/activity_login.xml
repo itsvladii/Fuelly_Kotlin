@@ -58,18 +58,30 @@
         app:boxCornerRadiusTopEnd="12dp"
         app:boxCornerRadiusTopStart="12dp"
         app:boxStrokeColor="#0D3B2E"
-        app:hintEnabled="false"
-        app:endIconMode="custom"
         app:endIconDrawable="@drawable/ic_email"
-        app:layout_constraintTop_toBottomOf="@+id/subHeaderText">
+        app:endIconMode="custom"
+        app:endIconTint="@color/fuelly_green_dark"
+        app:hintEnabled="false"
+        app:hintTextColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@+id/subHeaderText"
+        app:startIconTint="@color/fuelly_green_dark"
+        tools:layout_editor_absoluteX="32dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/emailEdit"
             android:layout_width="match_parent"
             android:layout_height="55dp"
+            android:drawableTint="@color/black"
+            android:drawableTintMode="src_in"
+            android:foregroundTint="@color/black"
+            android:foregroundTintMode="add"
             android:hint="Email"
             android:inputType="textEmailAddress"
-            android:padding="12dp" />
+            android:padding="12dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/cardview_dark_background"
+            android:textColorLink="@color/black"
+            android:textCursorDrawable="@color/black" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -84,17 +96,29 @@
         app:boxCornerRadiusTopEnd="12dp"
         app:boxCornerRadiusTopStart="12dp"
         app:boxStrokeColor="#0D3B2E"
-        app:hintEnabled="false"
+        app:cursorColor="@color/fuelly_green_dark"
         app:endIconMode="password_toggle"
-        app:layout_constraintTop_toBottomOf="@+id/emailLayout">
+        app:endIconTint="@color/fuelly_green_dark"
+        app:hintEnabled="false"
+        app:hintTextColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@+id/emailLayout"
+        app:passwordToggleTint="@color/fuelly_green_dark"
+        app:startIconTint="@color/fuelly_green_dark"
+        tools:layout_editor_absoluteX="32dp"
+        >
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/passwordEdit"
             android:layout_width="match_parent"
             android:layout_height="55dp"
+            android:drawableTint="@color/black"
             android:hint="Password"
             android:inputType="textPassword"
-            android:padding="12dp" />
+            android:padding="12dp"
+            android:textColor="@color/black"
+            android:textColorHint="@color/cardview_dark_background"
+            android:textColorLink="@color/black"
+            android:textCursorDrawable="@color/black" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -125,26 +149,20 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnGoogle"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:layout_marginHorizontal="32dp"
-        android:layout_marginTop="24dp"
-        android:fontFamily="@font/roboto_medium"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="362dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="12dp"
         android:text="Sign In with Google"
-        android:textAllCaps="false"
-        android:textColor="#ffffff"
-        android:textSize="16sp"
-        android:textStyle="normal"
-        app:backgroundTint="@color/black"
-        app:cornerRadius="12dp"
+        android:textColor="@color/black"
         app:icon="@drawable/ic_google"
-        app:iconGravity="textStart"
-        app:iconPadding="12dp"
         app:iconTint="@null"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.488"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider"
-        app:strokeColor="#E0E0E0"
-        tools:layout_editor_absoluteX="32dp" />
+        app:strokeColor="@color/grey_inactive"
+        app:strokeWidth="1dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

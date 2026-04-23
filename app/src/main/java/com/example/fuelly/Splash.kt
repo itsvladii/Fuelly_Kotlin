@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.classes.*
 import com.example.fuelly.supabase.SupabaseInstance
 import com.google.android.gms.location.LocationServices
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.*
 import kotlinx.coroutines.*
 
@@ -70,20 +71,25 @@ class Splash : AppCompatActivity() {
                 } catch (e: Exception) {
                     Log.e("Fuelly", "Errore Supabase: ${e.message}")
                 } finally {
-                    //finita la query (o se non riesce a eseguirla), passo all'activity della mappa comunque
-                    goToMappa()
+                    //controllo se l'utente ha gia effetuato l'accesso
+                    try {
+                        val session = SupabaseInstance.client.auth.currentSessionOrNull()
+                        //se l'utente ha gia effettuato l'accesso, vado direttamente alla mappa, altrimenti alla login
+                        if (session != null) {
+                            val intent = Intent(this@Splash, MapsActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            val intent = Intent(this@Splash, LoginActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
+                    }catch (e: Exception){
+                        Log.e("Fuelly", "Errore passaggio: ${e.message}")
+                    }
+
                 }
             }
-        }
-    }
-
-    //Funzione di passaggio all'activity della mappa
-    private fun goToMappa() {
-        // Evitiamo di aprire l'activity due volte
-        if (!isFinishing) {
-            val intent = Intent(this, MapsActivity::class.java)
-            startActivity(intent)
-            finish()
         }
     }
 
