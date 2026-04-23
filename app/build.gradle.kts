@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.cardview)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.legacy.support.v4)
+    implementation(libs.googleid)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -73,4 +74,6 @@ dependencies {
     implementation("io.ktor:ktor-client-android:3.4.2")
     //libreria per le chiamate HTTP
     implementation("com.squareup.okhttp3:okhttp:5.3.2")
+    implementation("androidx.credentials:credentials:1.7.0-alpha01")
+    implementation("androidx.credentials:credentials-play-services-auth:1.7.0-alpha01")
 }
