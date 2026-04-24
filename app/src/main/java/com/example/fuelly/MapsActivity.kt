@@ -1,6 +1,8 @@
 package com.example.fuelly
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +11,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.example.fuelly.classes.*
 import com.example.fuelly.databinding.ActivityMapsBinding
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -21,7 +24,8 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import androidx.core.view.isVisible
 import androidx.core.graphics.toColorInt
-import kotlin.jvm.java
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -31,11 +35,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityMapsBinding
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -48,6 +55,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         //bottoni per il filtro
         val btnFiltroBenzina = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnFiltroBenzina)
         val btnFiltroEV = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnFiltroEV)
+        val btnMyLocation = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnMyLocation)
 
 
         //event handler per il click dei bottoni di filtro
@@ -67,6 +75,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             //richiamo la funzione di filtro
             filtraMarker(benzinaAttiva, evAttivo)
         }
+
+        btnMyLocation.setOnClickListener {
+            moveToCurrentLocation()
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -81,6 +93,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             mMap.isBuildingsEnabled = false //rimuovo gli edifici 3D
             mMap.uiSettings.isTiltGesturesEnabled = false //rimuovo la gesture che tilta la mappa di 30° (non serve)
             mMap.uiSettings.isRotateGesturesEnabled = false //blocco la mappa in portrait
+            mMap.uiSettings.isMapToolbarEnabled = false
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mMap.isMyLocationEnabled = true
+                mMap.uiSettings.isMyLocationButtonEnabled = false // Nascondiamo quello di default perché ne usiamo uno custom
+                moveToCurrentLocation()
+            }
 
             //CARICAMENTO DEI MARKER PER BENZINAI SULLA MAPPA
             val benzinaioDaMostrare = Benzinaio.listaVicini //prelevo i benzinai vicini dal companion object
@@ -100,11 +119,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     marker?.let { markersBenzina.add(it) }
                 }
 
-
-                // SPOSTA LA CAMERA SUL PRIMO BENZINAIO TROVATO
-                val focus = LatLng(benzinaioDaMostrare[0].lat, benzinaioDaMostrare[0].lon)
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 12f))
-                mMap.uiSettings.isMapToolbarEnabled = false
+                // Se non siamo riusciti a spostarci sulla posizione attuale (es. permessi o GPS spento), focus sul primo benzinaio
+                if (!mMap.isMyLocationEnabled) {
+                    val focus = LatLng(benzinaioDaMostrare[0].lat, benzinaioDaMostrare[0].lon)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 12f))
+                }
             }
 
             //CARICAMENTO DEI MARKER PER COLONNINE EV SULLA MAPPA
@@ -149,7 +168,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 card.alpha = 0f
                 card.animate().alpha(1f).setDuration(300).start()
 
-                val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
                 card.setOnClickListener {
                     if (data is Benzinaio) {
                         apriDettaglio(data.id.toLong(), "BENZINA")
@@ -183,6 +201,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         } catch (e: Resources.NotFoundException) {
             Log.e("Fuelly", "File map_style non trovato: ", e)
+        }
+    }
+
+    private fun moveToCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                val currentLatLng = LatLng(location.latitude, location.longitude)
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+            }
         }
     }
 

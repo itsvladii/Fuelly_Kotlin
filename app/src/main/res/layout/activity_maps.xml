@@ -64,6 +64,20 @@
         app:srcCompat="@drawable/ev_logo"
         app:tint="#000000" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnMyLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="140dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:backgroundTint="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/maps_pin"
+        app:tint="#2D3436" />
+
     <LinearLayout
         android:id="@+id/customBottomNav"
         android:layout_width="wrap_content"
