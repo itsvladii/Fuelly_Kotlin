@@ -73,10 +73,12 @@
         android:clickable="true"
         android:focusable="true"
         app:backgroundTint="#FFFFFF"
+        app:circularflow_defaultRadius="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/maps_pin"
-        app:tint="#2D3436" />
+        app:maxImageSize="30dp"
+        app:srcCompat="@drawable/reposition_pin"
+        app:tint="#000000" />
 
     <LinearLayout
         android:id="@+id/customBottomNav"
