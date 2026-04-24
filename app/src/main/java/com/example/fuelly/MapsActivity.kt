@@ -122,7 +122,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 // Se non siamo riusciti a spostarci sulla posizione attuale (es. permessi o GPS spento), focus sul primo benzinaio
                 if (!mMap.isMyLocationEnabled) {
                     val focus = LatLng(benzinaioDaMostrare[0].lat, benzinaioDaMostrare[0].lon)
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 12f))
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 14f))
                 }
             }
 
@@ -211,7 +211,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 val currentLatLng = LatLng(location.latitude, location.longitude)
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 14f))
             }
         }
     }
