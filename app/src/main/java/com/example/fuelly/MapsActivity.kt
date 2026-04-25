@@ -145,6 +145,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             //CARICAMENTO DELLA CARD UNA VOLTA CLICCATO UN MARKER
             val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
             val bottomNav = findViewById<LinearLayout>(R.id.customBottomNav)
+            val btnMyLocation = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnMyLocation)
+
 
             //event handler per il click sul marker
             mMap.setOnMarkerClickListener { marker ->
@@ -159,9 +161,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 //animazione di scomparsa della bottomNav
                 bottomNav.animate()
-                    .translationY(400f) // La sposta fuori dallo schermo in basso
+                    .translationY(600f) // La sposta fuori dallo schermo in basso
                     .setDuration(300)
                     .start()
+
+                //animazione di scomparsa del btnMyLocation
+                btnMyLocation.animate()
+                    .translationY(600f)
+                    .setDuration(300)
+                    .start()
+
 
                 // animazione di comparsa della card
                 card.visibility = View.VISIBLE
@@ -193,6 +202,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     //mostro la bottomNav
                     bottomNav.animate()
                         .translationY(0f) //torna alla posizione iniziale
+                        .setDuration(300)
+                        .start()
+
+                    //mostro il btnMyLocation
+                    btnMyLocation.animate()
+                        .translationY(0f)
                         .setDuration(300)
                         .start()
                 }
