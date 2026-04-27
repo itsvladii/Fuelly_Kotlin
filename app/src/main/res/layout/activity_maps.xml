@@ -104,14 +104,14 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/maps_pin"
-                app:tint="#2D3436" />
+                app:tint="#DFFF00" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:text="Mappa"
-                android:textColor="#2D3436"
+                android:textColor="#DFFF00"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -126,14 +126,14 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/bookmark_svg"
-                app:tint="#2D3436" />
+                app:tint="#DFFF00" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:text="Preferiti"
-                android:textColor="#2D3436"
+                android:textColor="#DFFF00"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -148,14 +148,36 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/search_svg"
-                app:tint="#2D3436" />
+                app:tint="#DFFF00" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:text="Cerca"
-                android:textColor="#2D3436"
+                android:textColor="#DFFF00"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="81dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/user"
+                app:tint="#DFFF00" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="Profilo"
+                android:textColor="#DFFF00"
                 android:textSize="12sp" />
         </LinearLayout>
 
