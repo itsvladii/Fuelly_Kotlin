@@ -241,7 +241,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         findViewById<TextView>(R.id.txtStationName).setTextColor("#DFFF00".toColorInt())
         findViewById<TextView>(R.id.txtStationAddress).setTextColor("#DFFF00".toColorInt())
         findViewById<TextView>(R.id.txtPrice).setTextColor("#DFFF00".toColorInt())
-        findViewById<TextView>(R.id.txtStationName).text = b.bandiera
+        findViewById<TextView>(R.id.txtStationName).text = b.bandiera+" "
         findViewById<TextView>(R.id.txtStationAddress).text = b.indirizzo
         //prezzi della card
         val benzinaStr = if (b.prezzoBenzina > 0) "${b.prezzoBenzina}" else "N.D."
@@ -263,7 +263,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         findViewById<TextView>(R.id.txtStationName).setTextColor("#00FFC2".toColorInt())
         findViewById<TextView>(R.id.txtStationAddress).setTextColor("#00FFC2".toColorInt())
         findViewById<TextView>(R.id.txtPrice).setTextColor("#00FFC2".toColorInt())
-        findViewById<TextView>(R.id.txtStationName).text = ev.titolo
+        findViewById<TextView>(R.id.txtStationName).text = ev.titolo+" "
         findViewById<TextView>(R.id.txtStationAddress).text = ev.indirizzo
 
         val infoElettrica = "${ev.potenzaKW} kW • ${ev.numPunti} prese"
