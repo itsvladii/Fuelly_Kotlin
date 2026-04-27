@@ -34,7 +34,7 @@ class Splash : AppCompatActivity() {
 
     }
 
-    //Funzione di caricamento dei benzinai vicini dal DB (necessario il permesso di geolocalizzazione)
+    //funzione di caricamento dei benzinai vicini dal DB (necessario il permesso di geolocalizzazione)
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun avviaPrecaricamento(){
 

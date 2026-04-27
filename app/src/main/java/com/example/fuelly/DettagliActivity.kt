@@ -23,6 +23,7 @@ import org.json.JSONArray
 
 class DettagliActivity : AppCompatActivity() {
 
+    //variabili per memorizzare ID e tipo dell'elemento selezionato, ricevuti dalla MapsActivity tramite intent
     private var idRicevuto: Long = -1L
     private var tipoRicevuto: String? = null
 
@@ -37,33 +38,35 @@ class DettagliActivity : AppCompatActivity() {
             insets
         }
 
+        //raccolgo l'ID e il tipo dell'elemento selezionato dalla MapsActivity
         idRicevuto = intent.getLongExtra("ID_ELEMENTO", -1L)
         tipoRicevuto = intent.getStringExtra("TIPO_ELEMENTO")
 
-        // 1. Setup UI Iniziale
+        //in base allo tipo, carico i dettagli specifici e popolo l'interfaccia nell'activity
         if (tipoRicevuto == "BENZINA") {
             val stazione = Benzinaio.listaVicini.find { it.id.toLong() == idRicevuto }
             stazione?.let { setupUIBenzina(it) }
         } else if (tipoRicevuto == "EV") {
             val colonnina = ColonninaEV.listaVicini.find { it.id.toLong() == idRicevuto }
             colonnina?.let { setupUIElettrica(it) }
-            // Nascondiamo lo switch se siamo su una colonnina elettrica
+            //per le colonnine EV nascondiamo lo switch (non ha senso) e cambiamo il titolo della sezione dettagli
             findViewById<Switch>(R.id.switchServito).visibility = android.view.View.GONE
             findViewById<TextView>(R.id.lblSezione).text = "INFO RICARICA"
         }
 
-        // 2. Listener per lo Switch (Filtro Self/Servito)
+        //per i benzinai, impostiamo un listener sullo switch per mostrare/nascondere i prezzi del self-service
         findViewById<Switch>(R.id.switchServito).setOnCheckedChangeListener { _, isChecked ->
             if (tipoRicevuto == "BENZINA") {
-                caricaPrezziDettagliati(idRicevuto.toInt(), isChecked)
+                ricavaPrezziBenzinaio(idRicevuto.toInt(), isChecked)
             }
         }
 
-        // 3. Listener Bottone Navigatore
+        //listener per il pulsante "Ottieni indicazioni"
         findViewById<Button>(R.id.btnOttieniIndicazioni).setOnClickListener {
             val lat: Double?
             val lon: Double?
 
+            //ricavo le coordinate dell'elemento selezionato
             if (tipoRicevuto == "BENZINA") {
                 val s = Benzinaio.listaVicini.find { it.id.toLong() == idRicevuto }
                 lat = s?.lat; lon = s?.lon
@@ -73,19 +76,26 @@ class DettagliActivity : AppCompatActivity() {
             }
 
             if (lat != null && lon != null) {
-                val gmmIntentUri = Uri.parse("google.navigation:q=$lat,$lon")
+                //tramite intent apro Google Maps con le coordinate del punto di interesse
+                val gmmIntentUri = "google.navigation:q=$lat,$lon".toUri()
                 val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
                 mapIntent.setPackage("com.google.android.apps.maps")
                 startActivity(mapIntent)
             }
         }
 
+        //listener per il pulsante "Indietro"
         findViewById<ImageButton>(R.id.btnBack).setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
     }
 
+    /*IDEA GENERALE: Setup Iniziale UI -> Ricavo Prezzi -> Setup Finale UI*/
+
+    //funzione di "setup iniziale" dell'interfaccia di DettagliActivity (per i benzinai)
+    // impostazione della card con i dati generali del benzinaio (nome, indirizzo, logo) e con lo stile grafico specifico (colori, font, ecc.)
     private fun setupUIBenzina(b: Benzinaio) {
+        //impostazione grafica generale della card (colore di sfondo, testo, logo)
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
         card.setCardBackgroundColor("#0B3D2E".toColorInt())
 
@@ -98,39 +108,45 @@ class DettagliActivity : AppCompatActivity() {
             text = b.indirizzo
         }
 
-        findViewById<TextView>(R.id.txtPrice).text = "" // Puliamo il prezzo generico
+        findViewById<TextView>(R.id.txtPrice).text = "" // Puliamo il prezzo generico (TODO: da capire cosa mettere)
         findViewById<ImageView>(R.id.imgPompa).setImageResource(b.getLogoResource())
 
-        // Carichiamo i prezzi (default: isSelf = 1, quindi soloServito = false)
-        caricaPrezziDettagliati(b.id, false)
+        //invoco la funzione di caricamento dei prezzi delle pompe disponibili
+        ricavaPrezziBenzinaio(b.id, false)
     }
 
-
-    private fun caricaPrezziDettagliati(idImpianto: Int, soloServito: Boolean) {
+    //funzione che carica i prezzi delle pompe disponibili per un dato benzinaio
+    private fun ricavaPrezziBenzinaio(idImpianto: Int, soloServito: Boolean) {
+        //container dove inseriremo dinamicamente i prezzi
         val container = findViewById<LinearLayout>(R.id.containerListaDettagli)
-        // Troviamo il benzinaio per sapere la sua provincia (es. "RM")
+        //raccolgo tutte le informazioni necessarie per le query (id e provincia)
         val stazione = Benzinaio.listaVicini.find { it.id == idImpianto }
         val siglaProvincia = stazione?.provincia ?: ""
+        //mostriamo il loader mentre carichiamo i dati (c'è un leggero delay durante la richiesta al database)
         val loader = findViewById<ProgressBar>(R.id.loadingPrezzi)
 
+        //inizia una coroutine per eseguire le query in background senza bloccare l'interfaccia utente
         lifecycleScope.launch {
+            // mostriamo il loader prima di iniziare le query
             runOnUiThread { loader.visibility = View.VISIBLE }
             try {
-                // Avviamo tutte le query contemporaneamente
+                //avvio le prime due query in parallelo (mapping provincia-regione e prezzi dell'impianto)
                 val deferredMapping = async {
-                    SupabaseInstance.client.from("province_regioni").select { filter { eq("provincia", siglaProvincia) } }
+                    SupabaseInstance.client.from("province_regioni")
+                        .select { filter { eq("provincia", siglaProvincia) } }
                 }
                 val deferredPrezzi = async {
                     SupabaseInstance.client.from("prezzi").select { filter { eq("idImpianto", idImpianto) } }
                 }
 
-                // Attendiamo i primi due risultati
+                //attendo il completamento delle prime due query
                 val resMapping = deferredMapping.await()
                 val resPrezzi = deferredPrezzi.await()
 
+                //ricavo il nome della regione dal risultato del mapping (con fallback in caso di errori o dati mancanti)
                 val nomeRegione = JSONArray(resMapping.data).optJSONObject(0)?.optString("regione") ?: ""
 
-                // Ora che abbiamo la regione, prendiamo le medie (questa deve per forza aspettare la prima)
+                //ricavo le medie regionali per la regione corrispondente (filtrando in base alla tipologia di prezzo (servito o self-service))
                 val resMedie = SupabaseInstance.client.from("media_regionale").select {
                     filter {
                         eq("regione", nomeRegione)
@@ -138,12 +154,14 @@ class DettagliActivity : AppCompatActivity() {
                     }
                 }
 
+                //creo due array JSON dai risultati delle query per poterli manipolare più facilmente nella funzione di popolamento dell'interfaccia
                 val arrayPrezzi = JSONArray(resPrezzi.data)
                 val arrayMedie = JSONArray(resMedie.data)
 
+                //una volta ottenuti tutti i dati necessari, rimuovo il loader e richiamo la funzione di popolamento dell'interfaccia, passando i dati ottenuti dalle query
                 runOnUiThread {
                     container.removeAllViews()
-                    popolaInterfaccia(arrayPrezzi, arrayMedie, soloServito)
+                    popolaListaCarburante(arrayPrezzi, arrayMedie, soloServito)
                     loader.visibility = View.GONE
                 }
             } catch (e: Exception) {
@@ -152,22 +170,28 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
-    private fun popolaInterfaccia(arrayPrezzi: JSONArray, arrayMedie: JSONArray, soloServito: Boolean) {
+    //funzione che popola l'activity con i prezzi delle pompe disponibili,
+    //evidenziando la differenza rispetto alla media regionale e filtrando in base al tipo di prezzo (servito o self-service)
+    private fun popolaListaCarburante(arrayPrezzi: JSONArray, arrayMedie: JSONArray, soloServito: Boolean) {
+        //container dove inseriremo dinamicamente i prezzi
         val container = findViewById<LinearLayout>(R.id.containerListaDettagli)
 
+        //per ogni prezzo ottenuto dalla query, creo
         for (i in 0 until arrayPrezzi.length()) {
             val obj = arrayPrezzi.getJSONObject(i)
             val isSelfDb = obj.optString("isSelf") == "1"
 
-            // Filtro switch
+            //filtro switch (self o servito)
             if (soloServito && isSelfDb) continue
             if (!soloServito && !isSelfDb) continue
 
+            //inflating del layout dell'item (item_carburante.xml)
+            // e popolamento dei dati (nome carburante, prezzo, differenza rispetto alla media regionale)
             val view = layoutInflater.inflate(R.layout.item_carburante, container, false)
             val nome = obj.optString("descCarburante")
             val prezzo = obj.optDouble("prezzo")
 
-            // -- Setup Icona Pompa --
+            //settaggio del colore dell'icona in base al tipo di carburante (per una rapida identificazione visiva)
             val imgPompa = view.findViewById<ImageView>(R.id.imgIconaCarburante)
             val colore = when {
                 nome.contains("Diesel", true) -> "#424242"   // Grigio
@@ -178,7 +202,7 @@ class DettagliActivity : AppCompatActivity() {
             }
             imgPompa.setColorFilter(Color.parseColor(colore))
 
-            // -- Calcolo Differenza Media --
+            //calcolo della differenza rispetto alla media regionale per quel tipo di carburante,
             val freccia = view.findViewById<ImageView>(R.id.imgFrecciaMedia)
             val txtDiff = view.findViewById<TextView>(R.id.txtDifferenzaMedia)
 
@@ -191,6 +215,8 @@ class DettagliActivity : AppCompatActivity() {
                 }
             }
 
+            //se la media regionale è disponibile, confronto il prezzo del carburante con la media e
+            // aggiorno l'interfaccia di conseguenza (freccia rossa se il prezzo è superiore alla media, verde se è inferiore)
             if (mediaRegionale > 0) {
                 val diff = prezzo - mediaRegionale
                 if (diff > 0) {
@@ -206,12 +232,15 @@ class DettagliActivity : AppCompatActivity() {
                 }
             }
 
+            //settaggio dei dati del carburante (nome e prezzo formattato) nei rispettivi TextView all'interno dell'item
             view.findViewById<TextView>(R.id.lblNomeCarburante).text = nome
             view.findViewById<TextView>(R.id.lblValorePrezzo).text = "${String.format("%.3f", prezzo)} €"
             container.addView(view)
         }
     }
 
+    //funzione di "setup iniziale" dell'interfaccia di DettagliActivity (per le colonnine EV)
+    // impostazione della card con i dati generali della colonnina (nome, indirizzo, logo) e con lo stile grafico specifico (colori, font, ecc.)
     private fun setupUIElettrica(ev: ColonninaEV) {
         val card = findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
         card.setCardBackgroundColor("#0B101E".toColorInt())
