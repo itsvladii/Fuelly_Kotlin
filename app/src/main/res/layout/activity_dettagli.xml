@@ -158,6 +158,17 @@
             android:background="#EEEEEE"
             app:layout_constraintTop_toBottomOf="@+id/lblSezione" />
 
+        <ProgressBar
+            android:id="@+id/loadingPrezzi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:indeterminateTint="#0B3D2E"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider" />
+
         <LinearLayout
             android:id="@+id/containerListaDettagli"
             android:layout_width="match_parent"
@@ -172,7 +183,7 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="68dp"
             android:backgroundTint="#DFFF00"
             android:fontFamily="@font/dm_sans_medium"
             android:text="Ottieni indicazioni"

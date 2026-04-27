@@ -17,12 +17,10 @@
         android:theme="@style/Theme.Fuelly">
         <activity
             android:name=".DettagliActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:exported="false" />
         <activity
             android:name=".LoginActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:exported="false" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
@@ -37,8 +35,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".Splash"
-            android:exported="true"
-            android:screenOrientation="portrait">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
