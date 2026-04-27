@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.toColorInt
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -54,10 +55,17 @@ class DettagliActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.lblSezione).text = "INFO RICARICA"
         }
 
-        //per i benzinai, impostiamo un listener sullo switch per mostrare/nascondere i prezzi del self-service
-        findViewById<Switch>(R.id.switchServito).setOnCheckedChangeListener { _, isChecked ->
+        val switchServito = findViewById<Switch>(R.id.switchServito)
+
+        switchServito.setOnCheckedChangeListener { _, isChecked ->
+            // Cambiamo il testo in base allo stato
+            switchServito.text = if (isChecked) "Servito" else "Self-Service"
+
             if (tipoRicevuto == "BENZINA") {
-                ricavaPrezziBenzinaio(idRicevuto.toInt(), isChecked)
+                val stazione = Benzinaio.listaVicini.find { it.id.toLong() == idRicevuto }
+                stazione?.let {
+                    ricavaPrezziBenzinaio(stazione.id, isChecked)
+                }
             }
         }
 
@@ -101,7 +109,7 @@ class DettagliActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.txtStationName).apply {
             setTextColor(Color.parseColor("#DFFF00"))
-            text = b.bandiera
+            text = b.bandiera+" "
         }
         findViewById<TextView>(R.id.txtStationAddress).apply {
             setTextColor(Color.parseColor("#DFFF00"))
@@ -175,6 +183,8 @@ class DettagliActivity : AppCompatActivity() {
     private fun popolaListaCarburante(arrayPrezzi: JSONArray, arrayMedie: JSONArray, soloServito: Boolean) {
         //container dove inseriremo dinamicamente i prezzi
         val container = findViewById<LinearLayout>(R.id.containerListaDettagli)
+        container.removeAllViews() // Pulizia iniziale
+        var pompeTrovate=0
 
         //per ogni prezzo ottenuto dalla query, creo
         for (i in 0 until arrayPrezzi.length()) {
@@ -185,22 +195,40 @@ class DettagliActivity : AppCompatActivity() {
             if (soloServito && isSelfDb) continue
             if (!soloServito && !isSelfDb) continue
 
+            pompeTrovate++ // Abbiamo trovato almeno una pompa valida per il filtro attuale
+
             //inflating del layout dell'item (item_carburante.xml)
             // e popolamento dei dati (nome carburante, prezzo, differenza rispetto alla media regionale)
             val view = layoutInflater.inflate(R.layout.item_carburante, container, false)
             val nome = obj.optString("descCarburante")
+            val nomeLower = nome.lowercase()
             val prezzo = obj.optDouble("prezzo")
+            val categoriaRiferimento = getCategoriaPerMedia(nome)
 
             //settaggio del colore dell'icona in base al tipo di carburante (per una rapida identificazione visiva)
             val imgPompa = view.findViewById<ImageView>(R.id.imgIconaCarburante)
             val colore = when {
-                nome.contains("Diesel", true) -> "#424242"   // Grigio
-                nome.contains("Benzina", true) -> "#2E7D32"  // Verde
-                nome.contains("GPL", true) -> "#00574B"      // Ottanio
-                nome.contains("Metano", true) -> "#01579B"   // Blu
-                else -> "#757575"                            // Default
+                // 1. DIESEL / GASOLIO (Grigio Antracite)
+                nomeLower.contains("diesel") || nomeLower.contains("gasolio") -> "#424242"
+
+                // 2. BIOCARBURANTI / HVO (Verde Lime / Brillante)
+                nomeLower.contains("hvo") || nomeLower.contains("rehvo") -> "#76FF03"
+
+                // 3. BENZINA (Verde Benzina Standard)
+                nomeLower.contains("benzina") -> "#2E7D32"
+
+                // 4. GPL (Ottanio / Teal)
+                nomeLower.contains("gpl") || nomeLower.contains("lpg") -> "#00574B"
+
+                // 5. METANO / GNC (Blu Notte)
+                nomeLower.contains("metano") || nomeLower.contains("gnc") -> "#01579B"
+
+                // 6. GNL / LNG (Ciano Freddo)
+                nomeLower.contains("gnl") || nomeLower.contains("lng") -> "#00B8D4"
+
+                else -> "#ffffff" //nero per tutto il resto
             }
-            imgPompa.setColorFilter(Color.parseColor(colore))
+            imgPompa.setColorFilter(colore.toColorInt())
 
             //calcolo della differenza rispetto alla media regionale per quel tipo di carburante,
             val freccia = view.findViewById<ImageView>(R.id.imgFrecciaMedia)
@@ -209,7 +237,8 @@ class DettagliActivity : AppCompatActivity() {
             var mediaRegionale = 0.0
             for (j in 0 until arrayMedie.length()) {
                 val m = arrayMedie.getJSONObject(j)
-                if (m.optString("tipologia").equals(nome, ignoreCase = true)) {
+                //confrontiamo con la categoria mappata, non con il nome originale
+                if (m.optString("tipologia").equals(categoriaRiferimento, ignoreCase = true)) {
                     mediaRegionale = m.optDouble("prezzo_medio")
                     break
                 }
@@ -219,14 +248,17 @@ class DettagliActivity : AppCompatActivity() {
             // aggiorno l'interfaccia di conseguenza (freccia rossa se il prezzo è superiore alla media, verde se è inferiore)
             if (mediaRegionale > 0) {
                 val diff = prezzo - mediaRegionale
+                val isPremium = !nome.equals(categoriaRiferimento, ignoreCase = true)
+
                 if (diff > 0) {
                     freccia.setImageResource(R.drawable.up_arrow)
                     freccia.setColorFilter(Color.RED)
-                    txtDiff.text = "+${String.format("%.3f", diff)}"
+                    //se è un carburante "premium" (v-power ect.) lo evidenziamo con (Premium)
+                    txtDiff.text = "+${String.format("%.3f", diff)}" + (if (isPremium) " (Premium)" else "")
                     txtDiff.setTextColor(Color.RED)
                 } else {
                     freccia.setImageResource(R.drawable.down_arrow)
-                    freccia.setColorFilter(Color.parseColor("#2E7D32"))
+                    freccia.setColorFilter(Color.parseColor("#2E7D32")) // Verde
                     txtDiff.text = String.format("%.3f", diff)
                     txtDiff.setTextColor(Color.parseColor("#2E7D32"))
                 }
@@ -236,6 +268,38 @@ class DettagliActivity : AppCompatActivity() {
             view.findViewById<TextView>(R.id.lblNomeCarburante).text = nome
             view.findViewById<TextView>(R.id.lblValorePrezzo).text = "${String.format("%.3f", prezzo)} €"
             container.addView(view)
+
+            var btnIndicazione=findViewById<Button>(R.id.btnOttieniIndicazioni)
+            btnIndicazione.visibility=View.VISIBLE
+
+        }
+
+        if (pompeTrovate == 0) {
+            val txtEmpty = TextView(this).apply {
+                val modalita = if (soloServito) "servito" else "self-service"
+                text = "Nessun prezzo disponibile per il $modalita in questa stazione."
+                setTextColor(Color.GRAY)
+                gravity = android.view.Gravity.CENTER
+                setPadding(0, 50, 0, 50)
+                typeface = ResourcesCompat.getFont(this@DettagliActivity, R.font.dm_sans_medium)
+            }
+            container.addView(txtEmpty)
+        }
+    }
+
+    //funzione di "aggregamento" dei vari carburanti in macrogruppi
+    private fun getCategoriaPerMedia(nomeCarburante: String): String {
+        val n = nomeCarburante.lowercase()
+        return when {
+            // Se contiene queste parole, confrontalo con la media "Benzina"
+            n.contains("benzina") || n.contains("v-power") || n.contains("speciale") || n.contains("super") -> "Benzina"
+
+            // Se contiene queste, confrontalo con "Gasolio"
+            n.contains("diesel") || n.contains("gasolio") || n.contains("hvo") -> "Gasolio"
+
+            n.contains("gpl") -> "GPL"
+            n.contains("metano") -> "Metano"
+            else -> ""
         }
     }
 
@@ -247,11 +311,11 @@ class DettagliActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.txtStationName).apply {
             setTextColor(Color.parseColor("#00FFC2"))
-            text = ev.titolo
+            text = ev.titolo+" "
         }
         findViewById<TextView>(R.id.txtStationAddress).apply {
             setTextColor(Color.parseColor("#00FFC2"))
-            text = ev.indirizzo
+            text = ev.indirizzo+" "
         }
 
         findViewById<TextView>(R.id.txtPrice).apply {
