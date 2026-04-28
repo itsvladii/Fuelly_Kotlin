@@ -282,12 +282,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun apriDettaglio(id: Long, tipo: String) {
-        val intent = Intent(this, DettagliActivity::class.java)
-        intent.putExtra("ID_ELEMENTO", id)
-        intent.putExtra("TIPO_ELEMENTO", tipo)
-        startActivity(intent)
+        //creo un intent per aprire la nuova activity
+            val intent = Intent(this@MapsActivity, DettagliActivity::class.java).apply {
+                putExtra("ID_ELEMENTO", id)
+                putExtra("TIPO_ELEMENTO", tipo)
+            }
+
+            //controllo per verificare i permessi necessari alla posizione
+            if (ActivityCompat.checkSelfPermission(this@MapsActivity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                    // passo la posizione solo se disponibile
+                    intent.putExtra("USER_LAT", location?.latitude ?: 0.0)
+                    intent.putExtra("USER_LON", location?.longitude ?: 0.0)
+                    startActivity(intent)
+                }
+
+            } else {
+                //se i permessi mancano, apriamo comunque l'activity ma senza i dati della posizione
+                startActivity(intent)
+            }
     }
-
-
 
 }
