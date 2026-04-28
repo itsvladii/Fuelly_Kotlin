@@ -32,18 +32,12 @@ class DettagliActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // 1. Attivazione Edge-to-Edge moderna (Deve stare prima di setContentView)
         enableEdgeToEdge()
 
         setContentView(R.layout.activity_dettagli)
 
-        // 2. Gestione icone Status Bar (Bianche perché l'header è scuro)
-        // Usiamo WindowCompat che è la versione non deprecata
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.isAppearanceLightStatusBars = false
-
-
 
         idRicevuto = intent.getLongExtra("ID_ELEMENTO", -1L)
         tipoRicevuto = intent.getStringExtra("TIPO_ELEMENTO")
@@ -104,7 +98,7 @@ class DettagliActivity : AppCompatActivity() {
 
     //funzione di ricavo dei prezzi dei carburanti per un benzinaio specifico
     private fun ricavaPrezziBenzinaio(idImpianto: Int, soloServito: Boolean) {
-        //elemnti di UI da usare durante il caricamento dei dati
+        //elementi di UI da usare durante il caricamento dei dati
 
         val loader = findViewById<ProgressBar>(R.id.loadingPrezzi)
         val btnIndicazioni = findViewById<Button>(R.id.btnOttieniIndicazioni)

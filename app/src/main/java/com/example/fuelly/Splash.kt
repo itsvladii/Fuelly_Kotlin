@@ -4,8 +4,10 @@ import android.Manifest
 import android.content.Intent
 import android.os.*
 import android.util.Log
+import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.classes.*
 import com.example.fuelly.supabase.SupabaseInstance
@@ -18,8 +20,12 @@ class Splash : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_splash)
         supportActionBar?.hide()
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = false  // icone status bar bianche
+        windowInsetsController.isAppearanceLightNavigationBars = false  // icone nav bar bianche
 
         try {
             //richiedo i permessi alla mappa

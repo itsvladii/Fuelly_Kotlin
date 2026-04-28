@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.example.fuelly.classes.*
@@ -24,6 +25,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import androidx.core.view.isVisible
 import androidx.core.graphics.toColorInt
+import androidx.core.view.WindowCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
@@ -40,7 +42,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMapsBinding.inflate(layoutInflater)
+        enableEdgeToEdge()
         setContentView(binding.root)
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = false  // icone status bar bianche
+        windowInsetsController.isAppearanceLightNavigationBars = false  // icone nav bar bianche
+
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
