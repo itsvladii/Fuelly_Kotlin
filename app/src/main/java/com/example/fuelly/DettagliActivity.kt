@@ -1,6 +1,7 @@
 package com.example.fuelly
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -10,13 +11,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.toColorInt
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.fuelly.classes.*
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.supabase.SupabaseInstance
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -64,7 +64,8 @@ class DettagliActivity : AppCompatActivity() {
             }
             "EV" -> {
                 val colonnina = ColonninaEV.listaVicini.find { it.id.toLong() == idRicevuto }
-                colonnina?.let { setupUIElettrica(it) }
+                colonnina?.let { setupUIElettrica(it)
+                    ricavaInfoEV(colonnina)}
                 // UI specifica per EV
                 findViewById<Switch>(R.id.switchServito)?.visibility = View.GONE
                 findViewById<TextView>(R.id.lblSezione)?.text = "INFO RICARICA"
@@ -278,6 +279,42 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    //funzione che salva un elemento preferito nel database
+    private fun salvaPreferito(idBenzinaio: Long) {
+        //recupero ID dell'utente loggato
+        val user = SupabaseInstance.client.auth.currentUserOrNull()
+
+        //fallback in caso di utente non loggato
+        if (user == null) {
+            Toast.makeText(this, "Devi essere loggato per salvare i preferiti", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                //creo un nuovo oggetto "Salvato" (punto di appogio prima di fare la INSERT nel DB)
+                val nuovoPreferito = Salvato(
+                    idUtente = user.id,
+                    idBenzinaio = idBenzinaio,
+                )
+
+                //effettuo la INSERT nel DB
+                SupabaseInstance.client.from("salvati").insert(nuovoPreferito)
+
+                runOnUiThread {
+                    Toast.makeText(this@DettagliActivity, "Salvato nei preferiti!", Toast.LENGTH_SHORT).show()
+                    //TODO: cambia l'icona del bookmark in "piena"
+                    //findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.ic_bookmark_filled)
+                }
+            } catch (e: Exception) {
+                Log.e("Fuelly", "Errore salvataggio: ${e.message}")
+                runOnUiThread {
+                    Toast.makeText(this@DettagliActivity, "Già presente nei preferiti", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
 
     /*----FUNZIONI DI SETUP PER COLONNINA EV----*/
     //funzione di setup dell'interfaccia per le colonnine EV, che imposta colori, testi e immagini specifiche per questa tipologia
@@ -301,9 +338,118 @@ class DettagliActivity : AppCompatActivity() {
         findViewById<ImageView>(R.id.imgPompa)?.setImageResource(ev.getLogoResource())
         findViewById<TextView>(R.id.txtDistance)?.setTextColor(color)
 
-        //TODO: implementare la funzione per ricavare i prezzi di ricarica per le colonnine EV
         calcolaDistanzaDettaglio(ev.lat, ev.lon)
+
     }
+
+    //funzione di ricavo dei dati relativi alle colonnine EV vicine
+    private fun ricavaInfoEV(ev: ColonninaEV) {
+        //elementi di UI da usare durante il caricamento dei dati
+        val container = findViewById<LinearLayout>(R.id.containerListaDettagli)
+        val loader = findViewById<ProgressBar>(R.id.loadingPrezzi)
+        val client = okhttp3.OkHttpClient()
+        val apiKey=BuildConfig.EV_API_KEY
+
+
+        //la richiesta di API, dove cerco la colonna specifica tramite la latitudine e longitudine della colonnina EV
+        // (non funzionava benissimo con l'ID)
+        val url = "https://api.openchargemap.io/v3/poi/?output=json" +
+                "&latitude=${ev?.lat}&longitude=${ev?.lon}" +
+                "&distance=0.1&distanceunit=km&maxresults=1&key=$apiKey"
+
+        val request = okhttp3.Request.Builder().url(url).build()
+        loader?.visibility = View.VISIBLE
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                runOnUiThread { loader?.visibility = View.GONE }
+            }
+
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    if (!response.isSuccessful) return
+                    val body = response.body.string()
+                    Log.d("Fuelly_OCM", "Response: $body")
+                        val jsonArray = JSONArray(body)
+                        if (jsonArray.length() > 0) {
+                            //ricavo il point-of-interest (la colonnina) e poi le connessioni
+                            val poi = jsonArray.getJSONObject(0)
+                            val connections = poi.getJSONArray("Connections")
+
+                            //finito di ricavare i dati, aggiorno l'interfaccia
+                            runOnUiThread {
+                                container?.removeAllViews()
+                                popolaListaPreseOCM(connections) //chiamo la funzione di popolamento della lista delle prese
+                                loader?.visibility = View.GONE
+                            }
+                        }
+                }
+            }
+        })
+    }
+
+    //funzione di popolamento della lista delle prese
+    private fun popolaListaPreseOCM(connections: JSONArray) {
+        val container = findViewById<LinearLayout>(R.id.containerListaDettagli)
+
+        //ciclo per tutte le prese raccolte
+        for (i in 0 until connections.length()) {
+            val conn = connections.getJSONObject(i)
+
+            val view = layoutInflater.inflate(R.layout.item_ev, container, false)
+
+            //estraggo i dati utili dalla risposta
+            val connectionType = conn.optJSONObject("ConnectionType")
+            val typeName = connectionType?.optString("Title") ?: "Connettore Standard" //nome del connettore
+            val power = conn.optDouble("PowerKW", 0.0) //potenza erogata
+            val quantity = conn.optInt("Quantity", 1) //quantita di quel connettore
+            val statusType = conn.optJSONObject("StatusType")
+            val isOperational = statusType?.optBoolean("IsOperational") ?: true //se il connettore è operativo o no
+
+            //SVG del connettore
+            val imgConnettore = view.findViewById<ImageView>(R.id.imgTipoPresa)
+            imgConnettore.setImageResource(getIconaConnettore(typeName))
+
+            //popolo l'activity
+            val txtNome = view.findViewById<TextView>(R.id.lblNomePresa)
+            txtNome.text = if (quantity > 1) "$typeName (x$quantity)" else typeName
+
+            val txtPotenza = view.findViewById<TextView>(R.id.lblPotenza)
+            txtPotenza.text = if (power > 0.0) "${power.toInt()} kW" else "Potenza N/D"
+
+            val txtStato = view.findViewById<TextView>(R.id.lblStatoPresa)
+            val pallino = view.findViewById<View>(R.id.viewStatoColore)
+
+            //in base allo stato del connettore, cambio il colore del pallino e il testo
+            if (isOperational) {
+                txtStato.text = "OPERATIVA"
+                val verde = Color.parseColor("#2E7D32")
+                txtStato.setTextColor(verde)
+                pallino.backgroundTintList =ColorStateList.valueOf(verde)
+            } else {
+                txtStato.text = "NON DISPONIBILE"
+                val rosso = Color.RED
+                txtStato.setTextColor(rosso)
+                pallino.backgroundTintList =ColorStateList.valueOf(rosso)
+            }
+
+            container?.addView(view)
+        }
+    }
+
+    //funzione di associamento delle icone ai tipi di connettore
+    private fun getIconaConnettore(typeName: String?): Int {
+        if (typeName == null) return R.drawable.ev_logo // Icona generica di default
+
+        val name = typeName.lowercase()
+        return when {
+            name.contains("type 2") || name.contains("mennekes") -> R.drawable.type2_logo
+            name.contains("ccs") || name.contains("combo") -> R.drawable.ccs_type2_logo
+            name.contains("chademo") -> R.drawable.chademo_logo
+            else -> R.drawable.ev_logo
+        }
+    }
+
 
 
     /*-----HELPER GENERALI (EV/BENZINA)-----*/
@@ -327,6 +473,11 @@ class DettagliActivity : AppCompatActivity() {
         findViewById<ImageButton>(R.id.btnBack)?.setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
+
+        findViewById<ImageButton>(R.id.btnSalva)?.setOnClickListener {
+            salvaPreferito(idRicevuto)
+        }
+
     }
 
     //funzione che calcola la distanza tra la posizione dell'utente (passata dalla MapsActivity)

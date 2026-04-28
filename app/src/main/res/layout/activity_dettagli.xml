@@ -46,7 +46,7 @@
                     app:tint="#FFFFFF" />
 
                 <ImageButton
-                    android:id="@+id/btnBack2"
+                    android:id="@+id/btnSalva"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_marginEnd="12dp"

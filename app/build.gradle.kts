@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 val localProps = Properties()
@@ -77,4 +78,5 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:5.3.2")
     implementation("androidx.credentials:credentials:1.7.0-alpha01")
     implementation("androidx.credentials:credentials-play-services-auth:1.7.0-alpha01")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }
