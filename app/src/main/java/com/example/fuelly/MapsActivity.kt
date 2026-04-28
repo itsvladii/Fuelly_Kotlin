@@ -86,6 +86,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         btnMyLocation.setOnClickListener {
             moveToCurrentLocation()
         }
+
+        // Listener per la navigazione
+        findViewById<LinearLayout>(R.id.btnNavSalvati).setOnClickListener {
+            startActivity(Intent(this, SalvatiActivity::class.java))
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
