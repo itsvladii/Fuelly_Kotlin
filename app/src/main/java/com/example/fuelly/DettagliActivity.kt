@@ -14,6 +14,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.fuelly.classes.*
 import androidx.core.net.toUri
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.supabase.SupabaseInstance
 import io.github.jan.supabase.postgrest.from
@@ -31,24 +32,26 @@ class DettagliActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 1. Attivazione Edge-to-Edge moderna (Deve stare prima di setContentView)
         enableEdgeToEdge()
+
         setContentView(R.layout.activity_dettagli)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+        // 2. Gestione icone Status Bar (Bianche perché l'header è scuro)
+        // Usiamo WindowCompat che è la versione non deprecata
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = false
 
-        //ricavo i dati passati dalla MapsActivity (id e tipo dell'elemento selezionato)
+
+
         idRicevuto = intent.getLongExtra("ID_ELEMENTO", -1L)
         tipoRicevuto = intent.getStringExtra("TIPO_ELEMENTO")
 
-        //richiamo la funzione che esegue la prima inizializzazione dell'activity
         inizializzaInterfaccia()
-        //setup dei listeners per gli elementi interattivi dell'interfaccia (switch, pulsante indicazioni, pulsante back)
         setupListeners()
     }
+
 
     /* ----IDEA GENERALE-----
    SETUP INIZIALE DELL'ACTIVITY (in base alla tipologia dell'elemento selezionato) ->
@@ -74,12 +77,11 @@ class DettagliActivity : AppCompatActivity() {
             }
         }
     }
-
-
+    
     /*----FUNZIONI DI SETUP PER BENZINAI----*/
     private fun setupUIBenzina(b: Benzinaio) {
-        findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
-            ?.setCardBackgroundColor("#0B3D2E".toColorInt())
+        findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.stationHeader)
+            ?.setBackgroundColor("#0B3D2E".toColorInt())
 
         val color = "#DFFF00".toColorInt()
         findViewById<TextView>(R.id.txtStationName)?.apply {
@@ -89,6 +91,7 @@ class DettagliActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.txtStationAddress)?.apply {
             setTextColor(color)
             text = b.indirizzo
+            isSelected = true
         }
         findViewById<TextView>(R.id.txtDistance)?.setTextColor(color)
         findViewById<ImageView>(R.id.imgPompa)?.setImageResource(b.getLogoResource())
@@ -285,8 +288,8 @@ class DettagliActivity : AppCompatActivity() {
     /*----FUNZIONI DI SETUP PER COLONNINA EV----*/
     //funzione di setup dell'interfaccia per le colonnine EV, che imposta colori, testi e immagini specifiche per questa tipologia
     private fun setupUIElettrica(ev: ColonninaEV) {
-        findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
-            ?.setCardBackgroundColor("#0B101E".toColorInt())
+        findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.stationHeader)
+            ?.setBackgroundColor("#0B101E".toColorInt())
 
         val color = Color.parseColor("#00FFC2")
         findViewById<TextView>(R.id.txtStationName)?.apply {
@@ -302,6 +305,7 @@ class DettagliActivity : AppCompatActivity() {
             text = "${ev.numPunti} prese disponibili"
         }
         findViewById<ImageView>(R.id.imgPompa)?.setImageResource(ev.getLogoResource())
+        findViewById<TextView>(R.id.txtDistance)?.setTextColor(color)
 
         //TODO: implementare la funzione per ricavare i prezzi di ricarica per le colonnine EV
         calcolaDistanzaDettaglio(ev.lat, ev.lon)
