@@ -14,6 +14,7 @@ import androidx.core.graphics.toColorInt
 import com.example.fuelly.classes.*
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.supabase.SupabaseInstance
 import io.github.jan.supabase.auth.auth
@@ -36,8 +37,9 @@ class DettagliActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_dettagli)
 
-        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
-        windowInsetsController.isAppearanceLightStatusBars = false
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+        controller.isAppearanceLightNavigationBars = true // Icone scure in basso
+        controller.isAppearanceLightStatusBars = true     // Icone scure in alto
 
         idRicevuto = intent.getLongExtra("ID_ELEMENTO", -1L)
         tipoRicevuto = intent.getStringExtra("TIPO_ELEMENTO")
