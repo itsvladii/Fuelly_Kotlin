@@ -6,10 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fuelly.classes.Benzinaio
+import com.example.fuelly.classes.Salvato
 import com.example.fuelly.databinding.FragmentSalvatiBinding
+import com.example.fuelly.supabase.SupabaseInstance
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.launch
 
 class SalvatiFragment : Fragment() {
 
@@ -56,16 +62,35 @@ class SalvatiFragment : Fragment() {
 
     // Aggiunto metodo per caricare i benzinai salvati
     private fun caricaBenzinaiSalvati() {
-        // Placeholder: mostra i benzinai attualmente caricati in memoria
-        // In futuro qui andrà la query a Supabase filtrata per l'ID utente
+        val user= SupabaseInstance.client.auth.currentUserOrNull()?: return
+        lifecycleScope.launch {
 
-        val salvati = Benzinaio.listaVicini
-        adapter.updateData(salvati)
-    }
+            val benzinaiSalvati=SupabaseInstance.client.from("salvati")
+                .select {
+                    filter {
+                        eq("idUtente", user.id)
+                    }
+                }.decodeList<Salvato>()
+
+            var listaBenzinaio: MutableList<Benzinaio> = mutableListOf()
+            for (salvato in benzinaiSalvati) {
+                val benzinaio = Benzinaio.listaVicini.find { it.id.toLong() == salvato.idBenzinaio}
+                if (benzinaio != null) {
+                    listaBenzinaio.add(benzinaio)
+                }
+            }
+            adapter.updateData(listaBenzinaio)
+
+            }
+
+        }
 
     // Aggiunto metodo per distruggere il binding
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
 }
+
+
