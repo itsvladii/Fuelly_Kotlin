@@ -44,6 +44,7 @@ class DettagliActivity : AppCompatActivity() {
         idRicevuto = intent.getLongExtra("ID_ELEMENTO", -1L)
         tipoRicevuto = intent.getStringExtra("TIPO_ELEMENTO")
 
+        verificaSeSalvato(idRicevuto)
         inizializzaInterfaccia()
         setupListeners()
     }
@@ -283,40 +284,90 @@ class DettagliActivity : AppCompatActivity() {
 
     //funzione che salva un elemento preferito nel database
     private fun salvaPreferito(idBenzinaio: Long) {
-        //recupero ID dell'utente loggato
         val user = SupabaseInstance.client.auth.currentUserOrNull()
 
-        //fallback in caso di utente non loggato
+        //fallback se l'utente non è loggato (non dovrebbe mai succedere)
         if (user == null) {
-            Toast.makeText(this, "Devi essere loggato per salvare i preferiti", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Devi essere loggato per gestire i preferiti", Toast.LENGTH_SHORT).show()
             return
         }
 
         lifecycleScope.launch {
             try {
-                //creo un nuovo oggetto "Salvato" (punto di appogio prima di fare la INSERT nel DB)
-                val nuovoPreferito = Salvato(
-                    idUtente = user.id,
-                    idBenzinaio = idBenzinaio,
-                )
+                //verifico se esiste già tra i preferiti
+                val esistente = SupabaseInstance.client.from("salvati")
+                    .select {
+                        filter {
+                            eq("idUtente", user.id)
+                            eq("idImpianto", idBenzinaio)
+                        }
+                    }.decodeList<Salvato>()
 
-                //effettuo la INSERT nel DB
-                SupabaseInstance.client.from("salvati").insert(nuovoPreferito)
+                if (esistente.isNotEmpty()) {
+                    //se esiste, lo rimuovo
+                    SupabaseInstance.client.from("salvati").delete {
+                        filter {
+                            eq("idUtente", user.id)
+                            eq("idImpianto", idBenzinaio)
+                        }
+                    }
 
-                runOnUiThread {
-                    Toast.makeText(this@DettagliActivity, "Salvato nei preferiti!", Toast.LENGTH_SHORT).show()
-                    //TODO: cambia l'icona del bookmark in "piena"
-                    //findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.ic_bookmark_filled)
+                    runOnUiThread {
+                        Toast.makeText(this@DettagliActivity, "Rimosso dai preferiti", Toast.LENGTH_SHORT).show()
+                        findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_svg) // Icona vuota
+                    }
+                } else {
+                    //se non esiste, lo aggiungo
+                    val nuovoPreferito = Salvato(
+                        idUtente = user.id,
+                        idBenzinaio = idBenzinaio,
+                    )
+                    SupabaseInstance.client.from("salvati").insert(nuovoPreferito)
+
+                    runOnUiThread {
+                        Toast.makeText(this@DettagliActivity, "Salvato nei preferiti!", Toast.LENGTH_SHORT).show()
+                        findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_salvato) // Icona piena
+                    }
                 }
             } catch (e: Exception) {
-                Log.e("Fuelly", "Errore salvataggio: ${e.message}")
+                Log.e("Fuelly", "Errore gestione preferiti: ${e.message}")
                 runOnUiThread {
-                    Toast.makeText(this@DettagliActivity, "Già presente nei preferiti", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@DettagliActivity, "Errore nella comunicazione con il database", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
+    //funzione che verifica nel onCreate se il benzinaio selezionato è tra i salvati nel DB
+    private fun verificaSeSalvato(idBenzinaio: Long) {
+        val user = SupabaseInstance.client.auth.currentUserOrNull() ?: return
+
+        lifecycleScope.launch {
+            try {
+                // Cerchiamo se esiste il record nella tabella salvati
+                val esistente = SupabaseInstance.client.from("salvati")
+                    .select {
+                        filter {
+                            eq("idUtente", user.id)
+                            eq("idImpianto", idBenzinaio)
+                        }
+                    }.decodeList<Salvato>()
+
+                // Se la lista non è vuota, l'elemento è tra i preferiti
+                if (esistente.isNotEmpty()) {
+                    runOnUiThread {
+                        findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_salvato)
+                    }
+                } else {
+                    runOnUiThread {
+                        findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_svg)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("Fuelly", "Errore verifica preferito: ${e.message}")
+            }
+        }
+    }
 
     /*----FUNZIONI DI SETUP PER COLONNINA EV----*/
     //funzione di setup dell'interfaccia per le colonnine EV, che imposta colori, testi e immagini specifiche per questa tipologia
@@ -324,7 +375,7 @@ class DettagliActivity : AppCompatActivity() {
         findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.stationHeader)
             ?.setBackgroundColor("#0B101E".toColorInt())
 
-        val color = Color.parseColor("#00FFC2")
+        val color = "#00FFC2".toColorInt()
         findViewById<TextView>(R.id.txtStationName)?.apply {
             setTextColor(color)
             text = "${ev.titolo} "
