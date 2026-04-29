@@ -1,17 +1,22 @@
 package com.example.fuelly
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.graphics.toColorInt
 import com.example.fuelly.classes.*
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.example.fuelly.supabase.SupabaseInstance
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import io.github.jan.supabase.auth.auth
@@ -24,6 +29,7 @@ class DettagliActivity : AppCompatActivity() {
     private var idRicevuto: Long = -1L
     private var tipoRicevuto: String? = null
     private var distanzaSalvata: Double = 0.0
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +41,8 @@ class DettagliActivity : AppCompatActivity() {
         windowInsetsController.isAppearanceLightStatusBars = false
         windowInsetsController.isAppearanceLightNavigationBars = true
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
         idRicevuto = intent.getLongExtra("ID_ELEMENTO", -1L)
         tipoRicevuto = intent.getStringExtra("TIPO_ELEMENTO")
 
@@ -42,6 +50,11 @@ class DettagliActivity : AppCompatActivity() {
         setupViewPager()
         setupListeners()
         verificaSeSalvato(idRicevuto)
+
+        // Se non abbiamo ricevuto la posizione dall'intent, proviamo a recuperarla qui
+        if (intent.getDoubleExtra("USER_LAT", 0.0) == 0.0) {
+            recuperaPosizioneEAggiorna()
+        }
     }
 
     private fun setupHeader() {
@@ -113,8 +126,6 @@ class DettagliActivity : AppCompatActivity() {
         findViewById<TabLayout>(R.id.tabLayout)?.setTabTextColors(Color.GRAY, color)
         findViewById<Button>(R.id.btnOttieniIndicazioni)?.setBackgroundColor(color)
 
-
-
         calcolaDistanzaDettaglio(ev.lat, ev.lon)
     }
 
@@ -129,6 +140,28 @@ class DettagliActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.btnSalva)?.setOnClickListener {
             salvaElemento(idRicevuto)
+        }
+    }
+
+    private fun recuperaPosizioneEAggiorna() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    intent.putExtra("USER_LAT", location.latitude)
+                    intent.putExtra("USER_LON", location.longitude)
+                    // Ricalcoliamo la distanza per l'header
+                    when (tipoRicevuto) {
+                        "BENZINA" -> {
+                            val b = Benzinaio.listaVicini.find { it.id.toLong() == idRicevuto }
+                            b?.let { calcolaDistanzaDettaglio(it.lat, it.lon) }
+                        }
+                        "EV" -> {
+                            val ev = ColonninaEV.listaVicini.find { it.id.toLong() == idRicevuto }
+                            ev?.let { calcolaDistanzaDettaglio(it.lat, it.lon) }
+                        }
+                    }
+                }
+            }
         }
     }
 

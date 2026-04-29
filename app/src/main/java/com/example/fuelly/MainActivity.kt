@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
 
         // Aggiunto listener per il pulsante di navigazione "Cerca"
         binding.btnNavCerca.setOnClickListener {
-            // replaceFragment(CercaFragment(), "CERCA")
+            replaceFragment(CercaFragment(), "CERCA")
             updateNavbarUI("CERCA")
         }
 
