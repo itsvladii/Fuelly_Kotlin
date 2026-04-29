@@ -1,0 +1,242 @@
+package com.example.fuelly
+
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.res.Resources
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
+import com.example.fuelly.classes.*
+import com.example.fuelly.databinding.FragmentMapsBinding
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.MarkerOptions
+import androidx.core.view.isVisible
+import androidx.core.graphics.toColorInt
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+
+class MapsFragment : Fragment(), OnMapReadyCallback {
+    private val markersBenzina = mutableListOf<com.google.android.gms.maps.model.Marker>()
+    private val markersEV = mutableListOf<com.google.android.gms.maps.model.Marker>()
+
+    private lateinit var mMap: GoogleMap
+
+    // Aggiunto binding per il layout e inizializzazione del binding
+    private var _binding: FragmentMapsBinding? = null
+
+    // Aggiunto getter per il binding e settaggio del layout alla creazione dell'activity
+    private val binding get() = _binding!!
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    // onCreateView per il layout dell'activity
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        // Inizializza il binding con il layout dell'activity
+        _binding = FragmentMapsBinding.inflate(inflater, container, false)
+
+        // Imposta il layout binding comeContentView
+        return binding.root
+    }
+
+    // onViewCreated per il fragment e inizializzazione del map
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Inizializza il fusedLocationClient
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+        // Ottieni il SupportMapFragment e richiama il metodo getMapAsync
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
+        var benzinaAttiva = true
+        var evAttivo = true
+
+
+        // Aggiunto listener per i bottoni di filtro
+        binding.btnFiltroBenzina.setOnClickListener {
+            benzinaAttiva = !benzinaAttiva
+            binding.btnFiltroBenzina.alpha = if (benzinaAttiva) 1.0f else 0.5f
+            filtraMarker(benzinaAttiva, evAttivo)
+        }
+
+        binding.btnFiltroEV.setOnClickListener {
+            evAttivo = !evAttivo
+            binding.btnFiltroEV.alpha = if (evAttivo) 1.0f else 0.5f
+            filtraMarker(benzinaAttiva, evAttivo)
+        }
+
+        // Aggiunto listener per il pulsante di my location
+        binding.btnMyLocation.setOnClickListener {
+            moveToCurrentLocation()
+        }
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+
+        try {
+            val success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style))
+            if (!success) Log.e("Fuelly", "Errore nel caricamento dello stile JSON.")
+
+            mMap.isBuildingsEnabled = false
+            mMap.uiSettings.isTiltGesturesEnabled = false
+            mMap.uiSettings.isRotateGesturesEnabled = false
+            mMap.uiSettings.isMapToolbarEnabled = false
+
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mMap.isMyLocationEnabled = true
+                mMap.uiSettings.isMyLocationButtonEnabled = false
+                moveToCurrentLocation()
+            }
+
+            val benzinaioDaMostrare = Benzinaio.listaVicini
+            val iconaCustom = BitmapDescriptorFactory.fromResource(R.drawable.pin_fuel)
+
+            if (benzinaioDaMostrare.isNotEmpty()) {
+                for (stazione in benzinaioDaMostrare) {
+                    val marker = mMap.addMarker(
+                        MarkerOptions()
+                            .position(LatLng(stazione.lat, stazione.lon))
+                            .icon(iconaCustom)
+                            .anchor(0.5f, 0.5f)
+                    )
+                    marker?.tag = stazione
+                    marker?.let { markersBenzina.add(it) }
+                }
+
+                if (!mMap.isMyLocationEnabled) {
+                    val focus = LatLng(benzinaioDaMostrare[0].lat, benzinaioDaMostrare[0].lon)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 14f))
+                }
+            }
+
+            val iconaEV = BitmapDescriptorFactory.fromResource(R.drawable.ev_pin)
+            for (ev in ColonninaEV.listaVicini) {
+                val marker = mMap.addMarker(
+                    MarkerOptions()
+                        .position(LatLng(ev.lat, ev.lon))
+                        .icon(iconaEV)
+                        .anchor(0.5f, 0.5f)
+                )
+                marker?.tag = ev
+                marker?.let { markersEV.add(it) }
+            }
+
+            val card = binding.root.findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
+            val btnMyLocation = binding.btnMyLocation
+            
+            // Accediamo alla bottom nav della MainActivity
+            val mainActivityNav = requireActivity().findViewById<LinearLayout>(R.id.customBottomNav)
+
+            mMap.setOnMarkerClickListener { marker ->
+                val data = marker.tag
+                if (data is Benzinaio) setupCardBenzinaio(data)
+                else if (data is ColonninaEV) setupCardElettrica(data)
+
+                mainActivityNav?.animate()?.translationY(600f)?.setDuration(300)?.start()
+                btnMyLocation.animate().translationY(600f).setDuration(300).start()
+
+                card.visibility = View.VISIBLE
+                card.alpha = 0f
+                card.animate().alpha(1f).setDuration(300).start()
+
+                card.setOnClickListener {
+                    if (data is Benzinaio) apriDettaglio(data.id.toLong(), "BENZINA")
+                    else if (data is ColonninaEV) apriDettaglio(data.id.toLong(), "EV")
+                }
+                false
+            }
+
+            mMap.setOnMapClickListener {
+                if (card.isVisible) {
+                    card.animate().alpha(0f).setDuration(200).withEndAction { card.visibility = View.GONE }.start()
+                    mainActivityNav?.animate()?.translationY(0f)?.setDuration(300)?.start()
+                    btnMyLocation.animate().translationY(0f).setDuration(300).start()
+                }
+            }
+        } catch (e: Resources.NotFoundException) {
+            Log.e("Fuelly", "File map_style non trovato: ", e)
+        }
+    }
+
+    private fun moveToCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                val currentLatLng = LatLng(location.latitude, location.longitude)
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 14f))
+            }
+        }
+    }
+
+    private fun setupCardBenzinaio(b: Benzinaio) {
+        val card = binding.root.findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
+        card.setCardBackgroundColor("#0B3D2E".toColorInt())
+        binding.root.findViewById<TextView>(R.id.txtStationName).setTextColor("#DFFF00".toColorInt())
+        binding.root.findViewById<TextView>(R.id.txtStationAddress).setTextColor("#DFFF00".toColorInt())
+        binding.root.findViewById<TextView>(R.id.txtPrice).setTextColor("#DFFF00".toColorInt())
+        binding.root.findViewById<TextView>(R.id.txtStationName).text = b.bandiera + " "
+        binding.root.findViewById<TextView>(R.id.txtStationAddress).text = b.indirizzo
+        val benzinaStr = if (b.prezzoBenzina > 0) "${b.prezzoBenzina}" else "N.D."
+        val dieselStr = if (b.prezzoDiesel > 0) "${b.prezzoDiesel}" else "N.D."
+        findViewById<TextView>(R.id.txtPrice).text = "Self | B: $benzinaStr · D: $dieselStr"
+        findViewById<ImageView>(R.id.imgPompa).setImageResource(b.getLogoResource())
+    }
+
+    private fun setupCardElettrica(ev: ColonninaEV) {
+        val card = binding.root.findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
+        card.setCardBackgroundColor("#0B101E".toColorInt())
+        binding.root.findViewById<TextView>(R.id.txtStationName).setTextColor("#00FFC2".toColorInt())
+        binding.root.findViewById<TextView>(R.id.txtStationAddress).setTextColor("#00FFC2".toColorInt())
+        binding.root.findViewById<TextView>(R.id.txtPrice).setTextColor("#00FFC2".toColorInt())
+        binding.root.findViewById<TextView>(R.id.txtStationName).text = ev.titolo + " "
+        binding.root.findViewById<TextView>(R.id.txtStationAddress).text = ev.indirizzo
+        findViewById<TextView>(R.id.txtPrice).text = "${ev.potenzaKW} kW • ${ev.numPunti} prese"
+        findViewById<ImageView>(R.id.imgPompa).setImageResource(ev.getLogoResource())
+    }
+
+    private fun <T : View> findViewById(id: Int): T = binding.root.findViewById(id)
+
+    private fun filtraMarker(mostraBenzina: Boolean, mostraEV: Boolean) {
+        markersBenzina.forEach { it.isVisible = mostraBenzina }
+        markersEV.forEach { it.isVisible = mostraEV }
+        binding.root.findViewById<View>(R.id.stationCard).visibility = View.GONE
+    }
+
+    private fun apriDettaglio(id: Long, tipo: String) {
+        val intent = Intent(requireContext(), DettagliActivity::class.java).apply {
+            putExtra("ID_ELEMENTO", id)
+            putExtra("TIPO_ELEMENTO", tipo)
+        }
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                intent.putExtra("USER_LAT", location?.latitude ?: 0.0)
+                intent.putExtra("USER_LON", location?.longitude ?: 0.0)
+                startActivity(intent)
+            }
+        } else startActivity(intent)
+    }
+
+    // Aggiunto metodo per distruggere il binding
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}

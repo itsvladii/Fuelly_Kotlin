@@ -96,7 +96,7 @@ class LoginActivity : AppCompatActivity() {
     private fun goToMappa() {
         // Evitiamo di aprire l'activity due volte
         if (!isFinishing) {
-            val intent = Intent(this, MapsActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
         }

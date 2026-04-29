@@ -80,9 +80,9 @@ class Splash : AppCompatActivity() {
                     //controllo se l'utente ha gia effetuato l'accesso
                     try {
                         val session = SupabaseInstance.client.auth.currentSessionOrNull()
-                        //se l'utente ha gia effettuato l'accesso, vado direttamente alla mappa, altrimenti alla login
+                        //se l'utente ha gia effettuato l'accesso, vado direttamente alla MainActivity (che contiene la navbar), altrimenti alla login
                         if (session != null) {
-                            val intent = Intent(this@Splash, MapsActivity::class.java)
+                            val intent = Intent(this@Splash, MainActivity::class.java)
                             startActivity(intent)
                             finish()
                         } else {
