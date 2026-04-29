@@ -123,7 +123,7 @@ class DettagliActivity : AppCompatActivity() {
         }
 
         findViewById<ImageButton>(R.id.btnSalva)?.setOnClickListener {
-            salvaPreferito(idRicevuto)
+            salvaElemento(idRicevuto)
         }
     }
 
@@ -140,10 +140,10 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
-    private fun salvaPreferito(idBenzinaio: Long) {
+    private fun salvaElemento(idBenzinaio: Long) {
         val user = SupabaseInstance.client.auth.currentUserOrNull()
         if (user == null) {
-            Toast.makeText(this, "Devi essere loggato per gestire i preferiti", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Devi essere loggato per gestire i tuoi elementi salvati", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -165,20 +165,20 @@ class DettagliActivity : AppCompatActivity() {
                         }
                     }
                     runOnUiThread {
-                        Toast.makeText(this@DettagliActivity, "Rimosso dai preferiti", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@DettagliActivity, "Benzinaio rimosso dai salvati", Toast.LENGTH_SHORT).show()
                         findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_svg)
                     }
                 } else {
-                    val nuovoPreferito = Salvato(idUtente = user.id, idBenzinaio = idBenzinaio)
-                    SupabaseInstance.client.from("salvati").insert(nuovoPreferito)
+                    val nuovoSalvato = Salvato(idUtente = user.id, idBenzinaio = idBenzinaio)
+                    SupabaseInstance.client.from("salvati").insert(nuovoSalvato)
                     runOnUiThread {
-                        Toast.makeText(this@DettagliActivity, "Salvato nei preferiti!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@DettagliActivity, "Benzinaio salvato!", Toast.LENGTH_SHORT).show()
                         findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_salvato)
                     }
                 }
             } catch (e: Exception) {
                 runOnUiThread {
-                    Toast.makeText(this@DettagliActivity, "Errore nella gestione dei preferiti", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@DettagliActivity, "Errore nella gestione dei benzinai salvati", Toast.LENGTH_SHORT).show()
                 }
             }
         }
