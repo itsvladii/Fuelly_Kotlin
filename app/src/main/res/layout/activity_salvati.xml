@@ -64,14 +64,14 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/maps_pin"
-                app:tint="#DFFF00" />
+                app:tint="@color/grey_inactive" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:text="Mappa"
-                android:textColor="#DFFF00"
+                android:textColor="@color/grey_inactive"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -90,14 +90,14 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/bookmark_svg"
-                app:tint="#DFFF00" />
+                app:tint="@color/fuelly_yellow_fluo" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:text="Salvati"
-                android:textColor="#DFFF00"
+                android:textColor="@color/fuelly_yellow_fluo"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -113,14 +113,14 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/search_svg"
-                app:tint="#DFFF00" />
+                app:tint="@color/grey_inactive" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:text="Cerca"
-                android:textColor="#DFFF00"
+                android:textColor="@color/grey_inactive"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -136,14 +136,14 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/user"
-                app:tint="#DFFF00" />
+                app:tint="@color/grey_inactive" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/dm_sans_medium"
                 android:text="Profilo"
-                android:textColor="#DFFF00"
+                android:textColor="@color/grey_inactive"
                 android:textSize="12sp" />
         </LinearLayout>
 
