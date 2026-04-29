@@ -1,210 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
     android:background="#FFFFFF"
     tools:context=".DettagliActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
+        android:id="@+id/stationHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="32dp">
+        android:background="#0B3D2E"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/stationHeader"
+            android:id="@+id/toolbarDettagli"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#0B3D2E"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginTop="24dp"
             app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/toolbarDettagli"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:layout_marginTop="24dp"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageButton
-                    android:id="@+id/btnBack"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="8dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/backarrow"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="#FFFFFF" />
-
-                <ImageButton
-                    android:id="@+id/btnSalva"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="12dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/bookmark_svg"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="#FFFFFF" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <LinearLayout
-                android:id="@+id/textGroup"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="16dp"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toStartOf="@+id/imgPompa"
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/backarrow"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/toolbarDettagli">
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#FFFFFF" />
 
-                <TextView
-                    android:id="@+id/txtStationName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/chakra_petch_semibold"
-                    android:textColor="#DFFF00"
-                    android:textSize="22sp"
-                    android:textStyle="bold|italic"
-                    tools:text="Nome Stazione" />
-
-                <TextView
-                    android:id="@+id/txtStationAddress"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#B0C4B1"
-                    android:textSize="14sp"
-                    tools:text="Indirizzo della stazione, Città" />
-
-                <TextView
-                    android:id="@+id/txtDistance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="@font/chakra_petch_semibold"
-                    android:textColor="#DFFF00"
-                    android:textSize="18sp"
-                    tools:text="0,9 km • Aggiornato oggi" />
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/imgPompa"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginEnd="20dp"
-                app:layout_constraintBottom_toBottomOf="@+id/textGroup"
+            <ImageButton
+                android:id="@+id/btnSalva"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/bookmark_svg"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/textGroup"
-                app:srcCompat="@drawable/fuelly_logo_foreground" />
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@android:color/transparent"
-                app:layout_constraintTop_toBottomOf="@id/textGroup"
-                app:tabIndicatorColor="#DFFF00"
-                app:tabIndicatorHeight="3dp"
-                app:tabSelectedTextColor="#DFFF00"
-                app:tabTextColor="#80B0C4B1"
-                app:tabRippleColor="@android:color/transparent"
-                app:tabMode="fixed">
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="PREZZI" />
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="RECENSIONI" />
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="INFO"
-                    />
-            </com.google.android.material.tabs.TabLayout>
-
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#FFFFFF" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:id="@+id/lblSezione"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:fontFamily="@font/chakra_petch_semibold"
-            android:text="POMPE DISPONIBILI"
-            android:textColor="@color/black"
-            android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/stationHeader" />
-
-        <Switch
-            android:id="@+id/switchServito"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:fontFamily="@font/chakra_petch_light"
-            android:text="Self-Service"
-            android:textColor="@color/black"
-            android:thumbTint="#0B3D2E"
-            android:trackTint="@color/fuelly_yellow_fluo"
-            app:layout_constraintBottom_toBottomOf="@+id/lblSezione"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/lblSezione" />
-
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="8dp"
-            android:background="#EEEEEE"
-            app:layout_constraintTop_toBottomOf="@+id/lblSezione" />
-
-        <ProgressBar
-            android:id="@+id/loadingPrezzi"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:indeterminateTint="#0B3D2E"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/divider" />
-
         <LinearLayout
-            android:id="@+id/containerListaDettagli"
+            android:id="@+id/textGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toStartOf="@+id/imgPompa"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbarDettagli">
+
+            <TextView
+                android:id="@+id/txtStationName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/chakra_petch_semibold"
+                android:textColor="#DFFF00"
+                android:textSize="22sp"
+                android:textStyle="bold|italic"
+                tools:text="Nome Stazione" />
+
+            <TextView
+                android:id="@+id/txtStationAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#B0C4B1"
+                android:textSize="14sp"
+                tools:text="Indirizzo della stazione, Città" />
+
+            <TextView
+                android:id="@+id/txtDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/chakra_petch_semibold"
+                android:textColor="#DFFF00"
+                android:textSize="18sp"
+                tools:text="0,9 km • Aggiornato oggi" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imgPompa"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintBottom_toBottomOf="@+id/textGroup"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textGroup"
+            app:srcCompat="@drawable/fuelly_logo_foreground" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@+id/divider" />
-
-        <Button
-            android:id="@+id/btnOttieniIndicazioni"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="24dp"
-            android:backgroundTint="#DFFF00"
-            android:fontFamily="@font/dm_sans_medium"
-            android:text="Ottieni indicazioni"
-            android:textAllCaps="false"
-            android:textColor="#000000"
-            android:visibility="gone"
-            app:cornerRadius="12dp"
-            app:layout_constraintTop_toBottomOf="@+id/containerListaDettagli"
-            tools:layout_editor_absoluteX="16dp" />
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"
+            app:layout_constraintTop_toBottomOf="@id/textGroup"
+            app:tabIndicatorColor="#DFFF00"
+            app:tabIndicatorHeight="3dp"
+            app:tabSelectedTextColor="#DFFF00"
+            app:tabTextColor="#80B0C4B1"
+            app:tabRippleColor="@android:color/transparent"
+            app:tabMode="fixed">
+        </com.google.android.material.tabs.TabLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/stationHeader"
+        app:layout_constraintBottom_toTopOf="@id/btnOttieniIndicazioni" />
+
+    <Button
+        android:id="@+id/btnOttieniIndicazioni"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="60dp"
+        android:backgroundTint="#DFFF00"
+        android:fontFamily="@font/dm_sans_medium"
+        android:text="Ottieni indicazioni"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:visibility="visible"
+        app:cornerRadius="12dp"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
