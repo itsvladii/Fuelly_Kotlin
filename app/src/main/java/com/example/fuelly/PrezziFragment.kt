@@ -235,10 +235,11 @@ class PrezziFragment : Fragment() {
 
             itemView.findViewById<ImageView>(R.id.imgTipoPresa).setImageResource(getIconaConnettore(typeName))
             val txtNome = itemView.findViewById<TextView>(R.id.lblNomePresa)
-            txtNome.text = if (quantity > 1) "$typeName (x$quantity)" else typeName
+            txtNome.text = typeName
 
+            val infoTecnica = if (quantity > 1) "$quantity connettori • ${power.toInt()} kW" else "${power.toInt()} kW"
             val txtPotenza = itemView.findViewById<TextView>(R.id.lblPotenza)
-            txtPotenza.text = if (power > 0.0) "${power.toInt()} kW" else "Potenza N/D"
+            txtPotenza.text = infoTecnica
 
             val txtStato = itemView.findViewById<TextView>(R.id.lblStatoPresa)
             val pallino = itemView.findViewById<View>(R.id.viewStatoColore)

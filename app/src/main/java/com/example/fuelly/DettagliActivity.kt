@@ -33,7 +33,7 @@ class DettagliActivity : AppCompatActivity() {
 
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.isAppearanceLightStatusBars = false
-        windowInsetsController.isAppearanceLightNavigationBars = false
+        windowInsetsController.isAppearanceLightNavigationBars = true
 
         idRicevuto = intent.getLongExtra("ID_ELEMENTO", -1L)
         tipoRicevuto = intent.getStringExtra("TIPO_ELEMENTO")
@@ -98,7 +98,7 @@ class DettagliActivity : AppCompatActivity() {
         findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.stationHeader)
             ?.setBackgroundColor("#0B101E".toColorInt())
 
-        val color = Color.parseColor("#00FFC2")
+        val color = "#00FFC2".toColorInt()
         findViewById<TextView>(R.id.txtStationName)?.apply {
             setTextColor(color)
             text = "${ev.titolo} "
@@ -109,6 +109,11 @@ class DettagliActivity : AppCompatActivity() {
         }
         findViewById<ImageView>(R.id.imgPompa)?.setImageResource(ev.getLogoResource())
         findViewById<TextView>(R.id.txtDistance)?.setTextColor(color)
+        findViewById<TabLayout>(R.id.tabLayout)?.setSelectedTabIndicatorColor(color)
+        findViewById<TabLayout>(R.id.tabLayout)?.setTabTextColors(Color.GRAY, color)
+        findViewById<Button>(R.id.btnOttieniIndicazioni)?.setBackgroundColor(color)
+
+
 
         calcolaDistanzaDettaglio(ev.lat, ev.lon)
     }
