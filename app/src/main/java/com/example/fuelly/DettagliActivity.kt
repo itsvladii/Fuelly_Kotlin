@@ -37,9 +37,9 @@ class DettagliActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_dettagli)
 
-        val controller = WindowInsetsControllerCompat(window, window.decorView)
-        controller.isAppearanceLightNavigationBars = true // Icone scure in basso
-        controller.isAppearanceLightStatusBars = true     // Icone scure in alto
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = false  // icone status bar bianche
+        windowInsetsController.isAppearanceLightNavigationBars = false  // icone nav bar biancheo
 
         idRicevuto = intent.getLongExtra("ID_ELEMENTO", -1L)
         tipoRicevuto = intent.getStringExtra("TIPO_ELEMENTO")

@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
+    android:backgroundTint="#ffffff"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp">
 
@@ -67,14 +68,16 @@
                 android:layout_width="10dp"
                 android:layout_height="10dp"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/bg_status_ev" /> <TextView
-            android:id="@+id/lblStatoPresa"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/chakra_petch_semibold"
-            android:text="DISPONIBILE"
-            android:textColor="#2E7D32"
-            android:textSize="12sp" />
+                android:background="@drawable/bg_status_ev" />
+
+            <TextView
+                android:id="@+id/lblStatoPresa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/chakra_petch_semibold"
+                android:text="DISPONIBILE"
+                android:textColor="#2E7D32"
+                android:textSize="12sp" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

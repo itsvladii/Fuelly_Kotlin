@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import com.example.fuelly.databinding.ActivityMainBinding
 
@@ -22,6 +23,9 @@ class MainActivity : AppCompatActivity() {
         // Inizializza il binding con il layout dell'activity
         binding = ActivityMainBinding.inflate(layoutInflater)
         enableEdgeToEdge()
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = false  // icone status bar bianche
+        windowInsetsController.isAppearanceLightNavigationBars = false  // icone nav bar bianche
 
         // Imposta il layout binding comeContentView
         setContentView(binding.root)
