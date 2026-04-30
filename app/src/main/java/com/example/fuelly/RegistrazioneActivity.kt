@@ -1,82 +1,105 @@
 package com.example.fuelly
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.fuelly.classes.Utente
 import com.example.fuelly.supabase.SupabaseInstance
-import io.github.jan.supabase.postgrest.from
+import com.google.android.material.textfield.TextInputEditText
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.builtin.Email
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 class RegistrazioneActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_registrazione)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        enableEdgeToEdge()
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.isAppearanceLightStatusBars = false
+        windowInsetsController.isAppearanceLightNavigationBars = true
 
-        }
-
-        //Variabili
-        val email = findViewById<TextView>(R.id.textEmail)
-        val password = findViewById<TextView>(R.id.textPassword)
-        val nome = findViewById<TextView>(R.id.textNome)
-        val cognome = findViewById<TextView>(R.id.textCognome)
-
-        //bottone
-        val btnRegistrati = findViewById<Button>(R.id.btnRegistrazione)
-
-        btnRegistrati.setOnClickListener {
-            val emailText = email.text.toString()
-            val passwordText = password.text.toString()
-            val nomeText = nome.text.toString()
-            val cognomeText = cognome.text.toString()
-
-            lifecycleScope.launch {
-                try {
-                    //CONTROLLO SE L'UTENTE E' GIA' REGISTRATO E DECODIFICO IL RISULTATO DELLA QUERY IN UNA LISTA
-                    val risposta = SupabaseInstance.client.from("utenti").select {
-                        filter { eq("email", emailText) }
-                    }.decodeList<Utente>()
-
-                    //SE NON ESISTE ALCUN UTENTE CON QUELL'EMAIL CHE VOGLIO INSERIRE ALLORA CREO L'UTENTE E LO INSERISCO NELLA TABELLA
-                    if (risposta.isEmpty()) {
-                        // 2. Creiamo l'oggetto (usa la data class con il serializzatore)
-                        val nuovoUtente = Utente(
-                            id = java.util.UUID.randomUUID().toString(), // Genera un ID univoco
-                            email = emailText,
-                            password = passwordText,
-                            nome = nomeText,
-                            cognome = cognomeText
-                        )
-
-                        //QUERY DI INSERIMENTO
-                        SupabaseInstance.client.from("utenti").insert(nuovoUtente)
-
-                        //MESSAGGI DI CONFERMA ED ERRORI VARI
-                        runOnUiThread {
-                            Toast.makeText(this@RegistrazioneActivity, "Registrazione completata!", Toast.LENGTH_SHORT).show()
-                        }
-                    } else {
-                        Log.d("Errore", "L'utente con questa email esiste già")
-                    }
-                } catch (e: Exception) {
-                    Log.e("Errore Supabase", "Dettaglio: ${e.message}", e)
-                }
+        // Gestione padding per EdgeToEdge (se l'ID del layout principale è 'main')
+        findViewById<android.view.View>(R.id.main)?.let { view ->
+            ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+                insets
             }
         }
 
+        // Riferimenti ai nuovi ID del layout Material
+        val editNome = findViewById<TextInputEditText>(R.id.editNome)
+        val editEmail = findViewById<TextInputEditText>(R.id.editEmail)
+        val editPassword = findViewById<TextInputEditText>(R.id.editPassword)
+        val btnRegistrati = findViewById<Button>(R.id.btnRegistrazione)
+        val btnVaiALogin = findViewById<TextView>(R.id.btnVaiALogin)
+
+        // Torna alla login se hai già un account
+        btnVaiALogin.setOnClickListener {
+            //passo alla pagina di login
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        btnRegistrati.setOnClickListener {
+            val nome = editNome.text.toString().trim()
+            val email = editEmail.text.toString().trim()
+            val password = editPassword.text.toString()
+
+            // Validazione minima
+            if (nome.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Tutti i campi sono obbligatori", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (password.length < 6) {
+                Toast.makeText(this, "La password deve avere almeno 6 caratteri", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch {
+                try {
+                    // REGISTRAZIONE TRAMITE SUPABASE AUTH
+                    // Usiamo signUpWith per creare l'utente nel modulo Authentication
+                    SupabaseInstance.client.auth.signUpWith(Email) {
+                        this.email = email
+                        this.password = password
+                        // Salviamo il nome nei metadati (così lo avrai nelle recensioni!)
+                        data = buildJsonObject {
+                            put("full_name", nome)
+                        }
+                    }
+
+                    runOnUiThread {
+                        Toast.makeText(this@RegistrazioneActivity,
+                            "Registrazione completata! Controlla la tua email per confermare.",
+                            Toast.LENGTH_LONG).show()
+                        //passo alla pagina di login
+                        val intent = Intent(this@RegistrazioneActivity, LoginActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("Fuelly_Auth", "Errore registrazione: ${e.message}")
+                    runOnUiThread {
+                        Toast.makeText(this@RegistrazioneActivity, "Errore: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
     }
 }

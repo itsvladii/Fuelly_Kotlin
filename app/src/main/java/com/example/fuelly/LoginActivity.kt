@@ -17,9 +17,11 @@ import java.util.UUID
 import com.example.fuelly.supabase.SupabaseInstance
 import com.example.fuelly.utils.Utils
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.material.textfield.TextInputEditText
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.auth.providers.Google
+import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.user.UserSession
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc
@@ -45,15 +47,48 @@ class LoginActivity : AppCompatActivity() {
         btnGoogle.setOnClickListener {
             startGoogleSignIn()
         }
-        val bottoneRegistra:Button=findViewById(R.id.Registra)
 
-        bottoneRegistra.setOnClickListener{
-
+        findViewById<TextView>(R.id.btnVaiALogin).setOnClickListener{
             //passo alla pagina di registrazione
             val intent = Intent(this, RegistrazioneActivity::class.java)
             startActivity(intent)
             finish()
+        }
 
+        val emailEdit = findViewById<TextInputEditText>(R.id.emailEdit)
+        val passwordEdit = findViewById<TextInputEditText>(R.id.passwordEdit)
+        findViewById<Button>(R.id.btnNext).setOnClickListener {
+            val email = emailEdit.text.toString().trim()
+            val password = passwordEdit.text.toString()
+
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Inserisci email e password", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            lifecycleScope.launch {
+                try {
+                    // ESEGUIAMO IL LOGIN
+                    SupabaseInstance.client.auth.signInWith(Email) {
+                        this.email = email
+                        this.password = password
+                    }
+
+                    // Se il login ha successo, andiamo alla MainActivity (Mappa)
+                    runOnUiThread {
+                        Toast.makeText(this@LoginActivity, "Bentornato!", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                        startActivity(intent)
+                        finish() // Chiude la login così non si torna indietro con il tasto back
+                    }
+
+                } catch (e: Exception) {
+                    runOnUiThread {
+                        // Errore tipico: credenziali errate o utente non confermato
+                        Toast.makeText(this@LoginActivity, "Accesso fallito: Credenziali errate", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
         }
     }
 
