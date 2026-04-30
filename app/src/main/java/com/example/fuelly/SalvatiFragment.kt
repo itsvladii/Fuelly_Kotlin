@@ -56,6 +56,13 @@ class SalvatiFragment : Fragment() {
         caricaBenzinaiSalvati()
     }
 
+    // Azione da fare quando torno sul fragment
+    override fun onResume() {
+        super.onResume()
+        // Ricarica i dati ogni volta che il fragment torna visibile
+        caricaBenzinaiSalvati()
+    }
+
     // Aggiunto metodo per configurare il RecyclerView
     private fun setupRecyclerView() {
         // Aggiunto layout manager per il RecyclerView
@@ -75,7 +82,6 @@ class SalvatiFragment : Fragment() {
     // Aggiunto metodo per caricare i benzinai salvati
     private fun caricaBenzinaiSalvati() {
         adapter.updateData(Benzinaio.listaSalvati)
-
     }
 
     // Aggiunto metodo per distruggere il binding
@@ -86,5 +92,3 @@ class SalvatiFragment : Fragment() {
     }
 
 }
-
-
