@@ -50,65 +50,54 @@ class InfoFragment : Fragment() {
 
 
         // 3) LETTURA DAL DATABASE E POPOLAZIONE CAMPI
-
         lifecycleScope.launch {
-
             try {
-
-                //LEGGO DALLA TABELLA info_benzinai TRAMITE L'ID CHE OTTENGO DALLA DETTAGLIACTIVITY
-                val risposta =  SupabaseInstance.client.from("info_benzinai").select{
+                //LETTURA DALLA TABELLA info_benzinai IN BASE ALL'ID DEL BENZINAIO CHE PASSO DALLA DETTAGLI ACITIVITY
+                val risposta = SupabaseInstance.client.from("info_benzinai").select {
                     filter { eq("idImpianto", idRicevuto) }
                 }.decodeList<Info>()
 
-                //TROVO UNA RIGA EFFETTIVA...
-                if (risposta.isNotEmpty())
-                {
-                    try {
+                // SE LA RISPOSTA NON È VUOTA --> TROVO LA RIGA
+                if (risposta.isNotEmpty()) {
+                    val infoBez = risposta[0]
 
+                    var nomeImpianto = "Caricamento..."
+
+                    //Lettura del nome del gestore dalla tabella benzinai
+                    try {
                         val datiBenzinaio = SupabaseInstance.client.from("benzinai")
                             .select(columns = Columns.list("gestore")) {
                                 filter { eq("idImpianto", idRicevuto) }
-                            }.decodeSingle<Map<String, String>>() // Decodifichiamo come mappa chiave-valore
+                            }.decodeSingle<Map<String, String>>()
 
-                        nomeEstratto = datiBenzinaio["gestore"] ?: "Sconosciuto"
+                        nomeImpianto = datiBenzinaio["gestore"] ?: "Sconosciuto"
 
-                    } catch (e: Exception) {
-                        Log.e("Errore Supabase", "Dettaglio: ${e.message}", e)
+                    } catch (e: Exception)
+                    {
+                        Log.e("Errore Supabase", "Errore recupero gestore: ${e.message}")
+
+                        nomeImpianto = "Gestore non trovato"
                     }
 
+                    //VISUALIZZO NELL'INTERFACCIA
+                    nomeBenzinaio.text = nomeImpianto
+                    orarioApertura.text = "Orario Apertura | " + infoBez.orarioApertura.toString()
+                    orarioChiusura.text = "Orario Chiusura | " + infoBez.orarioChiusura.toString()
+                    bagnoPresente.isChecked = infoBez.isBagno
+                    barPresente.isChecked = infoBez.isBar
+                    textDescrizione.setText(infoBez.descEstesa ?: "")
 
-                    //METTO NELL'OGGETTO InfoBez CIO CHE LEGGO DAL DATABASE
-                    val InfoBez = Info(
+                    //DISABILITO ALCUNI ELEMENTI
+                    textDescrizione.isEnabled = false
 
-                        id= risposta[0].id,
-                        idImpianto= idRicevuto,
-                        idUtente= risposta[0].idUtente,
-                        orarioApertura= risposta[0].orarioApertura,
-                        orarioChiusura= risposta[0].orarioChiusura,
-                        isBar= risposta[0].isBar,
-                        isBagno= risposta[0].isBagno,
-                        descEstesa= risposta[0].descEstesa
-                    )
 
-                    //VISUALIZZO SULLE VARIE TEXT,SWITCH ....
-                    nomeBenzinaio.text = InfoBez.idImpianto.toString()
-                    orarioApertura.text = "Orario Apertura: " + InfoBez.orarioApertura.toString()
-                    orarioChiusura.text = "Orario Chisura: " + InfoBez.orarioChiusura.toString()
-                    bagnoPresente.isChecked = InfoBez.isBagno
-                    barPresente.isChecked = InfoBez.isBar
-                    textDescrizione.setText(InfoBez.descEstesa)
-                }
-                else
-                {
-                    //ERRORE: NESSUNA RIGA LETTA DALLA TABELLA info_benzinai
-                    Log.d("Errore", "benzinaio senza nessun valore")
-
-                    Toast.makeText(context, "Nessun dato disponibile", Toast.LENGTH_SHORT).show()
+                } else {
+                    Log.d("Errore", "Nessuna info trovata per idImpianto: $idRicevuto")
+                    Toast.makeText(context, "Dati impianto non disponibili", Toast.LENGTH_SHORT).show()
                 }
 
-            } catch (e: Exception)
-            {
-                Log.e("Errore Supabase", "Dettaglio: ${e.message}", e)
+            } catch (e: Exception) {
+                Log.e("Errore Supabase", "Errore generale: ${e.message}", e)
             }
         }
 
