@@ -15,10 +15,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Fuelly">
-        <fragment
-            android:name=".SalvatiFragment"
-            android:exported="false"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".DettagliActivity"
             android:exported="false"
@@ -39,12 +35,6 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
-        <fragment
-            android:name=".MapsFragment"
-            android:exported="false"
-            android:label="@string/title_activity_maps"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".Splash"
             android:exported="true"
@@ -57,7 +47,8 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
