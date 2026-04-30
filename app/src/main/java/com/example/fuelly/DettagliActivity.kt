@@ -215,13 +215,12 @@ class DettagliActivity : AppCompatActivity() {
                         findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_salvato)
                     }
                 }
+                Utils.caricaSalvati(session)
+
             } catch (e: Exception) {
                 runOnUiThread {
                     Toast.makeText(this@DettagliActivity, "Errore nella gestione dei benzinai salvati", Toast.LENGTH_SHORT).show()
                 }
-            }
-            finally {
-                Utils.caricaSalvati(session)
             }
         }
     }

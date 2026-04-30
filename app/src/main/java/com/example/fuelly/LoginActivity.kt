@@ -139,12 +139,6 @@ class LoginActivity : AppCompatActivity() {
                         provider = Google
                     }
 
-
-                } catch (e: Exception) {
-                Log.e("Supabase_Error", "Errore completo: ", e)
-                e.printStackTrace()
-                }
-                finally {
                     //controllo se l'utente ha gia effetuato l'accesso
                     try {
                         val session = SupabaseInstance.client.auth.currentSessionOrNull()
@@ -161,6 +155,9 @@ class LoginActivity : AppCompatActivity() {
                         Log.e("Fuelly", "Errore passaggio: ${e.message}")
                     }
 
+                } catch (e: Exception) {
+                Log.e("Supabase_Error", "Errore completo: ", e)
+                e.printStackTrace()
                 }
             }
         }

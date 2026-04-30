@@ -99,32 +99,29 @@ class Splash : AppCompatActivity() {
                         val jsonEV = fetchColonnineEV(location.latitude, location.longitude)
                         ColonninaEV.listaVicini = ColonninaEV.parseLista(jsonEV)
                         Log.d("Fuelly", "Caricate ${ColonninaEV.listaVicini.size} colonnine elettriche!")
-                        
-                        
+
+                        //controllo se l'utente ha gia effetuato l'accesso
+                        try {
+                            val session = SupabaseInstance.client.auth.currentSessionOrNull()
+                            //se l'utente ha gia effettuato l'accesso, vado direttamente alla MainActivity (che contiene la navbar), altrimenti alla login
+                            if (session != null) {
+                                //carico i preferiti dell'utente (se loggato)
+                                Utils.caricaSalvati(session)
+
+                                val intent = Intent(this@Splash, MainActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            } else {
+                                val intent = Intent(this@Splash, LoginActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                        }catch (e: Exception){
+                            Log.e("Fuelly", "Errore passaggio: ${e.message}")
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e("Fuelly", "Errore Supabase: ${e.message}")
-                } finally {
-                    //controllo se l'utente ha gia effetuato l'accesso
-                    try {
-                        val session = SupabaseInstance.client.auth.currentSessionOrNull()
-                        //se l'utente ha gia effettuato l'accesso, vado direttamente alla MainActivity (che contiene la navbar), altrimenti alla login
-                        if (session != null) {
-                            //carico i preferiti dell'utente (se loggato)
-                            Utils.caricaSalvati(session)
-                            
-                            val intent = Intent(this@Splash, MainActivity::class.java)
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            val intent = Intent(this@Splash, LoginActivity::class.java)
-                            startActivity(intent)
-                            finish()
-                        }
-                    }catch (e: Exception){
-                        Log.e("Fuelly", "Errore passaggio: ${e.message}")
-                    }
-
                 }
             }
         }
