@@ -22,6 +22,8 @@ import io.github.jan.supabase.auth.providers.Google
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var credentialManager: CredentialManager
+
+
     private val WEB_CLIENT_ID = "348141692404-0fe09qj3s2a9msl9ndep5sf433hcv1rl.apps.googleusercontent.com"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +40,19 @@ class LoginActivity : AppCompatActivity() {
         btnGoogle.setOnClickListener {
             startGoogleSignIn()
         }
+        val bottoneRegistra:Button=findViewById(R.id.Registra)
+
+        bottoneRegistra.setOnClickListener{
+
+            //passo alla pagina di registrazione
+            val intent = Intent(this, RegistrazioneActivity::class.java)
+            startActivity(intent)
+            finish()
+
+        }
     }
+
+
 
     private fun startGoogleSignIn() {
         //vado a ricavare le credenziali google

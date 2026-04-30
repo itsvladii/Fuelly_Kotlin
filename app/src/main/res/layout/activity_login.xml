@@ -164,5 +164,17 @@
         app:strokeColor="@color/grey_inactive"
         app:strokeWidth="1dp" />
 
+    <Button
+        android:id="@+id/Registra"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vai alla registrazione"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.9"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/logoText"
+        app:layout_constraintVertical_bias="0.017" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
