@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.classes.*
+import com.example.fuelly.utils.Utils
 import com.example.fuelly.supabase.SupabaseInstance
 import com.google.android.gms.location.LocationServices
 import io.github.jan.supabase.auth.auth
@@ -89,7 +90,7 @@ class Splash : AppCompatActivity() {
                         //se l'utente ha gia effettuato l'accesso, vado direttamente alla MainActivity (che contiene la navbar), altrimenti alla login
                         if (session != null) {
                             //carico i preferiti dell'utente (se loggato)
-                            caricaSalvati(session)
+                            Utils.caricaSalvati(session)
                             
                             val intent = Intent(this@Splash, MainActivity::class.java)
                             startActivity(intent)
@@ -125,26 +126,4 @@ class Splash : AppCompatActivity() {
             }
         }
     }
-
-    //funzione di caricamento dei benzinai salvati dall'utente
-    private suspend fun caricaSalvati(session: UserSession){
-        
-        try {
-            //richiamo la funzione RPC del DB per ricavare i benzinai salvati dall'utente
-            // (passando l'id dell'utente dalla sessione come parametro)
-            val response = SupabaseInstance.client.postgrest.rpc(
-                function = "get_benzinai_salvati",
-                parameters = mapOf("user_id" to session.user?.id)
-            )
-            
-            //parsing della risposta JSON in una lista di oggetti Benzinaio
-            val salvati = Benzinaio.parseLista(response.data)
-            Benzinaio.listaSalvati = salvati
-            
-            Log.d("Fuelly", "Caricati ${Benzinaio.listaSalvati.size} benzinai salvati")
-        } catch (e: Exception) {
-            Log.e("Fuelly", "Errore caricamento salvati: ${e.message}")
-        }
-    }
-
 }
