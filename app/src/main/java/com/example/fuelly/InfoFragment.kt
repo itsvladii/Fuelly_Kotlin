@@ -66,11 +66,11 @@ class InfoFragment : Fragment() {
                     //Lettura del nome del gestore dalla tabella benzinai
                     try {
                         val datiBenzinaio = SupabaseInstance.client.from("benzinai")
-                            .select(columns = Columns.list("gestore")) {
+                            .select(columns = Columns.list("Gestore")) {
                                 filter { eq("idImpianto", idRicevuto) }
                             }.decodeSingle<Map<String, String>>()
 
-                        nomeImpianto = datiBenzinaio["gestore"] ?: "Sconosciuto"
+                        nomeImpianto = datiBenzinaio["Gestore"] ?: "Sconosciuto"
 
                     } catch (e: Exception)
                     {
@@ -88,8 +88,15 @@ class InfoFragment : Fragment() {
                     textDescrizione.setText(infoBez.descEstesa ?: "")
 
                     //DISABILITO ALCUNI ELEMENTI
-                    textDescrizione.isEnabled = false
-
+                    textDescrizione.apply {
+                        isFocusable = false
+                        isFocusableInTouchMode = false
+                        isCursorVisible = false
+                    }
+                    bagnoPresente.isClickable = false
+                    barPresente.isClickable = false
+                    orarioApertura.isClickable = false
+                    orarioChiusura.isClickable = false
 
                 } else {
                     Log.d("Errore", "Nessuna info trovata per idImpianto: $idRicevuto")
