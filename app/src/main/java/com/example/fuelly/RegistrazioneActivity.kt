@@ -30,14 +30,6 @@ class RegistrazioneActivity : AppCompatActivity() {
         windowInsetsController.isAppearanceLightStatusBars = false
         windowInsetsController.isAppearanceLightNavigationBars = true
 
-        // Gestione padding per EdgeToEdge (se l'ID del layout principale è 'main')
-        findViewById<android.view.View>(R.id.main)?.let { view ->
-            ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-                insets
-            }
-        }
 
         // Riferimenti ai nuovi ID del layout Material
         val editNome = findViewById<TextInputEditText>(R.id.editNome)

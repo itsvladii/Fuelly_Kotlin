@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.os.*
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
@@ -36,13 +37,33 @@ class Splash : AppCompatActivity() {
         catch (e: SecurityException) {
             Log.e("Fuelly", "Errore di sicurezza: ${e.message}")
         }
-        finally
-        {
-            Log.d("Fuelly", "Sto caricando i dati...")
-            //carico i dati dei benzinai e delle colonnine
-            avviaPrecaricamento()
-        }
 
+    }
+
+    //funzione che viene invocata quando l'utente risponde al popup dei permessi (override del metodo gia presente)
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 100) {
+            if (grantResults.isNotEmpty() && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                //se l'utente ha autorizzato l'accesso alla geolocalizzazione, passa al precaricamento dei marker
+                Log.d("Fuelly", "Permesso accordato, avvio caricamento...")
+                avviaPrecaricamento()
+            } else {
+                //se l'utente ha negato, passa comunque ma non avrà i marker
+                Log.d("Fuelly", "Permesso negato")
+                Toast.makeText(
+                    this,
+                    "Permesso necessario per trovare i distributori vicini",
+                    Toast.LENGTH_LONG
+                ).show()
+                Handler(Looper.getMainLooper()).postDelayed({
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finish()
+                }, 2000)
+            }
+        }
     }
 
     //funzione di caricamento dei benzinai vicini dal DB (necessario il permesso di geolocalizzazione)
