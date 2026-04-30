@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import androidx.core.view.isVisible
 import androidx.core.graphics.toColorInt
+import androidx.core.view.WindowCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
@@ -57,6 +59,14 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     // onViewCreated per il fragment e inizializzazione del map
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Imposta la navigation bar di sistema trasparente con icone bianche
+        requireActivity().window.apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                isNavigationBarContrastEnforced = false
+            }
+            WindowCompat.getInsetsController(this, decorView).isAppearanceLightNavigationBars = false
+        }
 
         // Inizializza il fusedLocationClient
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())

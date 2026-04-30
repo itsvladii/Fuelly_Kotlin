@@ -2,6 +2,7 @@ package com.example.fuelly
 
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -43,9 +44,11 @@ class SalvatiFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Imposta la navigation bar di sistema trasparente con icone scure (background bianco)
+        // Imposta la navigation bar di sistema trasparente con icone scure
         requireActivity().window.apply {
-            navigationBarColor = Color.TRANSPARENT
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                isNavigationBarContrastEnforced = false
+            }
             WindowCompat.getInsetsController(this, decorView).isAppearanceLightNavigationBars = true
         }
 
@@ -97,11 +100,7 @@ class SalvatiFragment : Fragment() {
     // Aggiunto metodo per distruggere il binding
     override fun onDestroyView() {
         super.onDestroyView()
-        // Ripristina lo stato precedente (icone chiare su sfondo trasparente)
-        requireActivity().window.apply {
-            navigationBarColor = Color.TRANSPARENT
-            WindowCompat.getInsetsController(this, decorView).isAppearanceLightNavigationBars = false
-        }
+
         _binding = null
     }
 
