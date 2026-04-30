@@ -23,6 +23,7 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
+import com.example.fuelly.utils.Utils
 
 class DettagliActivity : AppCompatActivity() {
 
@@ -179,8 +180,8 @@ class DettagliActivity : AppCompatActivity() {
     }
 
     private fun salvaElemento(idBenzinaio: Long) {
-        val user = SupabaseInstance.client.auth.currentUserOrNull()
-        if (user == null) {
+        val session = SupabaseInstance.client.auth.currentSessionOrNull()
+        if (session == null) {
             Toast.makeText(this, "Devi essere loggato per gestire i tuoi elementi salvati", Toast.LENGTH_SHORT).show()
             return
         }
@@ -190,7 +191,7 @@ class DettagliActivity : AppCompatActivity() {
                 val esistente = SupabaseInstance.client.from("salvati")
                     .select {
                         filter {
-                            eq("idUtente", user.id)
+                            eq("idUtente", session.user?.id.toString())
                             eq("idImpianto", idBenzinaio)
                         }
                     }.decodeList<Salvato>()
@@ -198,7 +199,7 @@ class DettagliActivity : AppCompatActivity() {
                 if (esistente.isNotEmpty()) {
                     SupabaseInstance.client.from("salvati").delete {
                         filter {
-                            eq("idUtente", user.id)
+                            eq("idUtente", session.user?.id.toString())
                             eq("idImpianto", idBenzinaio)
                         }
                     }
@@ -207,7 +208,7 @@ class DettagliActivity : AppCompatActivity() {
                         findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_svg)
                     }
                 } else {
-                    val nuovoSalvato = Salvato(idUtente = user.id, idBenzinaio = idBenzinaio)
+                    val nuovoSalvato = Salvato(idUtente = session.user?.id.toString(), idBenzinaio = idBenzinaio)
                     SupabaseInstance.client.from("salvati").insert(nuovoSalvato)
                     runOnUiThread {
                         Toast.makeText(this@DettagliActivity, "Benzinaio salvato!", Toast.LENGTH_SHORT).show()
@@ -218,6 +219,9 @@ class DettagliActivity : AppCompatActivity() {
                 runOnUiThread {
                     Toast.makeText(this@DettagliActivity, "Errore nella gestione dei benzinai salvati", Toast.LENGTH_SHORT).show()
                 }
+            }
+            finally {
+                Utils.caricaSalvati(session)
             }
         }
     }
