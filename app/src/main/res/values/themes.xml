@@ -8,6 +8,10 @@
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/fuelly_yellow_fluo</item>
         <item name="colorOnSecondary">@color/black</item>
+            <!-- Questo cambierà il cursore, le checkbox e i bottoni attivati -->
+            <item name="colorControlActivated">#DFFF00</item>
+            <!-- Colore specifico per l'evidenziazione del testo selezionato -->
+            <item name="android:textColorHighlight">#40DFFF00</item>
     </style>
 
     <style name="Theme.Fuelly" parent="Base.Theme.Fuelly" />

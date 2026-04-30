@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.google.android.material.materialswitch.MaterialSwitch
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
@@ -47,7 +48,7 @@ class PrezziFragment : Fragment() {
     }
 
     private fun setupListeners(view: View) {
-        val switchServito = view.findViewById<Switch>(R.id.switchServito)
+        val switchServito = view.findViewById<MaterialSwitch>(R.id.switchServito)
         switchServito?.setOnCheckedChangeListener { btn, isChecked ->
             btn.text = if (isChecked) "Servito" else "Self-Service"
             if (tipoRicevuto == "BENZINA") {

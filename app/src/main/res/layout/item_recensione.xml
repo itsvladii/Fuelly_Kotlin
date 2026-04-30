@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="12dp">
+
+    <!-- Iniziale Utente (Avatar generato) -->
+    <FrameLayout
+        android:id="@+id/frameAvatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/user"
+        android:backgroundTint="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <!-- Nome Utente -->
+    <TextView
+        android:id="@+id/lblNomeUtente"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:fontFamily="@font/chakra_petch_semibold"
+        android:textColor="@color/black"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toStartOf="@+id/lblDataRecensione"
+        app:layout_constraintStart_toEndOf="@+id/frameAvatar"
+        app:layout_constraintTop_toTopOf="@+id/frameAvatar"
+        tools:text="Mario Rossi" />
+
+    <!-- Data Recensione -->
+    <TextView
+        android:id="@+id/lblDataRecensione"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/dm_sans_medium"
+        android:textColor="#999999"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/lblNomeUtente"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/lblNomeUtente"
+        tools:text="2 gg fa" />
+
+    <!-- Rating Bar (Stelline della singola recensione) -->
+    <RatingBar
+        android:id="@+id/ratingSingolo"
+        style="@android:style/Widget.Material.RatingBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:numStars="5"
+        android:progressTint="@color/fuelly_green_dark"
+        android:secondaryProgressTint="@android:color/transparent"
+        android:stepSize="1.0"
+        app:layout_constraintStart_toStartOf="@+id/lblNomeUtente"
+        app:layout_constraintTop_toBottomOf="@+id/lblNomeUtente"
+        tools:rating="4" />
+
+    <!-- Testo del Commento -->
+    <TextView
+        android:id="@+id/lblTestoRecensione"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/dm_sans_medium"
+        android:lineSpacingExtra="2dp"
+        android:textColor="#444444"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/lblNomeUtente"
+        app:layout_constraintTop_toBottomOf="@+id/ratingSingolo"
+        tools:text="Ottimo distributore, prezzi onesti e personale molto gentile. La colonnina elettrica è sempre libera." />
+
+    <!-- Divider sottile -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="#F0F0F0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/lblNomeUtente"
+        app:layout_constraintTop_toBottomOf="@+id/lblTestoRecensione" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

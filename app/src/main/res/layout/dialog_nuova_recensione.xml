@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_dialog_recensione">
+
+    <!-- Handle per trascinamento -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:background="#E0E0E0" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/chakra_petch_semibold"
+        android:text="SCRIVI UNA RECENSIONE"
+        android:textColor="#0B3D2E"
+        android:textSize="18sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/roboto_medium"
+        android:text="Che voto daresti a questa stazione?"
+        android:textColor="#666666" />
+
+    <!-- Stelle Interattive -->
+    <RatingBar
+        android:id="@+id/ratingInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:foregroundTint="@color/fuelly_yellow_fluo"
+        android:numStars="5"
+        android:progressBackgroundTint="@color/cardview_dark_background"
+        android:progressTint="@color/fuelly_yellow_fluo"
+        android:stepSize="1.0" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textColorHint="@color/grey_inactive"
+        app:boxStrokeColor="@color/fuelly_green_dark"
+        app:endIconTint="@color/fuelly_green_dark"
+        app:helperTextTextColor="@color/fuelly_green_dark"
+        app:hintTextColor="#0B3D2E"
+        app:placeholderTextColor="@color/fuelly_green_dark"
+        app:prefixTextColor="@color/fuelly_green_dark"
+        app:startIconTint="@color/fuelly_green_dark">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editCommento"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:fontFamily="@font/roboto_medium"
+            android:gravity="top"
+            android:hint="Raccontaci la tua esperienza..."
+            android:inputType="textMultiLine"
+            android:textColor="@color/black"
+            android:textColorHighlight="@color/fuelly_yellow_fluo"
+            android:textColorHint="@color/fuelly_green_dark"
+            android:textColorLink="@color/fuelly_yellow_fluo"
+            android:textCursorDrawable="@null"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/btnInviaRecensione"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#DFFF00"
+        android:fontFamily="@font/chakra_petch_semibold"
+        android:text="INVIA RECENSIONE"
+        android:textColor="#0B3D2E"
+        app:cornerRadius="12dp" />
+
+</LinearLayout>
