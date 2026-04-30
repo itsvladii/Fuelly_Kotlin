@@ -74,28 +74,9 @@ class SalvatiFragment : Fragment() {
 
     // Aggiunto metodo per caricare i benzinai salvati
     private fun caricaBenzinaiSalvati() {
-        val user= SupabaseInstance.client.auth.currentUserOrNull()?: return
-        lifecycleScope.launch {
+        adapter.updateData(Benzinaio.listaSalvati)
 
-            val benzinaiSalvati=SupabaseInstance.client.from("salvati")
-                .select {
-                    filter {
-                        eq("idUtente", user.id)
-                    }
-                }.decodeList<Salvato>()
-
-            var listaBenzinaio: MutableList<Benzinaio> = mutableListOf()
-            for (salvato in benzinaiSalvati) {
-                val benzinaio = Benzinaio.listaVicini.find { it.id.toLong() == salvato.idBenzinaio}
-                if (benzinaio != null) {
-                    listaBenzinaio.add(benzinaio)
-                }
-            }
-            adapter.updateData(listaBenzinaio)
-
-            }
-
-        }
+    }
 
     // Aggiunto metodo per distruggere il binding
     override fun onDestroyView() {
