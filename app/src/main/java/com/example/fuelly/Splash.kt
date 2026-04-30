@@ -10,9 +10,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.classes.*
+import com.example.fuelly.utils.Utils
 import com.example.fuelly.supabase.SupabaseInstance
 import com.google.android.gms.location.LocationServices
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.user.UserSession
 import io.github.jan.supabase.postgrest.*
 import kotlinx.coroutines.*
 
@@ -30,12 +32,15 @@ class Splash : AppCompatActivity() {
         try {
             //richiedo i permessi alla mappa
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 100)
-
-            //carico i dati dei benzinai e delle colonnine
-            avviaPrecaricamento()
         }
         catch (e: SecurityException) {
             Log.e("Fuelly", "Errore di sicurezza: ${e.message}")
+        }
+        finally
+        {
+            Log.d("Fuelly", "Sto caricando i dati...")
+            //carico i dati dei benzinai e delle colonnine
+            avviaPrecaricamento()
         }
 
     }
@@ -73,6 +78,8 @@ class Splash : AppCompatActivity() {
                         val jsonEV = fetchColonnineEV(location.latitude, location.longitude)
                         ColonninaEV.listaVicini = ColonninaEV.parseLista(jsonEV)
                         Log.d("Fuelly", "Caricate ${ColonninaEV.listaVicini.size} colonnine elettriche!")
+                        
+                        
                     }
                 } catch (e: Exception) {
                     Log.e("Fuelly", "Errore Supabase: ${e.message}")
@@ -82,6 +89,9 @@ class Splash : AppCompatActivity() {
                         val session = SupabaseInstance.client.auth.currentSessionOrNull()
                         //se l'utente ha gia effettuato l'accesso, vado direttamente alla MainActivity (che contiene la navbar), altrimenti alla login
                         if (session != null) {
+                            //carico i preferiti dell'utente (se loggato)
+                            Utils.caricaSalvati(session)
+                            
                             val intent = Intent(this@Splash, MainActivity::class.java)
                             startActivity(intent)
                             finish()
@@ -116,5 +126,4 @@ class Splash : AppCompatActivity() {
             }
         }
     }
-
 }

@@ -23,6 +23,8 @@ data class Benzinaio(
     companion object {
         var listaVicini: List<Benzinaio> = emptyList()
 
+        var listaSalvati: List<Benzinaio> = emptyList()
+
 
         fun parseLista(data: Any?): List<Benzinaio> {
             val lista = mutableListOf<Benzinaio>()

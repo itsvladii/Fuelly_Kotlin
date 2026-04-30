@@ -25,7 +25,6 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.isAppearanceLightStatusBars = false  // icone status bar bianche
-        windowInsetsController.isAppearanceLightNavigationBars = false  // icone nav bar bianche
 
         // Imposta il layout binding comeContentView
         setContentView(binding.root)

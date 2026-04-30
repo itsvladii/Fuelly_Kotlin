@@ -10,14 +10,19 @@ import androidx.core.view.WindowCompat
 import androidx.credentials.*
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
+import com.example.fuelly.classes.Benzinaio
 import com.google.android.libraries.identity.googleid.*
 import kotlinx.coroutines.launch
 import java.util.UUID
 import com.example.fuelly.supabase.SupabaseInstance
+import com.example.fuelly.utils.Utils
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.auth.providers.Google
+import io.github.jan.supabase.auth.user.UserSession
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.rpc
 
 class LoginActivity : AppCompatActivity() {
 
@@ -98,13 +103,30 @@ class LoginActivity : AppCompatActivity() {
                         idToken = googleIdTokenCredential.idToken
                         provider = Google
                     }
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    goToMappa()
+
 
                 } catch (e: Exception) {
                 Log.e("Supabase_Error", "Errore completo: ", e)
                 e.printStackTrace()
-            }
+                }
+                finally {
+                    //controllo se l'utente ha gia effetuato l'accesso
+                    try {
+                        val session = SupabaseInstance.client.auth.currentSessionOrNull()
+                        //se l'utente ha gia effettuato l'accesso, vado direttamente alla MainActivity (che contiene la navbar), altrimenti alla login
+                        if (session != null) {
+                            //carico i preferiti dell'utente (se loggato)
+                            Utils.caricaSalvati(session)
+
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            goToMappa()
+                            finish()
+                        }
+                    }catch (e: Exception){
+                        Log.e("Fuelly", "Errore passaggio: ${e.message}")
+                    }
+
+                }
             }
         }
     }
