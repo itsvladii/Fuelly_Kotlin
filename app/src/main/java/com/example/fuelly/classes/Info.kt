@@ -1,18 +1,17 @@
 package com.example.fuelly.classes
 
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.serialization.Serializable
 
+
 @Serializable
 data class Info(
-    val id: String, // Assicurati che nel DB sia TEXT o UUID
-    val idImpianto: Long,
-    val idUtente:String,
-    val orarioApertura: LocalTime,
-    val orarioChiusura: LocalTime,
-    val isBar: Boolean,
-    val isBagno:Boolean,
-    val descEstesa:String
-
+    val id: String? = null,           // Deve essere String? per gestire l'UUID
+    val idImpianto: Long? = null,     // Verifica che il nome sia identico al DB
+    val idUtente: String? = null,     // Deve essere String? per l'UUID
+    val orarioApertura: String? = null,
+    val orarioChiusura: String? = null,
+    val isBar: Boolean? = null,
+    val isBagno: Boolean? = null,
+    val descEstesa: String? = null
 )
