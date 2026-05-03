@@ -117,7 +117,9 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             }
 
             val benzinaioDaMostrare = Benzinaio.listaVicini
-            val iconaCustom = BitmapDescriptorFactory.fromResource(R.drawable.pin_fuel)
+
+
+            val iconaCustom = vectorToBitmap(R.drawable.fuel_marker)
 
             if (benzinaioDaMostrare.isNotEmpty()) {
                 for (stazione in benzinaioDaMostrare) {
@@ -125,7 +127,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                         MarkerOptions()
                             .position(LatLng(stazione.lat, stazione.lon))
                             .icon(iconaCustom)
-                            .anchor(0.5f, 0.5f)
+                            .anchor(0.5f, 1.0f) // Punta alla base del bitmap ritagliato
                     )
                     marker?.tag = stazione
                     marker?.let { markersBenzina.add(it) }
@@ -137,13 +139,14 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 }
             }
 
-            val iconaEV = BitmapDescriptorFactory.fromResource(R.drawable.ev_pin)
+            val iconaEV = vectorToBitmap(R.drawable.ev_marker)
+
             for (ev in ColonninaEV.listaVicini) {
                 val marker = mMap.addMarker(
                     MarkerOptions()
                         .position(LatLng(ev.lat, ev.lon))
                         .icon(iconaEV)
-                        .anchor(0.5f, 0.5f)
+                        .anchor(0.5f, 1.0f) // Punta alla base del bitmap ritagliato
                 )
                 marker?.tag = ev
                 marker?.let { markersEV.add(it) }
@@ -242,6 +245,49 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 startActivity(intent)
             }
         } else startActivity(intent)
+    }
+
+    private fun vectorToBitmap(drawableId: Int): com.google.android.gms.maps.model.BitmapDescriptor {
+        val vectorDrawable = androidx.core.content.res.ResourcesCompat.getDrawable(resources, drawableId, null) ?: return BitmapDescriptorFactory.defaultMarker()
+        
+        val width = vectorDrawable.intrinsicWidth
+        val height = vectorDrawable.intrinsicHeight
+        
+        val bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bitmap)
+        vectorDrawable.setBounds(0, 0, width, height)
+        vectorDrawable.draw(canvas)
+        
+        // Trova i limiti dei pixel non trasparenti per "restringere" la hitbox
+        var minX = width
+        var minY = height
+        var maxX = -1
+        var maxY = -1
+        
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                val alpha = (bitmap.getPixel(x, y) shr 24) and 0xff
+                if (alpha > 0) {
+                    if (x < minX) minX = x
+                    if (y < minY) minY = y
+                    if (x > maxX) maxX = x
+                    if (y > maxY) maxY = y
+                }
+            }
+        }
+
+        // Se l'immagine è vuota, restituisci il bitmap originale
+        if (maxX < minX || maxY < minY) return BitmapDescriptorFactory.fromBitmap(bitmap)
+
+        // Crea un nuovo bitmap ritagliato solo sull'area visibile del pin
+        val croppedBitmap = android.graphics.Bitmap.createBitmap(
+            bitmap, 
+            minX, 
+            minY, 
+            maxX - minX + 1, 
+            maxY - minY + 1
+        )
+        return BitmapDescriptorFactory.fromBitmap(croppedBitmap)
     }
 
     // Aggiunto metodo per distruggere il binding
