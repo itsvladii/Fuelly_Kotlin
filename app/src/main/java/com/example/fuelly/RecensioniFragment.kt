@@ -1,11 +1,14 @@
 package com.example.fuelly
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +26,7 @@ import kotlinx.serialization.json.jsonPrimitive
 class RecensioniFragment : Fragment() {
 
     private var stationId: Long = -1L
+    private var typeStation: String=""
     private lateinit var adapter: RecensioniAdapter
     private val listaRecensioni = mutableListOf<Recensione>()
 
@@ -45,6 +49,9 @@ class RecensioniFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         stationId = activity?.intent?.getLongExtra("ID_ELEMENTO", -1L) ?: -1L
+        typeStation= activity?.intent?.getStringExtra("TIPO_ELEMENTO").toString()
+
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -61,6 +68,12 @@ class RecensioniFragment : Fragment() {
         rvRecensioni.layoutManager = LinearLayoutManager(context)
         rvRecensioni.adapter = adapter
 
+        if(typeStation=="EV")
+        {
+            setupGraficaEV(view)
+        }
+
+
         // Listener per scrivere una recensione
         view.findViewById<Button>(R.id.btnScriviRecensione).setOnClickListener {
             mostraDialogRecensione()
@@ -74,10 +87,15 @@ class RecensioniFragment : Fragment() {
     private fun caricaRecensioni() {
         lifecycleScope.launch {
             try {
+
                 // Scarichiamo le recensioni e le ordiniamo dalla più recente
                 val result = SupabaseInstance.client.from("recensioni").select {
-                    filter { eq("idImpianto", stationId) }
-                    order("created_at", order = Order.DESCENDING) //ordinamento discendente delle recensioni
+                    filter {
+                        eq("idImpianto", stationId)
+                        // FILTRO CRUCIALE: scarica solo recensioni del tipo giusto
+                        eq("tipologia_elemento", typeStation)
+                    }
+                    order("created_at", order = Order.DESCENDING)
                 }.decodeList<Recensione>()
 
                 activity?.runOnUiThread {
@@ -118,6 +136,15 @@ class RecensioniFragment : Fragment() {
         val ratingInput = dialogView.findViewById<RatingBar>(R.id.ratingInput)
         val editCommento = dialogView.findViewById<EditText>(R.id.editCommento)
 
+        if (typeStation == "EV") {
+            val coloreEV = "#00FFC2".toColorInt()
+            btnInvia?.backgroundTintList = ColorStateList.valueOf(coloreEV)
+            btnInvia?.setTextColor(Color.BLACK)
+
+            ratingInput?.progressTintList = ColorStateList.valueOf(coloreEV)
+            ratingInput?.secondaryProgressTintList = ColorStateList.valueOf(coloreEV)
+        }
+
         btnInvia.setOnClickListener {
             val user = SupabaseInstance.client.auth.currentUserOrNull()
             val nomeCompleto = user?.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull ?: "Utente Anonimo"
@@ -139,6 +166,7 @@ class RecensioniFragment : Fragment() {
                         descRecensione = editCommento.text.toString(),
                         nome=nomeCompleto,
                         avatar_url = avatarUrl,
+                        tipo= typeStation
 
                     )
 
@@ -157,4 +185,22 @@ class RecensioniFragment : Fragment() {
         }
         dialog.show()
     }
+
+    private fun setupGraficaEV(rootView: View) {
+        val coloreEV = Color.parseColor("#00FFC2")
+        val coloreTesto = Color.BLACK
+
+        val btnScrivi = rootView.findViewById<Button>(R.id.btnScriviRecensione)
+
+        // backgroundTintList è più potente di setBackgroundColor per i MaterialButton
+        btnScrivi?.backgroundTintList = ColorStateList.valueOf(coloreEV)
+        btnScrivi?.setTextColor(coloreTesto)
+
+        // Cambia il colore delle stelle della media
+        val ratingMedia = rootView.findViewById<RatingBar>(R.id.ratingMedia)
+        ratingMedia?.progressTintList = ColorStateList.valueOf(coloreEV)
+        ratingMedia?.secondaryProgressTintList = ColorStateList.valueOf(coloreEV)
+    }
+
+
 }

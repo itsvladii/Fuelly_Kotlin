@@ -2,6 +2,7 @@ package com.example.fuelly.classes
 
 import org.json.JSONArray
 import com.example.fuelly.R
+import android.util.Log
 
 data class ColonninaEV(
     val id: Int,
@@ -11,41 +12,39 @@ data class ColonninaEV(
     val lon: Double,
     val potenzaKW: Double,
     val numPunti: Int,
-    val operatore: String // Aggiungi questo campo
+    val operatore: String,
+    val stato: String,
+    val connettoriJson: String? // Memorizziamo il JSON dei connettori per usi futuri
 ) {
     companion object {
-        //contenitore di tutte le colonnine vicine
         var listaVicini: List<ColonninaEV> = emptyList()
 
-        //funzione di parsing della risposta JSON
         fun parseLista(jsonString: String): List<ColonninaEV> {
             val lista = mutableListOf<ColonninaEV>()
-            val array = JSONArray(jsonString)
-            for (i in 0 until array.length()) {
-                val poi = array.getJSONObject(i)
-                val address = poi.getJSONObject("AddressInfo")
+            try {
+                val array = JSONArray(jsonString)
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
 
-                //estrazione del numero di punti di ricarica
-                val nPoints = poi.optInt("NumberOfPoints", 1)
+                    // Gestione della potenza: la leggiamo dal primo connettore nel JSON aggregato se disponibile
+                    val connettoriArray = obj.optJSONArray("connettori")
+                    val primaPotenza = connettoriArray?.optJSONObject(0)?.optDouble("potenza", 0.0) ?: 0.0
 
-                //estrazione della potenza in kw
-                val connections = poi.optJSONArray("Connections")
-                val kw = connections?.optJSONObject(0)?.optDouble("PowerKW", 0.0) ?: 0.0
-                // 1. Estrai l'oggetto OperatorInfo (può essere null, quindi usa optJSONObject)
-                val operatorInfo = poi.optJSONObject("OperatorInfo")
-
-                val nomeOperatore = operatorInfo?.optString("Title", "Generico") ?: "Generico"
-
-                lista.add(ColonninaEV(
-                    id = poi.getInt("ID"),
-                    titolo = address.optString("Title", "Colonnina"),
-                    indirizzo = address.optString("AddressLine1", "Indirizzo N.D."),
-                    lat = address.getDouble("Latitude"),
-                    lon = address.getDouble("Longitude"),
-                    potenzaKW = kw,
-                    numPunti = nPoints,
-                    operatore = nomeOperatore
-                ))
+                    lista.add(ColonninaEV(
+                        id = obj.getInt("ocm_id"), // Nome colonna DB
+                        titolo = obj.optString("nome", "Colonnina"),
+                        indirizzo = obj.optString("indirizzo", "Indirizzo N.D."),
+                        lat = obj.getDouble("latitudine"),
+                        lon = obj.getDouble("longitudine"),
+                        potenzaKW = primaPotenza,
+                        numPunti = obj.optInt("num_punti", 1),
+                        operatore = obj.optString("operatore_nome", "Generico"),
+                        stato = obj.optString("stato", "Sconosciuto"),
+                        connettoriJson = obj.optString("connettori", null)
+                    ))
+                }
+            } catch (e: Exception) {
+                Log.e("Fuelly", "Errore parsing Colonnine dal DB: ${e.message}")
             }
             return lista
         }
@@ -53,11 +52,10 @@ data class ColonninaEV(
 
     fun getLogoResource(): Int {
         val op = this.operatore.lowercase()
-
         return when {
             op.contains("enel") -> R.drawable.logo_enelx
             op.contains("tesla") -> R.drawable.logo_tesla
-            op.contains("be charge") || op.contains("plenitude") -> R.drawable.logo_plenitude
+            op.contains("be charge") || op.contains("plenitude") || op.contains("eni") -> R.drawable.logo_plenitude
             else -> R.drawable.ev_logo
         }
     }

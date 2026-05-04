@@ -27,7 +27,6 @@ class RecensioniAdapter(private var lista: MutableList<Recensione>) :
         holder.nome.text = r.nome
         holder.testo.text = r.descRecensione
         holder.rating.rating = r.rating.toFloat()
-
     }
 
     override fun getItemCount() = lista.size

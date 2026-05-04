@@ -13,5 +13,6 @@ data class Recensione(
     @SerialName("created_at") val data_inserimento: String?=null,
     @SerialName("nome_display") val nome: String?= "Utente Anonimo",
     @SerialName("img_profilo") val avatar_url: String? = null,
+    @SerialName("tipologia_elemento") var tipo: String? = null
 
 ){}

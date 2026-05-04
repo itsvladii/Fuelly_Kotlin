@@ -30,6 +30,7 @@ import androidx.core.graphics.toColorInt
 import androidx.core.view.WindowCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import androidx.core.graphics.createBitmap
 
 class MapsFragment : Fragment(), OnMapReadyCallback {
     private val markersBenzina = mutableListOf<com.google.android.gms.maps.model.Marker>()
@@ -253,7 +254,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         val width = vectorDrawable.intrinsicWidth
         val height = vectorDrawable.intrinsicHeight
         
-        val bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(width, height)
         val canvas = android.graphics.Canvas(bitmap)
         vectorDrawable.setBounds(0, 0, width, height)
         vectorDrawable.draw(canvas)

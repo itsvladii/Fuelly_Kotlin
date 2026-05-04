@@ -95,10 +95,21 @@ class Splash : AppCompatActivity() {
                         Benzinaio.listaVicini = listaTutti
                         Log.d("Fuelly", "Lista di benzinai vicini: ${Benzinaio.listaVicini.count()}")
 
-                        //raccolgo le colonnine di ricarica vicine tramite la chiamata API e le salvo in una lista
-                        val jsonEV = fetchColonnineEV(location.latitude, location.longitude)
-                        ColonninaEV.listaVicini = ColonninaEV.parseLista(jsonEV)
-                        Log.d("Fuelly", "Caricate ${ColonninaEV.listaVicini.size} colonnine elettriche!")
+
+                        // --- NUOVO: CARICAMENTO COLONNINE DAL TUO DB ---
+                        Log.d("Fuelly", "Sto cercando colonnine nel DB vicino a: ${location.latitude}")
+
+                        val responseEV = SupabaseInstance.client.postgrest.rpc(
+                            function = "get_colonnine_vicine", // La nuova funzione creata su Supabase
+                            parameters = mapOf(
+                                "user_lat" to location.latitude,
+                                "user_lon" to location.longitude,
+                                "raggio_km" to 10.0
+                            )
+                        )
+
+                        ColonninaEV.listaVicini = ColonninaEV.parseLista(responseEV.data)
+                        Log.d("Fuelly", "Caricate ${ColonninaEV.listaVicini.size} colonnine dal DB proprietario!")
 
                         //controllo se l'utente ha gia effetuato l'accesso
                         try {
@@ -127,21 +138,4 @@ class Splash : AppCompatActivity() {
         }
     }
 
-    // Funzione di fetching dei dati da OpenChargeMap tramite chiamata API
-    private suspend fun fetchColonnineEV(lat: Double, lon: Double): String {
-        //inizializzo il client con la chiave e l'url di richiesta
-        val client = okhttp3.OkHttpClient()
-        val apiKey = BuildConfig.EV_API_KEY
-        val url = "https://api.openchargemap.io/v3/poi/?output=json&latitude=$lat&longitude=$lon&distance=15&distanceunit=KM&key=$apiKey" //url della richiesta
-
-        //effettuo la richiesta
-        val request = okhttp3.Request.Builder().url(url).build()
-
-        //eseguo la richiesta in un thread separato
-        return withContext(Dispatchers.IO) {
-            client.newCall(request).execute().use { response ->
-                response.body.string()
-            }
-        }
-    }
 }
