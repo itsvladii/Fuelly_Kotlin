@@ -5,209 +5,150 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.classes.Info
-import com.example.fuelly.classes.Salvato
-import com.example.fuelly.classes.Utente
 import com.example.fuelly.supabase.SupabaseInstance
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalTime
 
 class InfoFragment : Fragment() {
 
     private var idRicevuto: Long = -1L
 
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         val view = inflater.inflate(R.layout.fragment_info, container, false)
 
-        // 1) PRENDO L'ID DEL BENZINAIO PASSATO DALL'ACTIVITY DETTAGLI TRAMITE INTENT
+        //recupero ID dell'elemento
         idRicevuto = activity?.intent?.getLongExtra("ID_ELEMENTO", -1L) ?: -1L
 
+        //componenti del fragment
+        val nomeBenzinaio = view.findViewById<TextView>(R.id.textNomeBenzinaio)
+        val orarioApertura = view.findViewById<TextInputEditText>(R.id.textOrarioApertura)
+        val orarioChiusura = view.findViewById<TextInputEditText>(R.id.textOrarioChiusura)
+        val bagnoPresente = view.findViewById<SwitchMaterial>(R.id.switchBagno)
+        val barPresente = view.findViewById<SwitchMaterial>(R.id.switchBar)
+        val textDescrizione = view.findViewById<TextInputEditText>(R.id.DescEstesa)
+        val btnModifica = view.findViewById<MaterialButton>(R.id.editButton)
+        val btnSalva = view.findViewById<MaterialButton>(R.id.saveButton)
 
-        // 2) VARIABILI TEXT,SWITCH.....
-        val nomeBenzinaio:TextView = view.findViewById(R.id.textNomeBenzinaio)
-        val orarioApertura: TextInputEditText = view.findViewById(R.id.textOrarioApertura)
-        val orarioChiusura: TextInputEditText = view.findViewById(R.id.textOrarioChiusura)
-        val bagnoPresente: Switch = view.findViewById(R.id.switchBagno)
-        val barPresente: Switch = view.findViewById(R.id.switchBar)
-        val textDescrizione: TextInputEditText = view.findViewById(R.id.DescEstesa)
-        var nomeEstratto:String
-        val bottoneModificaInfo: ImageButton = view.findViewById(R.id.editButton)
-        val bottoneSalvaInfo: ImageButton = view.findViewById(R.id.saveButton)
-        val bottoneInserisciInfo: ImageButton = view.findViewById(R.id.insertButton)
+        //all'inizio tutti i componenti sono disabilitati
+        setFieldsEnabled(false, orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
 
-
-        // 3) LETTURA DAL DATABASE E VISUALIZZO NEi CAMPI
         lifecycleScope.launch {
-
             try {
-
-                //RICAVO IL GESTORE DALLA TABELLA BENZINAI
-                try {
-                    val datiBenzinaio = SupabaseInstance.client.from("benzinai")
-                        .select(columns = Columns.list("Gestore")) {
-                            filter { eq("idImpianto", idRicevuto) }
-                        }.decodeSingle<Map<String, String>>()
-
-                    //Eventualmente lo setto come "Sconosciuto"
-                    nomeBenzinaio.text = datiBenzinaio["Gestore"] ?: "Sconosciuto"
-
-                } catch (e: Exception)
-                {
-                    nomeBenzinaio.text = "Gestore non trovato"
-                }
-
-                //LETTURA DALLA TABELLA info_benzinai IN BASE ALL'ID DEL BENZINAIO CHE PASSO DALLA DETTAGLI ACITIVITY
-                val risposta = SupabaseInstance.client.from("info_benzinai").select {
-                    filter { eq("idImpianto", idRicevuto) }
-                }.decodeList<Info>()
-
-                // SE LA RISPOSTA NON È VUOTA --> TROVO LA RIGA
-                if (risposta.isNotEmpty()) {
-
-                    val infoBez = risposta[0]
-
-                    // Prendi solo i primi 5 caratteri (HH:mm) se la stringa non è nulla
-                    val apPulito = infoBez.orarioApertura?.take(5) ?: "--:--"
-                    val chPulito = infoBez.orarioChiusura?.take(5) ?: "--:--"
-
-                    // Imposta SOLO l'orario pulito nel campo di testo
-                    //uso il setText come metodo perchè lavoro con una tipeInput Edit Text
-                    orarioApertura.setText(apPulito)
-                    orarioChiusura.setText(chPulito)
-
-                    // Se vuoi mostrare un'etichetta, usa l'HINT del layout o una TextView separata
-                    bagnoPresente.isChecked = infoBez.isBagno ?: false
-                    barPresente.isChecked = infoBez.isBar ?: false
-                    textDescrizione.setText(infoBez.descEstesa ?: "")
-
-                    //DISABILITO ALCUNI ELEMENTI
-                    textDescrizione.apply {
-                        isFocusable = false
-                        isFocusableInTouchMode = false
-                        isCursorVisible = false
-                    }
-                    bagnoPresente.isClickable = false
-                    barPresente.isClickable = false
-                    orarioApertura.isClickable = false
-                    orarioChiusura.isClickable = false
-
-                }
-                else
-                {
-                    Log.d("Errore", "Nessuna info trovata per idImpianto: $idRicevuto")
-
-                    Toast.makeText(context, "Dati impianto non disponibili", Toast.LENGTH_SHORT).show()
-
-                    //VADO A FARE L'INSERIMENTO DELLA INFO NELLA TABELLA info_benzinai
-                    //ABILITO IL BOTTONE DI INSERIMENTO
-                    bottoneInserisciInfo.isEnabled = true
-                    bottoneInserisciInfo.isClickable = true
-                    bottoneSalvaInfo.isEnabled = false
-                    bottoneSalvaInfo.isClickable = false
-
-                    //AL CLICK DEL BOTTONE INSERIMENTO
-                    bottoneInserisciInfo.setOnClickListener {
-
-                        //controllo l'utente in sessione
-                        val session = SupabaseInstance.client.auth.currentSessionOrNull()
-
-                        if (session == null) {
-                            Toast.makeText(context, "Effettuare il login", Toast.LENGTH_SHORT).show()
-                            return@setOnClickListener // Esci se non c'è sessione
-                        }
-
-                        //Recupero testi dei vari campi puliti e aggiornati
-                        val desc = textDescrizione.text.toString().trim()
-
-                        // prendo l'orario così come scritto (es. "08:00")
-                        val orarioApStr = orarioApertura.text.toString().trim()
-                        val orarioChStr = orarioChiusura.text.toString().trim()
-
-                        //Controllo campi vuoti
-                        if (desc.isEmpty() || orarioApStr.isEmpty() || orarioChStr.isEmpty()) {
-                            Toast.makeText(context, "Obbligatorio inserire tutti i campi", Toast.LENGTH_SHORT).show()
-                            return@setOnClickListener // Esci se mancano dati
-                        }
-
-                        lifecycleScope.launch {
-                            try {
-                                //oggetto Info con quello che inserisco nei campi dell'interfaccia
-                                val nuovaInfo = Info(
-                                    id = null, //è autoincrement nella tabella lo genero automaticamente
-                                    idImpianto = idRicevuto,
-                                    idUtente = session.user?.id.toString(),
-                                    orarioApertura = orarioApStr,
-                                    orarioChiusura = orarioChStr,
-                                    isBar = barPresente.isChecked,
-                                    isBagno = bagnoPresente.isChecked,
-                                    descEstesa = desc
-                                )
-
-                                //QUERY DI INSERIMENTO
-                                SupabaseInstance.client.from("info_benzinai").insert(nuovaInfo)
-
-                                Toast.makeText(context, "Info inserite con successo", Toast.LENGTH_SHORT).show()
-
-                                // Feedback visivo: disabilita e rendi semi-trasparente
-                                bottoneInserisciInfo.isEnabled = false
-                                bottoneInserisciInfo.alpha = 0.5f
-
-                            } catch (e: Exception)
-                            {
-                                Log.e("Errore Supabase", "Errore inserimento info: ${e.message}")
-                                Toast.makeText(context, "Errore: controlla formato HH:mm", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                }
-
+                // Recupero nome gestore dalla tabella benzinai
+                val datiBenzinaio = SupabaseInstance.client.from("benzinai")
+                    .select(columns = Columns.list("Gestore")) {
+                        filter { eq("idImpianto", idRicevuto) }
+                    }.decodeSingle<Map<String, String>>()
+                nomeBenzinaio.text = datiBenzinaio["Gestore"] ?: "Sconosciuto"
             } catch (e: Exception) {
-                Log.e("Errore Supabase", "Errore generale: ${e.message}", e)
+                nomeBenzinaio.text = "Gestore non trovato"
             }
+
+            caricaInfoEsistenti(orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
         }
 
-        //AL CLICK DEL BOTTONE MODIFICA
-        bottoneModificaInfo.setOnClickListener {
-            // Abilita gli EditText
-            textDescrizione.isEnabled = true
-            orarioApertura.isEnabled = true
-            orarioChiusura.isEnabled = true
+        //attivo la modifica se clicco il pulsante modifica
+        btnModifica.setOnClickListener {
+            setFieldsEnabled(true, orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
+            Toast.makeText(context, "Modalità modifica attivata", Toast.LENGTH_SHORT).show()
+        }
 
-            // Abilita gli Switch
-            bagnoPresente.isEnabled = true
-            barPresente.isEnabled = true
-
-            // Gestione Bottoni
-            bottoneSalvaInfo.isEnabled = true
-            bottoneSalvaInfo.alpha = 1.0f
-            bottoneInserisciInfo.isEnabled = false
+        //salvo le modifiche se clicco il pulsante salva
+        btnSalva.setOnClickListener {
+            salvaInformazioni(orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
         }
 
         return view
-
-
-
-
     }
 
+    //funzione di attivazione/disattivazione degli elementi del fragment
+    private fun setFieldsEnabled(enabled: Boolean, vararg views: View) {
+        views.forEach { v ->
+            v.isEnabled = enabled
+            if (v is TextInputEditText) {
+                v.isFocusable = enabled
+                v.isFocusableInTouchMode = enabled
+            }
+        }
+    }
 
+    //funzione di caricamento le info del benzinaio
+    private suspend fun caricaInfoEsistenti(
+        ap: TextInputEditText, ch: TextInputEditText,
+        bagno: SwitchMaterial, bar: SwitchMaterial, desc: TextInputEditText
+    ) {
+        try {
+            val risposta = SupabaseInstance.client.from("info_benzinai").select {
+                filter { eq("idImpianto", idRicevuto) }
+            }.decodeList<Info>()
 
+            if (risposta.isNotEmpty()) {
+                val info = risposta[0]
+                ap.setText(info.orarioApertura?.take(5) ?: "")
+                ch.setText(info.orarioChiusura?.take(5) ?: "")
+                bagno.isChecked = info.isBagno ?: false
+                bar.isChecked = info.isBar ?: false
+                desc.setText(info.descEstesa ?: "")
+            }
+        } catch (e: Exception) {
+            Log.e("InfoFragment", "Errore caricamento: ${e.message}")
+        }
+    }
 
+    //funzione di salvataggio delle info sul DB
+    private fun salvaInformazioni(
+        ap: TextInputEditText, ch: TextInputEditText,
+        bagno: SwitchMaterial, bar: SwitchMaterial, desc: TextInputEditText
+    ) {
+        val session = SupabaseInstance.client.auth.currentSessionOrNull()
+        if (session == null) {
+            Toast.makeText(context, "Effettua il login per salvare", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val apStr = ap.text.toString().trim()
+        val chStr = ch.text.toString().trim()
+        val descStr = desc.text.toString().trim()
+
+        if (apStr.isEmpty() || chStr.isEmpty()) {
+            Toast.makeText(context, "Orari obbligatori", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val nuovaInfo = Info(
+                    id = null,
+                    idImpianto = idRicevuto,
+                    idUtente = session.user?.id.toString(),
+                    orarioApertura = apStr,
+                    orarioChiusura = chStr,
+                    isBar = bar.isChecked,
+                    isBagno = bagno.isChecked,
+                    descEstesa = descStr
+                )
+
+                // Upsert: inserisce se nuovo, aggiorna se esiste[cite: 5]
+                SupabaseInstance.client.from("info_benzinai").upsert(nuovaInfo)
+
+                Toast.makeText(context, "Dati salvati con successo", Toast.LENGTH_SHORT).show()
+                setFieldsEnabled(false, ap, ch, bagno, bar, desc)
+            } catch (e: Exception) {
+                Toast.makeText(context, "Errore durante il salvataggio", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }

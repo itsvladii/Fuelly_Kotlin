@@ -3,12 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="#F8F9FA">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@+id/containerAzioni"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -16,137 +18,205 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- INTESTAZIONE -->
             <TextView
                 android:id="@+id/textNomeBenzinaio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingVertical="12dp"
-                android:text="Gestore Impianto"
+                android:fontFamily="@font/chakra_petch_semibold"
+                android:text="NOME GESTORE"
                 android:textAlignment="center"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="@color/black" />
-
-            <!-- NUOVO: Input per Orario Apertura -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:boxBackgroundMode="outline"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/textOrarioApertura"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Orario Apertura (es. 08:00)"
-                    android:inputType="time" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- NUOVO: Input per Orario Chiusura -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:boxBackgroundMode="outline"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/textOrarioChiusura"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Orario Chiusura (es. 20:00)"
-                    android:inputType="time" />
-            </com.google.android.material.textfield.TextInputLayout>
+                android:textColor="@color/black"
+                android:textSize="24sp" />
 
             <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginVertical="16dp"
-                android:background="#DDDDDD" />
+                android:layout_width="50dp"
+                android:layout_height="3dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"
+                android:background="@color/fuelly_green_dark" />
 
-            <Switch
-                android:id="@+id/switchBagno"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Servizi Igienici"
-                android:textSize="16sp" />
-
-            <Switch
-                android:id="@+id/switchBar"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Servizi Ristorazione"
-                android:textSize="16sp" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="24dp" />
-
-            <com.google.android.material.textfield.TextInputLayout
+            <!-- CARD ORARI -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:boxBackgroundMode="outline"
-                app:boxCornerRadiusTopStart="8dp"
-                app:boxCornerRadiusTopEnd="8dp"
-                app:boxCornerRadiusBottomStart="8dp"
-                app:boxCornerRadiusBottomEnd="8dp">
+                android:backgroundTint="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardUseCompatPadding="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:fontFamily="@font/dm_sans_medium"
+                        android:text="Orari di Servizio"
+                        android:textColor="@color/fuelly_green_dark"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:hint="Apertura"
+                            android:textColorHint="@color/fuelly_green_dark"
+                            app:boxStrokeColor="@color/fuelly_green_dark"
+                            app:cursorColor="@color/fuelly_green_dark"
+                            app:helperTextTextColor="@color/fuelly_green_dark">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/textOrarioApertura"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="time"
+                                android:textColor="@color/fuelly_green_dark"
+                                android:textColorHint="@color/fuelly_green_dark" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="Chiusura"
+                            android:textColorHint="@color/fuelly_green_dark"
+                            app:boxStrokeColor="@color/fuelly_green_dark"
+                            app:cursorColor="@color/fuelly_green_dark"
+                            app:helperTextTextColor="@color/fuelly_green_dark">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/textOrarioChiusura"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="time"
+                                android:textColor="@color/fuelly_green_dark"
+                                android:textColorHint="@color/fuelly_green_dark" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- CARD SERVIZI -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/white"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:cardUseCompatPadding="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchBagno"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/dm_sans_medium"
+                        android:text="Servizi Igienici"
+                        android:textColor="@color/fuelly_green_dark"
+                        app:switchPadding="16dp"
+                        app:thumbTint="@color/fuelly_green_dark"
+                        app:trackTint="@color/fuelly_yellow_fluo" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/dm_sans_medium"
+                        android:text="Bar / Ristorazione"
+                        android:textColor="@color/fuelly_green_dark"
+                        app:switchPadding="16dp"
+                        app:thumbTint="@color/fuelly_green_dark"
+                        app:trackTint="@color/fuelly_yellow_fluo" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- DESCRIZIONE -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="Note e Descrizione"
+                android:textColorHint="@color/grey_inactive"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@color/grey_inactive"
+                app:hintTextColor="@color/fuelly_green_dark">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/DescEstesa"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
                     android:gravity="top"
-                    android:hint="Descrizione del posto"
                     android:inputType="textMultiLine"
-                    android:minLines="5" />
+                    android:minLines="4"
+                    android:textColor="@color/fuelly_green_dark"
+                    android:textColorHint="@color/ic_launcher_background" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Sezione Bottoni Arrotondati e Uniformi -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingTop="24dp"
-                android:gravity="center">
-
-                <ImageButton
-                    android:id="@+id/editButton"
-                    android:layout_width="0dp"
-                    android:layout_height="60dp"
-                    android:layout_weight="1"
-                    android:layout_margin="4dp"
-                    android:padding="16dp"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/edit" />
-
-                <ImageButton
-                    android:id="@+id/saveButton"
-                    android:layout_width="0dp"
-                    android:layout_height="60dp"
-                    android:layout_weight="1"
-                    android:layout_margin="4dp"
-                    android:padding="16dp"
-                    android:scaleType="fitCenter"
-                    app:srcCompat="@drawable/save" />
-
-                <ImageButton
-                    android:id="@+id/insertButton"
-                    android:layout_width="0dp"
-                    android:layout_height="60dp"
-                    android:layout_weight="1"
-                    android:layout_margin="4dp"
-                    android:padding="16dp"
-                    android:scaleType="fitCenter"
-                       app:srcCompat="@drawable/insert" />
-            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- BARRA AZIONI IN BASSO -->
+    <LinearLayout
+        android:id="@+id/containerAzioni"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/editButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_weight="1"
+            android:drawableTint="@color/fuelly_green_dark"
+            android:drawableTintMode="add"
+            android:text="Modifica"
+            android:textColor="@color/fuelly_green_dark"
+            app:icon="@drawable/edit" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveButton"
+            android:layout_width="0dp"
+            android:layout_height="55dp"
+            android:layout_marginHorizontal="8dp"
+            android:layout_weight="1.5"
+            android:fontFamily="@font/chakra_petch_semibold"
+            android:text="SALVA"
+            android:textColor="@color/black"
+            app:backgroundTint="#DFFF00"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/save"
+            app:iconTint="@color/black" />
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

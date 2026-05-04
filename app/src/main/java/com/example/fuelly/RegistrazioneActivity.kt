@@ -31,14 +31,14 @@ class RegistrazioneActivity : AppCompatActivity() {
         windowInsetsController.isAppearanceLightNavigationBars = true
 
 
-        // Riferimenti ai nuovi ID del layout Material
+        //id dei componenti del activity
         val editNome = findViewById<TextInputEditText>(R.id.editNome)
         val editEmail = findViewById<TextInputEditText>(R.id.editEmail)
         val editPassword = findViewById<TextInputEditText>(R.id.editPassword)
         val btnRegistrati = findViewById<Button>(R.id.btnRegistrazione)
         val btnVaiALogin = findViewById<TextView>(R.id.btnVaiALogin)
 
-        // Torna alla login se hai già un account
+        //listener del bottone "torna al login"
         btnVaiALogin.setOnClickListener {
             //passo alla pagina di login
             val intent = Intent(this, LoginActivity::class.java)
@@ -46,12 +46,13 @@ class RegistrazioneActivity : AppCompatActivity() {
             finish()
         }
 
+        //listener della conferma di registrazione
         btnRegistrati.setOnClickListener {
             val nome = editNome.text.toString().trim()
             val email = editEmail.text.toString().trim()
             val password = editPassword.text.toString()
 
-            // Validazione minima
+            //verifico se i campi sono popolati (e che la password sia minimo 6 caratteri)
             if (nome.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Tutti i campi sono obbligatori", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -64,8 +65,7 @@ class RegistrazioneActivity : AppCompatActivity() {
 
             lifecycleScope.launch {
                 try {
-                    // REGISTRAZIONE TRAMITE SUPABASE AUTH
-                    // Usiamo signUpWith per creare l'utente nel modulo Authentication
+                    //salvo l'utente nella tabella auth di supabase (stessa tabella degli utenti google)
                     SupabaseInstance.client.auth.signUpWith(Email) {
                         this.email = email
                         this.password = password
@@ -75,9 +75,10 @@ class RegistrazioneActivity : AppCompatActivity() {
                         }
                     }
 
+                    //passo alla LoginActivity una volta registrato
                     runOnUiThread {
                         Toast.makeText(this@RegistrazioneActivity,
-                            "Registrazione completata! Controlla la tua email per confermare.",
+                            "Registrazione completata! Effettua il Login.",
                             Toast.LENGTH_LONG).show()
                         //passo alla pagina di login
                         val intent = Intent(this@RegistrazioneActivity, LoginActivity::class.java)

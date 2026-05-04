@@ -15,6 +15,7 @@ import com.example.fuelly.supabase.SupabaseInstance
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
@@ -76,22 +77,24 @@ class RecensioniFragment : Fragment() {
                 // Scarichiamo le recensioni e le ordiniamo dalla più recente
                 val result = SupabaseInstance.client.from("recensioni").select {
                     filter { eq("idImpianto", stationId) }
-                    // Opzionale: ordina per data decrescente
+                    order("created_at", order = Order.DESCENDING) //ordinamento discendente delle recensioni
                 }.decodeList<Recensione>()
 
                 activity?.runOnUiThread {
+                    //se non ho recensioni, mostro un txt che dice "non c'è nulla"
                     if (result.isEmpty()) {
                         txtVuoto.visibility = View.VISIBLE
                         rvRecensioni.visibility = View.GONE
                     } else {
+                        //se c'è una recensione, aggiorno il fragment con tutte le recensioni
                         txtVuoto.visibility = View.GONE
                         rvRecensioni.visibility = View.VISIBLE
 
-                        // Calcolo media per l'header
+                        //calcolo media recensioni
                         val media = result.map { it.rating }.average()
                         aggiornaHeaderMedia(media)
 
-                        // Update dell'adapter
+                        //update del adapter
                         adapter.updateData(result)
                     }
                 }
@@ -124,8 +127,10 @@ class RecensioniFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            //creazione di una nuova recensione
             lifecycleScope.launch {
                 try {
+                    //creo nuova istanza di classe Recensione
                     val nuova = Recensione(
 
                         idUtente = user.id,
@@ -137,11 +142,12 @@ class RecensioniFragment : Fragment() {
 
                     )
 
+                    //inserisco nel DB
                     SupabaseInstance.client.from("recensioni").insert(nuova)
 
                     activity?.runOnUiThread {
                         dialog.dismiss()
-                        caricaRecensioni() // Refresh della lista
+                        caricaRecensioni() //refresh della lista recensioni post-inserimento
                         Toast.makeText(context, "Recensione inviata!", Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
