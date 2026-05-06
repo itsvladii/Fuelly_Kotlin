@@ -81,7 +81,7 @@ class PrezziFragment : Fragment() {
     //funzione di fetching dei prezzi del benzinaio
     private fun ricavaPrezziBenzinaio(view: View, idImpianto: Int, soloServito: Boolean) {
         val loader = view.findViewById<ProgressBar>(R.id.loadingPrezzi)
-        val stazione = Benzinaio.listaVicini.find { it.id == idImpianto }
+        val stazione = Benzinaio.listaCompleta.find { it.id == idImpianto }
         val siglaProvincia = stazione?.provincia ?: ""
 
         lifecycleScope.launch {

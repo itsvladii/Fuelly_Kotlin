@@ -19,6 +19,9 @@ data class ColonninaEV(
     companion object {
         var listaVicini: List<ColonninaEV> = emptyList()
 
+        var listaSalvati: List<ColonninaEV> = emptyList()
+
+
         fun parseLista(jsonString: String): List<ColonninaEV> {
             val lista = mutableListOf<ColonninaEV>()
             try {

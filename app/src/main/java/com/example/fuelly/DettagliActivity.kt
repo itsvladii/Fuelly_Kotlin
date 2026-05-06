@@ -63,7 +63,7 @@ class DettagliActivity : AppCompatActivity() {
     private fun setupHeader() {
         when (tipoRicevuto) {
             "BENZINA" -> {
-                val stazione = Benzinaio.listaVicini.find { it.id.toLong() == idRicevuto }
+                val stazione = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
                 stazione?.let { setupUIBenzina(it) }
             }
             "EV" -> {
@@ -167,7 +167,7 @@ class DettagliActivity : AppCompatActivity() {
                     // Ricalcoliamo la distanza per l'header
                     when (tipoRicevuto) {
                         "BENZINA" -> {
-                            val b = Benzinaio.listaVicini.find { it.id.toLong() == idRicevuto }
+                            val b = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
                             b?.let { calcolaDistanzaDettaglio(it.lat, it.lon) }
                         }
                         "EV" -> {
@@ -276,7 +276,7 @@ class DettagliActivity : AppCompatActivity() {
         val lon: Double?
         //ricavo le coordinate del punto di interesse in base al tipo di elemento (benzinaio o colonnina) e all'id ricevuto
         if (tipoRicevuto == "BENZINA") {
-            val s = Benzinaio.listaVicini.find { it.id.toLong() == idRicevuto }
+            val s = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
             lat = s?.lat; lon = s?.lon
         } else {
             val c = ColonninaEV.listaVicini.find { it.id.toLong() == idRicevuto }

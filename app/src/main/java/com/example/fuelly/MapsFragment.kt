@@ -231,7 +231,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         binding.root.findViewById<TextView>(R.id.txtStationAddress).setTextColor("#00FFC2".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtPrice).setTextColor("#00FFC2".toColorInt())
 
-        binding.root.findViewById<TextView>(R.id.txtStationName).text = ev.titolo
+        binding.root.findViewById<TextView>(R.id.txtStationName).text = ev.titolo + " "
         binding.root.findViewById<TextView>(R.id.txtStationAddress).text = ev.indirizzo
 
         // --- LOGICA DI CALCOLO REALE DELLE PRESE ---

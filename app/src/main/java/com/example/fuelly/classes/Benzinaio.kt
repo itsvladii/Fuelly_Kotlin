@@ -25,6 +25,9 @@ data class Benzinaio(
 
         var listaSalvati: List<Benzinaio> = emptyList()
 
+        // Lista che unisce sia i salvati che i vicini, senza duplicati
+        val listaCompleta: List<Benzinaio>
+            get() = (listaSalvati + listaVicini).distinctBy { it.id }
 
         fun parseLista(data: Any?): List<Benzinaio> {
             val lista = mutableListOf<Benzinaio>()
