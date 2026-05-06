@@ -25,7 +25,7 @@ data class Benzinaio(
 
         var listaSalvati: List<Benzinaio> = emptyList()
 
-        // Lista che unisce sia i salvati che i vicini, senza duplicati
+        // Lista che unisce salvati e vicini senza duplicati
         val listaCompleta: List<Benzinaio>
             get() = (listaSalvati + listaVicini).distinctBy { it.id }
 
