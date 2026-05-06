@@ -242,6 +242,7 @@ class PrezziFragment : Fragment() {
             )
 
             //setup del numero di connettori e della potenza
+            itemView.findViewById<TextView>(R.id.lblNomePresa).text = typeName
             val txtPotenza = itemView.findViewById<TextView>(R.id.lblPotenza)
             val infoTecnica = "${power.toInt()} kW • x$qta"
             txtPotenza.text = infoTecnica

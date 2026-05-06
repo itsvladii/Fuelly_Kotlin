@@ -230,9 +230,29 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         binding.root.findViewById<TextView>(R.id.txtStationName).setTextColor("#00FFC2".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationAddress).setTextColor("#00FFC2".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtPrice).setTextColor("#00FFC2".toColorInt())
-        binding.root.findViewById<TextView>(R.id.txtStationName).text = ev.titolo + " "
+
+        binding.root.findViewById<TextView>(R.id.txtStationName).text = ev.titolo
         binding.root.findViewById<TextView>(R.id.txtStationAddress).text = ev.indirizzo
-        findViewById<TextView>(R.id.txtPrice).text = "${ev.potenzaKW} kW • ${ev.numPunti} prese"
+
+        // --- LOGICA DI CALCOLO REALE DELLE PRESE ---
+        var totalePrese = 0
+        if (!ev.connettoriJson.isNullOrEmpty()) {
+            try {
+                val array = org.json.JSONArray(ev.connettoriJson)
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
+                    // Sommiamo il campo 'quantita' che abbiamo aggiunto alla RPC
+                    totalePrese += obj.optInt("quantita", 1)
+                }
+            } catch (e: Exception) {
+                totalePrese = ev.numPunti // Fallback al valore base in caso di errore
+            }
+        } else {
+            totalePrese = ev.numPunti
+        }
+
+        // Usiamo il valore calcolato invece di ev.numPunti
+        findViewById<TextView>(R.id.txtPrice).text = "$totalePrese prese"
         findViewById<ImageView>(R.id.imgPompa).setImageResource(ev.getLogoResource())
     }
 
