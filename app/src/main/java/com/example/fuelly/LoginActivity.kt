@@ -30,7 +30,8 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var credentialManager: CredentialManager
 
-
+    // Client ID ottenuto dalla Google Cloud Console per l'autenticazione OAuth 2.0
+    //TODO: da mettere nell' .env e non nel codice, per sicurezza
     private val WEB_CLIENT_ID = "348141692404-0fe09qj3s2a9msl9ndep5sf433hcv1rl.apps.googleusercontent.com"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,11 +44,13 @@ class LoginActivity : AppCompatActivity() {
 
         credentialManager = CredentialManager.create(this)
 
+        //listener per il pulsante login con google
         val btnGoogle = findViewById<Button>(R.id.btnGoogle)
         btnGoogle.setOnClickListener {
             startGoogleSignIn()
         }
 
+        //listener per il pulsante registrazione manuale con email e password
         findViewById<TextView>(R.id.btnVaiALogin).setOnClickListener{
             //passo alla pagina di registrazione
             val intent = Intent(this, RegistrazioneActivity::class.java)
@@ -55,6 +58,7 @@ class LoginActivity : AppCompatActivity() {
             finish()
         }
 
+        //TODO: da migrare in una funzione a parte, per evitare di avere tutto il codice del login manuale in un unico posto
         val emailEdit = findViewById<TextInputEditText>(R.id.emailEdit)
         val passwordEdit = findViewById<TextInputEditText>(R.id.passwordEdit)
         findViewById<Button>(R.id.btnNext).setOnClickListener {

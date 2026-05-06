@@ -48,6 +48,17 @@ data class ColonninaEV(
             }
             return lista
         }
+
+        fun getIconaConnettore(typeName: String?): Int {
+            if (typeName == null) return R.drawable.ev_logo
+            val name = typeName.lowercase()
+            return when {
+                name.contains("type 2") || name.contains("mennekes") -> R.drawable.type2_logo
+                name.contains("ccs") || name.contains("combo") -> R.drawable.ccs_type2_logo
+                name.contains("chademo") -> R.drawable.chademo_logo
+                else -> R.drawable.ev_logo
+            }
+        }
     }
 
     fun getLogoResource(): Int {
@@ -59,4 +70,6 @@ data class ColonninaEV(
             else -> R.drawable.ev_logo
         }
     }
+
+
 }

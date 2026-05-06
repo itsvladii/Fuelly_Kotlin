@@ -33,6 +33,7 @@ import com.google.android.gms.location.LocationServices
 import androidx.core.graphics.createBitmap
 
 class MapsFragment : Fragment(), OnMapReadyCallback {
+    //lista di tutti i marker della mappa
     private val markersBenzina = mutableListOf<com.google.android.gms.maps.model.Marker>()
     private val markersEV = mutableListOf<com.google.android.gms.maps.model.Marker>()
 
@@ -103,27 +104,27 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         mMap = googleMap
 
         try {
+            //imposto lo sitle custom presente su res/raw
             val success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style))
             if (!success) Log.e("Fuelly", "Errore nel caricamento dello stile JSON.")
 
-            mMap.isBuildingsEnabled = false
-            mMap.uiSettings.isTiltGesturesEnabled = false
-            mMap.uiSettings.isRotateGesturesEnabled = false
-            mMap.uiSettings.isMapToolbarEnabled = false
+            //rimozione di alcune feature non necessarie sulla mappa
+            mMap.isBuildingsEnabled = false //rimozione degli edifici 3D
+            mMap.uiSettings.isTiltGesturesEnabled = false //rimozione della gesture di tilt della mappa
+            mMap.uiSettings.isRotateGesturesEnabled = false //rimozione della gesture di rotazione della mappa
+            mMap.uiSettings.isMapToolbarEnabled = false //rimozione della toolbar della mappa
 
+            //se ho i permessi di geolocalizzazione, posiziono la camera della mappa sulla posizione dell'utente
             if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mMap.isMyLocationEnabled = true
                 mMap.uiSettings.isMyLocationButtonEnabled = false
                 moveToCurrentLocation()
             }
 
-            val benzinaioDaMostrare = Benzinaio.listaVicini
-
-
-            val iconaCustom = vectorToBitmap(R.drawable.fuel_marker)
-
-            if (benzinaioDaMostrare.isNotEmpty()) {
-                for (stazione in benzinaioDaMostrare) {
+            val iconaCustom = vectorToBitmap(R.drawable.fuel_marker) //imposto il marker custom (per i benzinai)
+            if (Benzinaio.listaVicini.isNotEmpty()) {
+                //per ogni benzinaio nella lista, aggiungi il marker
+                for (stazione in Benzinaio.listaVicini) {
                     val marker = mMap.addMarker(
                         MarkerOptions()
                             .position(LatLng(stazione.lat, stazione.lon))
@@ -135,14 +136,14 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 }
 
                 if (!mMap.isMyLocationEnabled) {
-                    val focus = LatLng(benzinaioDaMostrare[0].lat, benzinaioDaMostrare[0].lon)
+                    val focus = LatLng( Benzinaio.listaVicini[0].lat,  Benzinaio.listaVicini[0].lon)
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 14f))
                 }
             }
 
-            val iconaEV = vectorToBitmap(R.drawable.ev_marker)
-
+            val iconaEV = vectorToBitmap(R.drawable.ev_marker) //imposto il marker custom (per le colonnine EV)
             for (ev in ColonninaEV.listaVicini) {
+                //per ogni colonnina, aggiungo un marker
                 val marker = mMap.addMarker(
                     MarkerOptions()
                         .position(LatLng(ev.lat, ev.lon))
@@ -155,22 +156,26 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
             val card = binding.root.findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
             val btnMyLocation = binding.btnMyLocation
-            
-            // Accediamo alla bottom nav della MainActivity
+
+            //ricavo la custom bottom navbar
             val mainActivityNav = requireActivity().findViewById<LinearLayout>(R.id.customBottomNav)
 
+            //listener per il click di un marker sulla mappa
             mMap.setOnMarkerClickListener { marker ->
                 val data = marker.tag
-                if (data is Benzinaio) setupCardBenzinaio(data)
-                else if (data is ColonninaEV) setupCardElettrica(data)
+                if (data is Benzinaio) setupCardBenzinaio(data) //se il marker è di un benzinaio, chiamo il setup della card per i benzinai
+                else if (data is ColonninaEV) setupCardElettrica(data) //se il marker è di una colonnina EV, chiamo il setup della card per le colonnine
 
+                //nascondo la bottom navbar
                 mainActivityNav?.animate()?.translationY(600f)?.setDuration(300)?.start()
                 btnMyLocation.animate().translationY(600f).setDuration(300).start()
 
+                //mostro la card
                 card.visibility = View.VISIBLE
                 card.alpha = 0f
                 card.animate().alpha(1f).setDuration(300).start()
 
+                //listener per il click sulla card
                 card.setOnClickListener {
                     if (data is Benzinaio) apriDettaglio(data.id.toLong(), "BENZINA")
                     else if (data is ColonninaEV) apriDettaglio(data.id.toLong(), "EV")
@@ -178,7 +183,9 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 false
             }
 
+            //listener del click sulla mappa
             mMap.setOnMapClickListener {
+                //nascondo la card e mostro la bottom navbar se la card è attiva
                 if (card.isVisible) {
                     card.animate().alpha(0f).setDuration(200).withEndAction { card.visibility = View.GONE }.start()
                     mainActivityNav?.animate()?.translationY(0f)?.setDuration(300)?.start()
@@ -190,6 +197,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    //funzione che sposta la camera della mappa sulla posizione corrente dell'utente
     private fun moveToCurrentLocation() {
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
@@ -200,6 +208,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    //funzione di setup della card se cliccato un marker di un benzinaio
     private fun setupCardBenzinaio(b: Benzinaio) {
         val card = binding.root.findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
         card.setCardBackgroundColor("#0B3D2E".toColorInt())
@@ -214,6 +223,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         findViewById<ImageView>(R.id.imgPompa).setImageResource(b.getLogoResource())
     }
 
+    //funzione di setup della card se cliccato un marker di una colonnina EV
     private fun setupCardElettrica(ev: ColonninaEV) {
         val card = binding.root.findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
         card.setCardBackgroundColor("#0B101E".toColorInt())
@@ -228,19 +238,23 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
     private fun <T : View> findViewById(id: Int): T = binding.root.findViewById(id)
 
+    //funzione di filtraggio dei marker
     private fun filtraMarker(mostraBenzina: Boolean, mostraEV: Boolean) {
         markersBenzina.forEach { it.isVisible = mostraBenzina }
         markersEV.forEach { it.isVisible = mostraEV }
         binding.root.findViewById<View>(R.id.stationCard).visibility = View.GONE
     }
 
+    //funzione che gestisce l'intent di passaggio all'activity DettagliActivity
     private fun apriDettaglio(id: Long, tipo: String) {
+        //all'intent aggiungo ID_ELEMENTO e TIPO_ELEMENTO
         val intent = Intent(requireContext(), DettagliActivity::class.java).apply {
             putExtra("ID_ELEMENTO", id)
             putExtra("TIPO_ELEMENTO", tipo)
         }
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                //all'intent aggiungo anche la posizione, se ho i permessi
                 intent.putExtra("USER_LAT", location?.latitude ?: 0.0)
                 intent.putExtra("USER_LON", location?.longitude ?: 0.0)
                 startActivity(intent)
@@ -250,21 +264,21 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
     private fun vectorToBitmap(drawableId: Int): com.google.android.gms.maps.model.BitmapDescriptor {
         val vectorDrawable = androidx.core.content.res.ResourcesCompat.getDrawable(resources, drawableId, null) ?: return BitmapDescriptorFactory.defaultMarker()
-        
+
         val width = vectorDrawable.intrinsicWidth
         val height = vectorDrawable.intrinsicHeight
-        
+
         val bitmap = createBitmap(width, height)
         val canvas = android.graphics.Canvas(bitmap)
         vectorDrawable.setBounds(0, 0, width, height)
         vectorDrawable.draw(canvas)
-        
+
         // Trova i limiti dei pixel non trasparenti per "restringere" la hitbox
         var minX = width
         var minY = height
         var maxX = -1
         var maxY = -1
-        
+
         for (y in 0 until height) {
             for (x in 0 until width) {
                 val alpha = (bitmap.getPixel(x, y) shr 24) and 0xff
@@ -282,16 +296,16 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         // Crea un nuovo bitmap ritagliato solo sull'area visibile del pin
         val croppedBitmap = android.graphics.Bitmap.createBitmap(
-            bitmap, 
-            minX, 
-            minY, 
-            maxX - minX + 1, 
+            bitmap,
+            minX,
+            minY,
+            maxX - minX + 1,
             maxY - minY + 1
         )
         return BitmapDescriptorFactory.fromBitmap(croppedBitmap)
     }
 
-    // Aggiunto metodo per distruggere il binding
+    //metodo per distruggere il binding
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

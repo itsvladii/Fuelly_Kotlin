@@ -35,7 +35,8 @@ class PrezziFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_prezzi, container, false)
-        
+
+        //ricavo le info dall'intent dell'activity
         idRicevuto = activity?.intent?.getLongExtra("ID_ELEMENTO", -1L) ?: -1L
         tipoRicevuto = activity?.intent?.getStringExtra("TIPO_ELEMENTO")
         userLat = activity?.intent?.getDoubleExtra("USER_LAT", 0.0) ?: 0.0
@@ -47,21 +48,26 @@ class PrezziFragment : Fragment() {
         return view
     }
 
+    //funzione di setup dei listeners nel fragment
     private fun setupListeners(view: View) {
+        //switch servito-self (attivo=servito, disattivato=self)
         val switchServito = view.findViewById<MaterialSwitch>(R.id.switchServito)
         switchServito?.setOnCheckedChangeListener { btn, isChecked ->
             btn.text = if (isChecked) "Servito" else "Self-Service"
+            //se sono su un benzinaio, ricavo i prezzi in base allo stato dello switch
             if (tipoRicevuto == "BENZINA") {
                 ricavaPrezziBenzinaio(view, idRicevuto.toInt(), isChecked)
             }
         }
-        
+
+        //se sono su una colonnina EV, nascondo lo switch
         if (tipoRicevuto == "EV") {
             switchServito?.visibility = View.GONE
             view.findViewById<TextView>(R.id.lblSezione)?.text = "INFO RICARICA"
         }
     }
 
+    //funzione di prima inizializzazione dei prezzi/prese
     private fun inizializzaDati(view: View) {
         when (tipoRicevuto) {
             "BENZINA" -> ricavaPrezziBenzinaio(view, idRicevuto.toInt(), false)
@@ -72,6 +78,7 @@ class PrezziFragment : Fragment() {
         }
     }
 
+    //funzione di fetching dei prezzi del benzinaio
     private fun ricavaPrezziBenzinaio(view: View, idImpianto: Int, soloServito: Boolean) {
         val loader = view.findViewById<ProgressBar>(R.id.loadingPrezzi)
         val stazione = Benzinaio.listaVicini.find { it.id == idImpianto }
@@ -80,13 +87,16 @@ class PrezziFragment : Fragment() {
         lifecycleScope.launch {
             loader?.visibility = View.VISIBLE
             try {
+                //in maniera asincrona, vato a ricavare la provincia di appartenenza e i prezzi del benzinaio
                 val defMapping = async { SupabaseInstance.client.from("province_regioni").select{ filter{ eq("provincia", siglaProvincia) } } }
                 val defPrezzi = async { SupabaseInstance.client.from("prezzi").select{ filter{ eq("idImpianto", idImpianto) } } }
 
                 val resMapping = defMapping.await()
                 val resPrezzi = defPrezzi.await()
 
+                //ricavo la regione di appartenenza del benzinaio, grazie alla provincia ottenuta prima
                 val nomeRegione = JSONArray(resMapping.data).optJSONObject(0)?.optString("regione") ?: ""
+                //ricavo la media regionale
                 val resMedie = SupabaseInstance.client.from("media_regionale").select {
                     filter {
                         eq("regione", nomeRegione)
@@ -94,9 +104,11 @@ class PrezziFragment : Fragment() {
                     }
                 }
 
+                //salvo le medie e i prezzi su un array JSON
                 val arrayPrezzi = JSONArray(resPrezzi.data)
                 val arrayMedie = JSONArray(resMedie.data)
 
+                //finite le richieste, popolo la lista dei prezzi
                 activity?.runOnUiThread {
                     popolaListaCarburante(view, arrayPrezzi, arrayMedie, soloServito)
                     loader?.visibility = View.GONE
@@ -108,12 +120,13 @@ class PrezziFragment : Fragment() {
         }
     }
 
+    //funzione di popolamento della lista dei carburanti
     private fun popolaListaCarburante(view: View, arrayPrezzi: JSONArray, arrayMedie: JSONArray, soloServito: Boolean) {
         val container = view.findViewById<LinearLayout>(R.id.containerListaDettagli)
         container?.removeAllViews()
         var pompeTrovate = 0
 
-        // Aggiornamento data ultimo aggiornamento nel header dell'activity
+        //se i prezzi trovati sono piu di 0, aggiorno l'header con la data dell'ultimo aggiornamento
         if (arrayPrezzi.length() > 0) {
             val dataGrezza = arrayPrezzi.getJSONObject(0).optString("dtComu")
             val dataFormattata = formattaDataAggiornamento(dataGrezza)
@@ -123,6 +136,7 @@ class PrezziFragment : Fragment() {
             txtDistance?.text = "$testoDistanza • Aggiornato $dataFormattata"
         }
 
+        //ciclo per ogni pompa del benzinaio e riempo la lista
         for (i in 0 until arrayPrezzi.length()) {
             val obj = arrayPrezzi.getJSONObject(i)
             val isSelfDb = obj.optString("isSelf") == "1"
@@ -148,6 +162,7 @@ class PrezziFragment : Fragment() {
         if (pompeTrovate == 0) mostrateMessaggioVuoto(container, soloServito)
     }
 
+    //funzione di calcolo della differenza tra prezzo del benzinaio e la media regionale
     private fun gestisciDifferenzaMedia(view: View, nome: String, prezzo: Double, arrayMedie: JSONArray) {
         val freccia = view.findViewById<ImageView>(R.id.imgFrecciaMedia)
         val txtDiff = view.findViewById<TextView>(R.id.txtDifferenzaMedia)
@@ -183,83 +198,99 @@ class PrezziFragment : Fragment() {
         }
     }
 
+    //funzione per ricavare le info delle colonnine EV dal DB
     private fun ricavaInfoEV(view: View, ev: ColonninaEV) {
         val container = view.findViewById<LinearLayout>(R.id.containerListaDettagli)
         val loader = view.findViewById<ProgressBar>(R.id.loadingPrezzi)
-        val client = okhttp3.OkHttpClient()
-        val apiKey = BuildConfig.EV_API_KEY
 
-        val url = "https://api.openchargemap.io/v3/poi/?output=json" +
-                "&latitude=${ev.lat}&longitude=${ev.lon}" +
-                "&distance=0.1&distanceunit=km&maxresults=1&key=$apiKey"
-
-        val request = okhttp3.Request.Builder().url(url).build()
         loader?.visibility = View.VISIBLE
+        container?.removeAllViews()
 
-        client.newCall(request).enqueue(object : okhttp3.Callback {
-            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                activity?.runOnUiThread { loader?.visibility = View.GONE }
+        // Usiamo il JSON che abbiamo già salvato nell'oggetto ColonninaEV
+        if (!ev.connettoriJson.isNullOrEmpty()) {
+            try {
+                val connections = JSONArray(ev.connettoriJson)
+                popolaListaPreseOCM(view, connections)
+            } catch (e: Exception) {
+                Log.e("Fuelly", "Errore parsing connettori locali: ${e.message}")
+                mostrateMessaggioVuoto(container, false)
             }
+        } else {
+            mostrateMessaggioVuoto(container, false)
+        }
 
-            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-                response.use {
-                    if (!response.isSuccessful) return
-                    val body = response.body.string()
-                    val jsonArray = JSONArray(body)
-                    if (jsonArray.length() > 0) {
-                        val poi = jsonArray.getJSONObject(0)
-                        val connections = poi.getJSONArray("Connections")
-
-                        activity?.runOnUiThread {
-                            container?.removeAllViews()
-                            popolaListaPreseOCM(view, connections)
-                            loader?.visibility = View.GONE
-                        }
-                    }
-                }
-            }
-        })
+        loader?.visibility = View.GONE
     }
 
-    private fun popolaListaPreseOCM(view: View, connections: JSONArray) {
+    //funzione di popolamento della lista di prese per le colonnine EV
+    private fun popolaListaPreseOCM(view: View, connettori: JSONArray) {
         val container = view.findViewById<LinearLayout>(R.id.containerListaDettagli)
-        for (i in 0 until connections.length()) {
-            val conn = connections.getJSONObject(i)
+
+        //ciclo per tutte le prese della colonnina
+        for (i in 0 until connettori.length()) {
+            val conn = connettori.getJSONObject(i)
             val itemView = layoutInflater.inflate(R.layout.item_ev, container, false)
 
-            val connectionType = conn.optJSONObject("ConnectionType")
-            val typeName = connectionType?.optString("Title") ?: "Connettore Standard"
-            val power = conn.optDouble("PowerKW", 0.0)
-            val quantity = conn.optInt("Quantity", 1)
-            val statusType = conn.optJSONObject("StatusType")
-            val isOperational = statusType?.optBoolean("IsOperational") ?: true
+            //ricavo gli elementi che mi servono per popolare la lista
+            val typeName = conn.optString("tipo", "Connettore Standard")
+            val power = conn.optDouble("potenza", 0.0)
+            val qta = conn.optInt("quantita", 1)
+            val statoGrezzo = conn.optString("stato", "Unknown")
+            //imposto l'icona del connettore
+            itemView.findViewById<ImageView>(R.id.imgTipoPresa).setImageResource(
+                ColonninaEV.getIconaConnettore(typeName)
+            )
 
-            itemView.findViewById<ImageView>(R.id.imgTipoPresa).setImageResource(getIconaConnettore(typeName))
-            val txtNome = itemView.findViewById<TextView>(R.id.lblNomePresa)
-            txtNome.text = typeName
-
-            val infoTecnica = if (quantity > 1) "$quantity connettori • ${power.toInt()} kW" else "${power.toInt()} kW"
+            //setup del numero di connettori e della potenza
             val txtPotenza = itemView.findViewById<TextView>(R.id.lblPotenza)
+            val infoTecnica = "${power.toInt()} kW • x$qta"
             txtPotenza.text = infoTecnica
 
             val txtStato = itemView.findViewById<TextView>(R.id.lblStatoPresa)
             val pallino = itemView.findViewById<View>(R.id.viewStatoColore)
 
-            if (isOperational) {
-                txtStato.text = "OPERATIVA"
-                val verde = Color.parseColor("#2E7D32")
-                txtStato.setTextColor(verde)
-                pallino.backgroundTintList = ColorStateList.valueOf(verde)
-            } else {
-                txtStato.text = "NON DISPONIBILE"
-                val rosso = Color.RED
-                txtStato.setTextColor(rosso)
-                pallino.backgroundTintList = ColorStateList.valueOf(rosso)
+
+            when {
+                //STATO OPERATIVO
+                statoGrezzo.equals("Operational", ignoreCase = true) -> {
+                    txtStato.text = "OPERATIVA"
+                    val colore = Color.parseColor("#2E7D32") // Verde scuro
+                    txtStato.setTextColor(colore)
+                    pallino.backgroundTintList = ColorStateList.valueOf(colore)
+                }
+
+                //STATI DI ATTESA O PARZIALI
+                statoGrezzo.contains("Partly", ignoreCase = true) ||
+                        statoGrezzo.contains("Planned", ignoreCase = true) ||
+                        statoGrezzo.contains("Unknown", ignoreCase = true) -> {
+                    txtStato.text = if (statoGrezzo.contains("Planned")) "IN ARRIVO" else "STATO IGNOTO"
+                    val colore = Color.parseColor("#FBC02D") // Giallo/Ambra
+                    txtStato.setTextColor(colore)
+                    pallino.backgroundTintList = ColorStateList.valueOf(colore)
+                }
+
+                //TEMPORANEAMENTE NON DISPONIBILE
+                statoGrezzo.contains("Temporarily", ignoreCase = true) -> {
+                    txtStato.text = "TEMP. NON DISPONIBILE"
+                    val colore = Color.parseColor("#F57C00") // Arancione
+                    txtStato.setTextColor(colore)
+                    pallino.backgroundTintList = ColorStateList.valueOf(colore)
+                }
+
+                //NON OPERATIVO O RIMOSSO
+                else -> {
+                    txtStato.text = "NON OPERATIVA"
+                    val colore = Color.RED
+                    txtStato.setTextColor(colore)
+                    pallino.backgroundTintList = ColorStateList.valueOf(colore)
+                }
             }
+
             container?.addView(itemView)
         }
     }
 
+    //funzione di associazione colore pompa al tipo di carburante
     private fun getColoreCarburante(nome: String): String {
         val n = nome.lowercase()
         return when {
@@ -273,6 +304,7 @@ class PrezziFragment : Fragment() {
         }
     }
 
+    //funzione di creazione delle "macro-categorie" per i tipi di combustibile
     private fun getCategoriaPerMedia(nome: String): String {
         val n = nome.lowercase()
         return when {
@@ -281,17 +313,6 @@ class PrezziFragment : Fragment() {
             n.contains("gpl") -> "GPL"
             n.contains("metano") -> "Metano"
             else -> ""
-        }
-    }
-
-    private fun getIconaConnettore(typeName: String?): Int {
-        if (typeName == null) return R.drawable.ev_logo
-        val name = typeName.lowercase()
-        return when {
-            name.contains("type 2") || name.contains("mennekes") -> R.drawable.type2_logo
-            name.contains("ccs") || name.contains("combo") -> R.drawable.ccs_type2_logo
-            name.contains("chademo") -> R.drawable.chademo_logo
-            else -> R.drawable.ev_logo
         }
     }
 

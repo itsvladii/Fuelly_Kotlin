@@ -91,10 +91,12 @@ class InfoFragment : Fragment() {
         bagno: SwitchMaterial, bar: SwitchMaterial, desc: TextInputEditText
     ) {
         try {
+            //recupero informazioni esistenti dalla tabella info_benzinai
             val risposta = SupabaseInstance.client.from("info_benzinai").select {
                 filter { eq("idImpianto", idRicevuto) }
             }.decodeList<Info>()
 
+            //se esistono informazioni, le mostro nei campi
             if (risposta.isNotEmpty()) {
                 val info = risposta[0]
                 ap.setText(info.orarioApertura?.take(5) ?: "")
@@ -113,6 +115,7 @@ class InfoFragment : Fragment() {
         ap: TextInputEditText, ch: TextInputEditText,
         bagno: SwitchMaterial, bar: SwitchMaterial, desc: TextInputEditText
     ) {
+        //verifico che l'utente sia loggato
         val session = SupabaseInstance.client.auth.currentSessionOrNull()
         if (session == null) {
             Toast.makeText(context, "Effettua il login per salvare", Toast.LENGTH_SHORT).show()
@@ -141,10 +144,11 @@ class InfoFragment : Fragment() {
                     descEstesa = descStr
                 )
 
-                // Upsert: inserisce se nuovo, aggiorna se esiste[cite: 5]
+                //inserisco se nuovo, aggiorno se esiste
                 SupabaseInstance.client.from("info_benzinai").upsert(nuovaInfo)
 
                 Toast.makeText(context, "Dati salvati con successo", Toast.LENGTH_SHORT).show()
+                //dopo il salvataggio disabilito i campi
                 setFieldsEnabled(false, ap, ch, bagno, bar, desc)
             } catch (e: Exception) {
                 Toast.makeText(context, "Errore durante il salvataggio", Toast.LENGTH_SHORT).show()

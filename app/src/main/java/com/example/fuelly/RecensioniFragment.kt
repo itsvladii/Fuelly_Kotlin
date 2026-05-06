@@ -192,11 +192,10 @@ class RecensioniFragment : Fragment() {
 
         val btnScrivi = rootView.findViewById<Button>(R.id.btnScriviRecensione)
 
-        // backgroundTintList è più potente di setBackgroundColor per i MaterialButton
         btnScrivi?.backgroundTintList = ColorStateList.valueOf(coloreEV)
         btnScrivi?.setTextColor(coloreTesto)
 
-        // Cambia il colore delle stelle della media
+        //cambia il colore delle stelle della media
         val ratingMedia = rootView.findViewById<RatingBar>(R.id.ratingMedia)
         ratingMedia?.progressTintList = ColorStateList.valueOf(coloreEV)
         ratingMedia?.secondaryProgressTintList = ColorStateList.valueOf(coloreEV)
