@@ -21,6 +21,9 @@ data class ColonninaEV(
 
         var listaSalvati: List<ColonninaEV> = emptyList()
 
+        // Lista che unisce salvati e vicini senza duplicati
+        val listaCompleta: List<ColonninaEV>
+            get() = (listaSalvati + listaVicini).distinctBy { it.id }
 
         fun parseLista(jsonString: String): List<ColonninaEV> {
             val lista = mutableListOf<ColonninaEV>()
