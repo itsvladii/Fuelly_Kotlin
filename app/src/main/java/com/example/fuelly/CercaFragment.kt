@@ -1,9 +1,10 @@
 package com.example.fuelly
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +23,9 @@ class CercaFragment : Fragment() {
 
     // Aggiunto adapter per il RecyclerView
     private lateinit var adapter: BenzinaioAdapter
+    
+    // Lista originale per resettare i filtri
+    private var listaOriginale: List<Benzinaio> = emptyList()
 
     // onCreateView per il layout dell'activity
     override fun onCreateView(
@@ -45,12 +49,13 @@ class CercaFragment : Fragment() {
         }
 
         setupRecyclerView()
-        caricaBenzinaiVicini()
+        setupListeners()
+        caricaDati()
     }
 
-    // Aggiunto metodo per caricare i benzinai vicini
-    private fun caricaBenzinaiVicini() {
-        adapter.updateData(Benzinaio.listaVicini)
+    private fun caricaDati() {
+        listaOriginale = Benzinaio.listaVicini
+        adapter.updateData(listaOriginale)
     }
 
     // Aggiunto metodo per configurare il RecyclerView
@@ -67,6 +72,43 @@ class CercaFragment : Fragment() {
             startActivity(intent)
         }
         binding.rvCerca.adapter = adapter
+    }
+
+    private fun setupListeners() {
+        // Listener per la ricerca testuale
+        binding.editSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                applicaFiltri()
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        // Listener per i Chip dei filtri
+        binding.filterChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            applicaFiltri()
+        }
+    }
+
+    private fun applicaFiltri() {
+        val query = binding.editSearch.text.toString().lowercase()
+
+        // 1. Filtro testuale (Bandiera o Comune)
+        var listaFiltrata = listaOriginale.filter {
+            it.bandiera.lowercase().contains(query) || it.comune.lowercase().contains(query)
+        }
+
+        // 2. Ordinamento per prezzo in base al chip selezionato
+        listaFiltrata = when (binding.filterChipGroup.checkedChipId) {
+            R.id.chipBenzina -> listaFiltrata.filter { it.prezzoBenzina > 0 }.sortedBy { it.prezzoBenzina }
+            R.id.chipDiesel -> listaFiltrata.filter { it.prezzoDiesel > 0 }.sortedBy { it.prezzoDiesel }
+            else -> listaFiltrata // "Tutti" - ordine di vicinanza originale
+        }
+
+        adapter.updateData(listaFiltrata)
+
+        // Scroll in alto dopo il filtraggio
+        binding.rvCerca.scrollToPosition(0)
     }
 
     // Aggiunto metodo per distruggere il binding
