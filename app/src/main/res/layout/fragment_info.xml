@@ -73,10 +73,11 @@
                             android:layout_marginEnd="8dp"
                             android:layout_weight="1"
                             android:hint="Apertura"
-                            android:textColorHint="@color/fuelly_green_dark"
-                            app:boxStrokeColor="@color/fuelly_green_dark"
+                            android:textColorHint="@color/grey_inactive"
+                            app:boxStrokeColor="@color/grey_inactive"
                             app:cursorColor="@color/fuelly_green_dark"
-                            app:helperTextTextColor="@color/fuelly_green_dark">
+                            app:helperTextTextColor="@color/fuelly_green_dark"
+                            app:hintTextColor="@color/fuelly_green_dark">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/textOrarioApertura"
@@ -93,10 +94,11 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:hint="Chiusura"
-                            android:textColorHint="@color/fuelly_green_dark"
-                            app:boxStrokeColor="@color/fuelly_green_dark"
+                            android:textColorHint="@color/grey_inactive"
+                            app:boxStrokeColor="@color/grey_inactive"
                             app:cursorColor="@color/fuelly_green_dark"
-                            app:helperTextTextColor="@color/fuelly_green_dark">
+                            app:helperTextTextColor="@color/fuelly_green_dark"
+                            app:hintTextColor="@color/fuelly_green_dark">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/textOrarioChiusura"
@@ -163,6 +165,7 @@
                 app:boxCornerRadiusTopEnd="12dp"
                 app:boxCornerRadiusTopStart="12dp"
                 app:boxStrokeColor="@color/grey_inactive"
+                app:cursorColor="@color/fuelly_green_dark"
                 app:hintTextColor="@color/fuelly_green_dark">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -201,7 +204,8 @@
             android:drawableTintMode="add"
             android:text="Modifica"
             android:textColor="@color/fuelly_green_dark"
-            app:icon="@drawable/edit" />
+            app:icon="@drawable/edit"
+            app:iconTint="@color/black" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/saveButton"
