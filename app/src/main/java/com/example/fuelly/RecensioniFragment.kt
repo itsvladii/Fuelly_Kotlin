@@ -88,15 +88,24 @@ class RecensioniFragment : Fragment() {
         lifecycleScope.launch {
             try {
 
-                // Scarichiamo le recensioni e le ordiniamo dalla più recente
-                val result = SupabaseInstance.client.from("recensioni").select {
+                var result: List<Recensione> = emptyList()
+
+                if(typeStation=="BENZINA"){
+                result = SupabaseInstance.client.from("recensioni_benzinai").select {
                     filter {
                         eq("idImpianto", stationId)
-                        // FILTRO CRUCIALE: scarica solo recensioni del tipo giusto
-                        eq("tipologia_elemento", typeStation)
                     }
                     order("created_at", order = Order.DESCENDING)
                 }.decodeList<Recensione>()
+                }
+                else if(typeStation=="EV"){
+                    result = SupabaseInstance.client.from("recensioni_ev").select {
+                        filter {
+                            eq("idImpianto", stationId)
+                        }
+                        order("created_at", order = Order.DESCENDING)
+                    }.decodeList<Recensione>()
+                }
 
                 activity?.runOnUiThread {
                     //se non ho recensioni, mostro un txt che dice "non c'è nulla"
@@ -157,6 +166,7 @@ class RecensioniFragment : Fragment() {
             //creazione di una nuova recensione
             lifecycleScope.launch {
                 try {
+
                     //creo nuova istanza di classe Recensione
                     val nuova = Recensione(
 
@@ -170,8 +180,13 @@ class RecensioniFragment : Fragment() {
 
                     )
 
-                    //inserisco nel DB
-                    SupabaseInstance.client.from("recensioni").insert(nuova)
+                    if(typeStation=="BENZINA") {
+                        //inserisco nel DB
+                        SupabaseInstance.client.from("recensioni_benzinai").insert(nuova)
+                    }else if(typeStation=="EV")
+                    {
+                        SupabaseInstance.client.from("recensioni_ev").insert(nuova)
+                    }
 
                     activity?.runOnUiThread {
                         dialog.dismiss()

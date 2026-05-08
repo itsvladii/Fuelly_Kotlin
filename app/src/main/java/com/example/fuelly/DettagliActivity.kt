@@ -218,36 +218,93 @@ class DettagliActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 //verifico se l'elemento è già presente nei salvati dell'utente
-                val esistente = SupabaseInstance.client.from("salvati")
-                    .select {
-                        filter {
-                            eq("idUtente", session.user?.id.toString())
-                            eq("idImpianto", idBenzinaio)
-                        }
-                    }.decodeList<Salvato>()
+                if(tipoRicevuto=="BENZINA") {
+                    val esistente = SupabaseInstance.client.from("salvati_benzinai")
+                        .select {
+                            filter {
+                                eq("idUtente", session.user?.id.toString())
+                                eq("idImpianto", idBenzinaio)
+                            }
+                        }.decodeList<Salvato>()
 
-                //se è già presente, lo rimuovo dai salvati
-                if (esistente.isNotEmpty()) {
-                    SupabaseInstance.client.from("salvati").delete {
-                        filter {
-                            eq("idUtente", session.user?.id.toString())
-                            eq("idImpianto", idBenzinaio)
+                    //se è già presente, lo rimuovo dai salvati
+                    if (esistente.isNotEmpty()) {
+                        SupabaseInstance.client.from("salvati_benzinai").delete {
+                            filter {
+                                eq("idUtente", session.user?.id.toString())
+                                eq("idImpianto", idBenzinaio)
+                            }
+                        }
+                        runOnUiThread {
+                            Toast.makeText(
+                                this@DettagliActivity,
+                                "Benzinaio rimosso dai salvati",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_svg)
+                        }
+                    } else {
+                        //altrimenti, se non è presente, lo aggiungo ai salvati dell'utente
+                        val nuovoSalvato = Salvato(
+                            idUtente = session.user?.id.toString(),
+                            idBenzinaio = idBenzinaio
+                        )
+                        SupabaseInstance.client.from("salvati_benzinai").insert(nuovoSalvato)
+                        runOnUiThread {
+                            Toast.makeText(
+                                this@DettagliActivity,
+                                "Benzinaio salvato!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_salvato)
                         }
                     }
-                    runOnUiThread {
-                        Toast.makeText(this@DettagliActivity, "Benzinaio rimosso dai salvati", Toast.LENGTH_SHORT).show()
-                        findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_svg)
-                    }
-                } else {
-                    //altrimenti, se non è presente, lo aggiungo ai salvati dell'utente
-                    val nuovoSalvato = Salvato(idUtente = session.user?.id.toString(), idBenzinaio = idBenzinaio)
-                    SupabaseInstance.client.from("salvati").insert(nuovoSalvato)
-                    runOnUiThread {
-                        Toast.makeText(this@DettagliActivity, "Benzinaio salvato!", Toast.LENGTH_SHORT).show()
-                        findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_salvato)
-                    }
+                    Utils.caricaSalvati(session)
                 }
-                Utils.caricaSalvati(session)
+                else if(tipoRicevuto=="EV")
+                {
+                    val esistente = SupabaseInstance.client.from("salvati_ev")
+                        .select {
+                            filter {
+                                eq("idUtente", session.user?.id.toString())
+                                eq("idImpianto", idBenzinaio)
+                            }
+                        }.decodeList<Salvato>()
+
+                    //se è già presente, lo rimuovo dai salvati
+                    if (esistente.isNotEmpty()) {
+                        SupabaseInstance.client.from("salvati_ev").delete {
+                            filter {
+                                eq("idUtente", session.user?.id.toString())
+                                eq("idImpianto", idBenzinaio)
+                            }
+                        }
+                        runOnUiThread {
+                            Toast.makeText(
+                                this@DettagliActivity,
+                                "Colonnina rimossa dai salvati",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_svg)
+                        }
+                    } else {
+                        //altrimenti, se non è presente, lo aggiungo nei salvati dell'utente
+                        val nuovoSalvato = Salvato(
+                            idUtente = session.user?.id.toString(),
+                            idBenzinaio = idBenzinaio
+                        )
+                        SupabaseInstance.client.from("salvati_ev").insert(nuovoSalvato)
+                        runOnUiThread {
+                            Toast.makeText(
+                                this@DettagliActivity,
+                                "Colonnina salvata!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_salvato)
+                        }
+                    }
+                    Utils.caricaSalvati(session)
+                }
 
             } catch (e: Exception) {
                 runOnUiThread {
@@ -263,13 +320,28 @@ class DettagliActivity : AppCompatActivity() {
         val user = SupabaseInstance.client.auth.currentUserOrNull() ?: return
         lifecycleScope.launch {
             try {
-                val esistente = SupabaseInstance.client.from("salvati")
-                    .select {
-                        filter {
-                            eq("idUtente", user.id)
-                            eq("idImpianto", idBenzinaio)
-                        }
-                    }.decodeList<Salvato>()
+                var esistente:List<Salvato> =emptyList()
+                if(tipoRicevuto=="BENZINA")
+                {
+                    esistente = SupabaseInstance.client.from("salvati_benzinai")
+                        .select {
+                            filter {
+                                eq("idUtente", user.id)
+                                eq("idImpianto", idBenzinaio)
+                            }
+                        }.decodeList<Salvato>()
+                }
+                else if(tipoRicevuto=="EV")
+                {
+                    esistente = SupabaseInstance.client.from("salvati_ev")
+                        .select {
+                            filter {
+                                eq("idUtente", user.id)
+                                eq("idImpianto", idBenzinaio)
+                            }
+                        }.decodeList<Salvato>()
+                }
+
 
                 if (esistente.isNotEmpty()) {
                     runOnUiThread {
