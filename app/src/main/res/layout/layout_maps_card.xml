@@ -46,11 +46,25 @@
                     android:textStyle="bold|italic" />
 
                 <TextView
-                    android:id="@+id/txtStationAddress"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/txtStationCity"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/dm_sans_medium"
-                    android:maxLines="3"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:textColor="#DFFF00" />
+
+                <TextView
+                    android:id="@+id/txtStationAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
                     android:textColor="#DFFF00" />
 
                 <TextView

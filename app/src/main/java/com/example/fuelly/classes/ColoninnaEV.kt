@@ -7,6 +7,8 @@ import android.util.Log
 data class ColonninaEV(
     val id: Int,
     val titolo: String,
+    val comune: String,
+    val provincia: String,
     val indirizzo: String,
     val lat: Double,
     val lon: Double,
@@ -40,6 +42,8 @@ data class ColonninaEV(
                         id = obj.getInt("ocm_id"), // Nome colonna DB
                         titolo = obj.optString("nome", "Colonnina"),
                         indirizzo = obj.optString("indirizzo", "Indirizzo N.D."),
+                        comune = obj.optString("comune", "N.D."),
+                        provincia = obj.optString("provincia", "N.D."),
                         lat = obj.getDouble("latitudine"),
                         lon = obj.getDouble("longitudine"),
                         potenzaKW = primaPotenza,

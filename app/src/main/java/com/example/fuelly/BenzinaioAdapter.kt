@@ -17,7 +17,8 @@ class BenzinaioAdapter(
     // ViewHolder per ogni elemento della lista
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val txtName: TextView = view.findViewById(R.id.txtStationName)
-        val txtAddress: TextView = view.findViewById(R.id.txtStationAddress)
+        val txtStationCity: TextView = view.findViewById(R.id.txtStationCity)
+        val txtStationAddress: TextView = view.findViewById(R.id.txtStationAddress)
         val txtBenzina: TextView = view.findViewById(R.id.txtBenzina)
         val txtDiesel: TextView = view.findViewById(R.id.txtDiesel)
         val imgLogo: ImageView = view.findViewById(R.id.imgPompa)
@@ -34,7 +35,12 @@ class BenzinaioAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val b = lista[position]
         holder.txtName.text = b.bandiera+" "
-        holder.txtAddress.text = b.indirizzo
+
+        holder.txtStationCity.text = b.comune + " (" + b.provincia + ")"
+        holder.txtStationCity.isSelected = true
+
+        holder.txtStationAddress.text = b.indirizzo
+        holder.txtStationAddress.isSelected = true
         
         holder.txtBenzina.text = if (b.prezzoBenzina > 0) "Benzina: ${String.format("%.3f", b.prezzoBenzina)}€" else "Benzina: N.D."
         holder.txtDiesel.text = if (b.prezzoDiesel > 0) "Diesel: ${String.format("%.3f", b.prezzoDiesel)}€" else "Diesel: N.D."

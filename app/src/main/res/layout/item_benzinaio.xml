@@ -39,13 +39,24 @@
                 tools:text="Eni Station" />
 
             <TextView
+                android:id="@+id/txtStationCity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                tools:text="Milano (MI)" />
+
+            <TextView
                 android:id="@+id/txtStationAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:scrollHorizontally="true"
-                android:singleLine="true" />
+                android:singleLine="true"
+                tools:text="Via delle Rose, 45" />
 
             <LinearLayout
                 android:layout_width="match_parent"
