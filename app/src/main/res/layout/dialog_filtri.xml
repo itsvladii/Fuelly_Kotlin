@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    dialog_filtri_avanzati.xml
+    BottomSheetDialog layout per i filtri di ricerca benzinai/EV — Fuelly
+    Usare con BottomSheetDialogFragment
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_recensione"
+    android:orientation="vertical"
+    android:paddingBottom="32dp">
+
+    <!-- Handle bar -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="20dp"
+        android:background="@color/fuelly_green_dark"
+        android:backgroundTint="#40000000" />
+
+    <!-- Header row: titolo + reset -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="20dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/chakra_petch_semibold"
+            android:text="Filtri Avanzati"
+            android:textColor="#0B101E"
+            android:textSize="22sp" />
+
+        <TextView
+            android:id="@+id/btnReset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:fontFamily="@font/dm_sans_medium"
+            android:padding="8dp"
+            android:text="Reset"
+            android:textColor="#80000000"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1A000000" />
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- SEZIONE 1: Tipo di stazione                   -->
+    <!-- ────────────────────────────────────────────── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/chakra_petch_medium_italic"
+            android:letterSpacing="0.12"
+            android:text="TIPO DI STAZIONE"
+            android:textColor="#80000000"
+            android:textSize="11sp" />
+
+        <!-- Chip-style toggle group -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleGroupTipo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTipoTutti"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/roboto_medium"
+                android:text="Tutti"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                app:backgroundTint="@color/chip_background_selector_benzinai"
+                app:cornerRadius="8dp"
+                app:strokeColor="@color/grey_inactive"
+                app:strokeWidth="1.5dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTipoBenzina"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="36dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="Benzinai"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                app:backgroundTint="@color/chip_background_selector_benzinai"
+                app:cornerRadius="8dp"
+                app:icon="@drawable/fuel_logo"
+                app:iconGravity="textStart"
+                app:iconSize="16dp"
+                app:strokeColor="#DFFF00"
+                app:strokeWidth="1.5dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTipoEV"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="EV"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                app:backgroundTint="@color/chip_background_selector_ev"
+                app:cornerRadius="8dp"
+                app:icon="@drawable/ev_logo"
+                app:iconGravity="textStart"
+                app:iconSize="16dp"
+                app:strokeColor="#00FFC2"
+                app:strokeWidth="1.5dp" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+    </LinearLayout>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- SEZIONE 2: Carburante (solo benzinai)         -->
+    <!-- Visibile solo se tipo = Benzinai o Tutti      -->
+    <!-- Nascondere/mostrare via codice                -->
+    <!-- ────────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/sectionCarburante"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/chakra_petch_medium_italic"
+            android:letterSpacing="0.12"
+            android:text="CARBURANTE"
+            android:textColor="#80000000"
+            android:textSize="11sp" />
+
+        <!-- Chip group multi-selezione carburanti -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupCarburante"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:selectionRequired="false"
+            app:singleSelection="false">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipBenzina"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="Benzina"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                app:chipBackgroundColor="@color/chip_background_selector_benzinai"
+                app:chipStrokeColor="#DFFF00"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipGasolio"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="Diesel"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                app:chipBackgroundColor="@color/chip_background_selector_benzinai"
+                app:chipStrokeColor="#DFFF00"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipGPL"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="GPL"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                app:chipBackgroundColor="@color/chip_background_selector_benzinai"
+                app:chipStrokeColor="#DFFF00"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipMetano"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="Metano"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                app:chipBackgroundColor="@color/chip_background_selector_benzinai"
+                app:chipStrokeColor="#DFFF00"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipIdrogeno"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="GNL"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                app:chipBackgroundColor="@color/chip_background_selector_benzinai"
+                app:chipStrokeColor="#DFFF00"
+                app:chipStrokeWidth="1dp" />
+        </com.google.android.material.chip.ChipGroup>
+    </LinearLayout>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- SEZIONE 3: Potenza minima EV                  -->
+    <!-- Visibile solo se tipo = EV o Tutti            -->
+    <!-- ────────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/sectionEV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="4dp">
+
+        <!-- Header con valore live -->
+
+        <!-- Legenda min/max -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"/>
+
+        <!-- Connettori EV -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/chakra_petch_medium_italic"
+            android:letterSpacing="0.12"
+            android:text="TIPO CONNETTORE"
+            android:textColor="#80000000"
+            android:textSize="11sp" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupConnettori"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:singleSelection="false">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCCS2"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="CCS2"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                app:chipBackgroundColor="@color/chip_background_selector_ev"
+                app:chipStrokeColor="#00FFC2"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipCHAdeMO"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="CHAdeMO"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                app:chipBackgroundColor="@color/chip_background_selector_ev"
+                app:chipStrokeColor="#00FFC2"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipType2"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="Type 2"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                app:chipBackgroundColor="@color/chip_background_selector_ev"
+                app:chipStrokeColor="#00FFC2"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipTesla"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:fontFamily="@font/dm_sans_medium"
+                android:text="Tesla SC"
+                android:textColor="@color/black"
+                android:textSize="13sp"
+                app:chipBackgroundColor="@color/chip_background_selector_ev"
+                app:chipStrokeColor="#00FFC2"
+                app:chipStrokeWidth="1dp" />
+        </com.google.android.material.chip.ChipGroup>
+    </LinearLayout>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- SEZIONE 4: Opzioni generali                   -->
+    <!-- ────────────────────────────────────────────── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/chakra_petch_medium_italic"
+            android:letterSpacing="0.12"
+            android:text="OPZIONI"
+            android:textColor="#80000000"
+            android:textSize="11sp" />
+
+        <!-- Switch row: solo operative -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:text="Solo stazioni operative"
+                    android:textColor="#0B101E"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:text="Escludi stazioni di ricarica EV non disponibili"
+                    android:textColor="#80000000"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switchSoloOperative"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                app:thumbTint="#FFFFFF"
+                app:trackTint="@color/switch_track_selector" />
+        </LinearLayout>
+
+        <!-- Divider sottile -->
+
+        <!-- Switch row: self-service -->
+
+        <!-- Divider sottile -->
+
+        <!-- Switch row: pagamento carta (solo benzinai) -->
+    </LinearLayout>
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- SEZIONE 5: Raggio di ricerca                  -->
+    <!-- ────────────────────────────────────────────── -->
+
+    <!-- ────────────────────────────────────────────── -->
+    <!-- CTA Buttons                                   -->
+    <!-- ────────────────────────────────────────────── -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#0F000000" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="24dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="8dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAnnulla"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="12dp"
+            android:layout_weight="0.4"
+            android:fontFamily="@font/chakra_petch_semibold"
+            android:text="Annulla"
+            android:textColor="#0B101E"
+            android:textSize="14sp"
+            app:cornerRadius="12dp"
+            app:strokeColor="#20000000"
+            app:strokeWidth="1dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnApplicaFiltri"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_weight="0.6"
+            android:backgroundTint="@color/fuelly_yellow_fluo"
+            android:fontFamily="@font/chakra_petch_semibold"
+            android:text="APPLICA FILTRI"
+            android:textColor="#0B101E"
+            android:textSize="14sp"
+            app:cornerRadius="12dp" />
+    </LinearLayout>
+
+</LinearLayout>

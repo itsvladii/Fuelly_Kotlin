@@ -13,6 +13,7 @@ import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fuelly.classes.Benzinaio
 import com.example.fuelly.databinding.FragmentCercaBinding
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class CercaFragment : Fragment() {
     // Aggiunto binding per il layout e inizializzazione del binding
@@ -88,6 +89,45 @@ class CercaFragment : Fragment() {
         binding.filterChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
             applicaFiltri()
         }
+
+        binding.searchLayout.setEndIconOnClickListener {
+            mostraDialogFiltri()
+        }
+
+    }
+
+    private fun mostraDialogFiltri() {
+        val dialog =BottomSheetDialog(requireContext())
+        // Usiamo il ViewBinding per il dialogo per accedere facilmente agli ID
+        val dialogBinding = com.example.fuelly.databinding.DialogFiltriBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
+
+        // --- LOGICA PULSANTI DIALOGO ---
+
+        // Pulsante Reset
+        dialogBinding.btnReset.setOnClickListener {
+            dialogBinding.toggleGroupTipo.clearChecked()
+            dialogBinding.chipGroupCarburante.clearCheck()
+            dialogBinding.switchSoloOperative.isChecked = false
+        }
+
+        // Pulsante Annulla
+        dialogBinding.btnAnnulla.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        // Pulsante Applica
+        dialogBinding.btnApplicaFiltri.setOnClickListener {
+            // Recuperiamo i valori dal dialogo
+            val soloOperative = dialogBinding.switchSoloOperative.isChecked
+
+            // Eseguiamo il filtraggio
+            //filtraListaAvanzata(soloOperative, soloSelf)
+
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun applicaFiltri() {

@@ -34,6 +34,9 @@
         app:boxCornerRadiusTopEnd="12dp"
         app:boxCornerRadiusTopStart="12dp"
         app:boxStrokeColor="@color/fuelly_green_dark"
+        app:endIconDrawable="@drawable/ic_tune"
+        app:endIconMode="custom"
+        app:endIconTint="@color/black"
         app:hintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,6 +52,7 @@
             android:inputType="text"
             android:paddingVertical="0dp"
             android:textColor="@color/black"
+            android:textColorHint="@color/grey_inactive"
             android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -76,8 +80,11 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/chip_background_selector_benzinai"
                 android:checked="true"
                 android:text="Tutti"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
                 app:chipBackgroundColor="@color/white"
                 app:chipStrokeColor="@color/fuelly_green_dark"
                 app:chipStrokeWidth="1dp" />
@@ -87,7 +94,10 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/chip_background_selector_benzinai"
                 android:text="Benzina economica"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
                 app:chipBackgroundColor="@color/white"
                 app:chipStrokeColor="@color/fuelly_green_dark"
                 app:chipStrokeWidth="1dp" />
@@ -97,7 +107,10 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/chip_background_selector_benzinai"
                 android:text="Diesel economico"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
                 app:chipBackgroundColor="@color/white"
                 app:chipStrokeColor="@color/fuelly_green_dark"
                 app:chipStrokeWidth="1dp" />
