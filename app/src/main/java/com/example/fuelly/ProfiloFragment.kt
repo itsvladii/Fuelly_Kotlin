@@ -1,5 +1,6 @@
 package com.example.fuelly
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -52,6 +53,15 @@ class ProfiloFragment : Fragment() {
         val nomeUtente = arguments?.getString("NomeUtente")
         val emailUtente = arguments?.getString("EmailUtente")
 
+        val btnLogout = binding.Logout
+
+        btnLogout.setOnClickListener {
+
+            logout()
+
+        }
+
+
         //SE SONO LOGGATO IN SESSIONE
         if (idUtente != null) {
 
@@ -95,5 +105,30 @@ class ProfiloFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null // Importante per evitare memory leak
+    }
+
+    fun logout() {
+        lifecycleScope.launch {
+            try {
+                // Effettua la logout su Supabase
+                SupabaseInstance.client.auth.signOut()
+
+                // Messaggio di conferma
+                Toast.makeText(requireContext(), "Logout effettuato", Toast.LENGTH_SHORT).show()
+
+                //TORNO ALLA SCHERMATA DI LOGIN
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+
+                //FLAG CHE PULISCONO LA CRONOLOGIA DELL'APPLICAZIONE
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                
+                startActivity(intent)
+
+
+            } catch (e: Exception) {
+                Log.e("Logout", "Errore durante il logout: ${e.message}")
+                Toast.makeText(requireContext(), "Errore durante il logout", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

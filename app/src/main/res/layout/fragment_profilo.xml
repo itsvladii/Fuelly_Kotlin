@@ -16,7 +16,6 @@
         android:textColor="#000000"
         android:textSize="26sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -34,16 +33,17 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="24dp">
-
-            <TextView
-                android:id="@+id/nomeUtente"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Caricamento..."
-                android:textColor="@color/black"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="24dp"> <TextView
+            android:id="@+id/nomeUtente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Caricamento..."
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/emailUtente"
@@ -53,6 +53,16 @@
                 android:text="email@esempio.it"
                 android:textColor="#555555"
                 android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/Logout"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:backgroundTint="#FF0000"
+                android:text="Logout"
+                android:textAllCaps="false"
+                app:cornerRadius="8dp" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -75,10 +85,9 @@
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
         android:clipToPadding="false"
-        android:paddingBottom="130dp"
+        android:paddingBottom="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/TextRecensioni"
-        tools:layout_editor_absoluteX="16dp"
         tools:listitem="@layout/item_recensione" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
