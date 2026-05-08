@@ -90,21 +90,6 @@
             app:singleSelection="true">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnTipoTutti"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:fontFamily="@font/roboto_medium"
-                android:text="Tutti"
-                android:textColor="@color/black"
-                android:textSize="13sp"
-                app:backgroundTint="@color/chip_background_selector_benzinai"
-                app:cornerRadius="8dp"
-                app:strokeColor="@color/grey_inactive"
-                app:strokeWidth="1.5dp" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnTipoBenzina"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="36dp"
@@ -119,7 +104,7 @@
                 app:icon="@drawable/fuel_logo"
                 app:iconGravity="textStart"
                 app:iconSize="16dp"
-                app:strokeColor="#DFFF00"
+                app:strokeColor="@color/fuelly_green_dark"
                 app:strokeWidth="1.5dp" />
 
             <com.google.android.material.button.MaterialButton
@@ -186,7 +171,7 @@
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:chipBackgroundColor="@color/chip_background_selector_benzinai"
-                app:chipStrokeColor="#DFFF00"
+                app:chipStrokeColor="@color/fuelly_green_dark"
                 app:chipStrokeWidth="1dp" />
 
             <com.google.android.material.chip.Chip
@@ -200,7 +185,7 @@
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:chipBackgroundColor="@color/chip_background_selector_benzinai"
-                app:chipStrokeColor="#DFFF00"
+                app:chipStrokeColor="@color/fuelly_green_dark"
                 app:chipStrokeWidth="1dp" />
 
             <com.google.android.material.chip.Chip
@@ -214,7 +199,7 @@
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:chipBackgroundColor="@color/chip_background_selector_benzinai"
-                app:chipStrokeColor="#DFFF00"
+                app:chipStrokeColor="@color/fuelly_green_dark"
                 app:chipStrokeWidth="1dp" />
 
             <com.google.android.material.chip.Chip
@@ -228,7 +213,7 @@
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:chipBackgroundColor="@color/chip_background_selector_benzinai"
-                app:chipStrokeColor="#DFFF00"
+                app:chipStrokeColor="@color/fuelly_green_dark"
                 app:chipStrokeWidth="1dp" />
 
             <com.google.android.material.chip.Chip
@@ -242,7 +227,7 @@
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:chipBackgroundColor="@color/chip_background_selector_benzinai"
-                app:chipStrokeColor="#DFFF00"
+                app:chipStrokeColor="@color/fuelly_green_dark"
                 app:chipStrokeWidth="1dp" />
         </com.google.android.material.chip.ChipGroup>
     </LinearLayout>
