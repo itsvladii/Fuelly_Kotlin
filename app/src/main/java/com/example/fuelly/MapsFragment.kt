@@ -213,10 +213,20 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         val card = binding.root.findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
         card.setCardBackgroundColor("#0B3D2E".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationName).setTextColor("#DFFF00".toColorInt())
+        binding.root.findViewById<TextView>(R.id.txtStationCity).setTextColor("#DFFF00".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationAddress).setTextColor("#DFFF00".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtPrice).setTextColor("#DFFF00".toColorInt())
+
         binding.root.findViewById<TextView>(R.id.txtStationName).text = b.bandiera + " "
-        binding.root.findViewById<TextView>(R.id.txtStationAddress).text = b.indirizzo
+        binding.root.findViewById<TextView>(R.id.txtStationCity).apply {
+            text = b.comune + " (" + b.provincia + ")"
+            isSelected = true
+        }
+        binding.root.findViewById<TextView>(R.id.txtStationAddress).apply {
+            text = b.indirizzo
+            isSelected = true
+        }
+
         val benzinaStr = if (b.prezzoBenzina > 0) "${b.prezzoBenzina}" else "N.D."
         val dieselStr = if (b.prezzoDiesel > 0) "${b.prezzoDiesel}" else "N.D."
         findViewById<TextView>(R.id.txtPrice).text = "Self | B: $benzinaStr · D: $dieselStr"
@@ -228,11 +238,19 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         val card = binding.root.findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
         card.setCardBackgroundColor("#0B101E".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationName).setTextColor("#00FFC2".toColorInt())
+        binding.root.findViewById<TextView>(R.id.txtStationCity).setTextColor("#00FFC2".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationAddress).setTextColor("#00FFC2".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtPrice).setTextColor("#00FFC2".toColorInt())
 
         binding.root.findViewById<TextView>(R.id.txtStationName).text = ev.titolo + " "
-        binding.root.findViewById<TextView>(R.id.txtStationAddress).text = ev.indirizzo
+        binding.root.findViewById<TextView>(R.id.txtStationCity).apply {
+            text = ev.comune
+            isSelected = true
+        }
+        binding.root.findViewById<TextView>(R.id.txtStationAddress).apply {
+            text = ev.indirizzo
+            isSelected = true
+        }
 
         // --- LOGICA DI CALCOLO REALE DELLE PRESE ---
         var totalePrese = 0

@@ -102,6 +102,11 @@ class DettagliActivity : AppCompatActivity() {
             setTextColor(color)
             text = "${b.bandiera} "
         }
+        findViewById<TextView>(R.id.txtStationCity)?.apply {
+            setTextColor(color)
+            text = b.comune + " (" + b.provincia + ")"
+            isSelected = true
+        }
         findViewById<TextView>(R.id.txtStationAddress)?.apply {
             setTextColor(color)
             text = b.indirizzo
@@ -126,9 +131,15 @@ class DettagliActivity : AppCompatActivity() {
             setTextColor(color)
             text = "${ev.titolo} "
         }
+        findViewById<TextView>(R.id.txtStationCity)?.apply {
+            setTextColor(color)
+            text = ev.comune
+            isSelected = true
+        }
         findViewById<TextView>(R.id.txtStationAddress)?.apply {
             setTextColor(color)
             text = ev.indirizzo
+            isSelected = true
         }
         //cambio colore dei vari elementi del fragment
         findViewById<ImageView>(R.id.imgPompa)?.setImageResource(ev.getLogoResource())
