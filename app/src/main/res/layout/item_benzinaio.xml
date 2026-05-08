@@ -42,6 +42,7 @@
                 android:id="@+id/txtStationCity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/grey_inactive
                 android:ellipsize="marquee"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:scrollHorizontally="true"
@@ -52,6 +53,7 @@
                 android:id="@+id/txtStationAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/grey_inactive
                 android:ellipsize="marquee"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:scrollHorizontally="true"
