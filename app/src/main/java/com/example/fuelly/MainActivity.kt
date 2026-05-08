@@ -10,6 +10,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import com.example.fuelly.databinding.ActivityMainBinding
+import com.example.fuelly.supabase.SupabaseInstance
+import io.github.jan.supabase.auth.auth
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 
 class MainActivity : AppCompatActivity() {
 
@@ -59,7 +63,18 @@ class MainActivity : AppCompatActivity() {
 
         // Aggiunto listener per il pulsante di navigazione "Profilo"
         binding.btnNavProfilo.setOnClickListener {
-            // replaceFragment(ProfiloFragment(), "PROFILO")
+            val user = SupabaseInstance.client.auth.currentUserOrNull()
+            var nomeCompleto = user?.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull ?: "Utente Anonimo"
+            var email = user?.email ?: "Non disponibile"
+
+            val fragment = ProfiloFragment().apply {
+                arguments = Bundle().apply {
+                    putString("USER_ID", user?.id)
+                    putString("NomeUtente",user?.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull)
+                    putString("EmailUtente",user?.email)
+                }
+            }
+            replaceFragment(fragment, "PROFILO")
             updateNavbarUI("PROFILO")
         }
     }
