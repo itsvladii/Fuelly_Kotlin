@@ -1,5 +1,7 @@
 package com.example.fuelly
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,6 +24,7 @@ import kotlinx.coroutines.launch
 class InfoFragment : Fragment() {
 
     private var idRicevuto: Long = -1L
+    private var nomeBenzinaioRicevuto: String =""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,8 +32,9 @@ class InfoFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_info, container, false)
 
-        //recupero ID dell'elemento
+        //recupero ID e il nome del benzinaio che li passo dalla MapsFragment nel metodo apriDettaglio()
         idRicevuto = activity?.intent?.getLongExtra("ID_ELEMENTO", -1L) ?: -1L
+        nomeBenzinaioRicevuto = activity?.intent?.getStringExtra("NOME_BENZINAIO") ?: ""
 
         //componenti del fragment
         val nomeBenzinaio = view.findViewById<TextView>(R.id.textNomeBenzinaio)
@@ -41,6 +45,7 @@ class InfoFragment : Fragment() {
         val textDescrizione = view.findViewById<TextInputEditText>(R.id.DescEstesa)
         val btnModifica = view.findViewById<MaterialButton>(R.id.editButton)
         val btnSalva = view.findViewById<MaterialButton>(R.id.saveButton)
+        val btnSegnala = view.findViewById<MaterialButton>(R.id.segnalaButton)
 
         //all'inizio tutti i componenti sono disabilitati
         setFieldsEnabled(false, orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
@@ -71,7 +76,31 @@ class InfoFragment : Fragment() {
             salvaInformazioni(orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
         }
 
+        //BOTTONE PER EFFETTUARE UNA SEGNALAZIONE
+        btnSegnala.setOnClickListener {
+            inviaSegnalazione();
+        }
+
+
         return view
+    }
+
+
+    //funzione per la segnalazione che mi riporta all'email
+    public fun inviaSegnalazione()
+    {
+        //Definisci l'azione e lo schema mailto
+        val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+
+            data = Uri.parse("mailto:") // Solo app di posta
+            //con putExtra passo dei parametri predefiniti che visualizzo nella casella dell'email
+            putExtra(Intent.EXTRA_EMAIL, arrayOf("admin@gmail.com"))
+            putExtra(Intent.EXTRA_SUBJECT, "Segnalazione Benzinaio: $nomeBenzinaioRicevuto")
+            putExtra(Intent.EXTRA_TEXT, "Problemi riscontrati: ")
+        }
+
+        startActivity(Intent.createChooser(emailIntent, "Invia email con..."))
+
     }
 
     //funzione di attivazione/disattivazione degli elementi del fragment

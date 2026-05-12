@@ -177,8 +177,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
                 //listener per il click sulla card
                 card.setOnClickListener {
-                    if (data is Benzinaio) apriDettaglio(data.id.toLong(), "BENZINA")
-                    else if (data is ColonninaEV) apriDettaglio(data.id.toLong(), "EV")
+                    if (data is Benzinaio) apriDettaglio(data.id.toLong(), "BENZINA", data.gestore)
+                    else if (data is ColonninaEV) apriDettaglio(data.id.toLong(), "EV",data.operatore)
                 }
                 false
             }
@@ -284,11 +284,13 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     }
 
     //funzione che gestisce l'intent di passaggio all'activity DettagliActivity
-    private fun apriDettaglio(id: Long, tipo: String) {
+    private fun apriDettaglio(id: Long, tipo: String, gestore:String) {
         //all'intent aggiungo ID_ELEMENTO e TIPO_ELEMENTO
         val intent = Intent(requireContext(), DettagliActivity::class.java).apply {
+            //passo tramite putExtra i parametri ad un' altra activity o fragment
             putExtra("ID_ELEMENTO", id)
             putExtra("TIPO_ELEMENTO", tipo)
+            putExtra("NOME_BENZINAIO",gestore)
         }
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
