@@ -104,7 +104,8 @@
                 app:icon="@drawable/fuel_logo"
                 app:iconGravity="textStart"
                 app:iconSize="16dp"
-                app:strokeColor="@color/fuelly_green_dark"
+                app:iconTint="@color/grey_inactive"
+                app:strokeColor="@color/fuelly_yellow_fluo"
                 app:strokeWidth="1.5dp" />
 
             <com.google.android.material.button.MaterialButton
@@ -122,6 +123,7 @@
                 app:icon="@drawable/ev_logo"
                 app:iconGravity="textStart"
                 app:iconSize="16dp"
+                app:iconTint="@color/grey_inactive"
                 app:strokeColor="#00FFC2"
                 app:strokeWidth="1.5dp" />
         </com.google.android.material.button.MaterialButtonToggleGroup>
