@@ -90,9 +90,10 @@
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
         android:clipToPadding="false"
-        android:paddingBottom="20dp"
+        android:paddingBottom="130dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/TextRecensioni"
+        tools:layout_editor_absoluteX="16dp"
         tools:listitem="@layout/item_recensione" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
