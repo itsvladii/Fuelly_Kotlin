@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.location.Geocoder
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +14,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.example.fuelly.classes.*
@@ -31,6 +34,14 @@ import androidx.core.view.WindowCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import androidx.core.graphics.createBitmap
+import androidx.lifecycle.lifecycleScope
+import com.example.fuelly.supabase.SupabaseInstance
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.rpc
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class MapsFragment : Fragment(), OnMapReadyCallback {
     //lista di tutti i marker della mappa
@@ -46,12 +57,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     private val binding get() = _binding!!
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    // onCreateView per il layout dell'activity
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        // Inizializza il binding con il layout dell'activity
+    // Variabili per mantenere lo stato dei filtri
+    private var benzinaAttiva = true
+    private var evAttivo = true
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentMapsBinding.inflate(inflater, container, false)
 
         // Imposta il layout binding comeContentView
@@ -77,9 +87,6 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        var benzinaAttiva = true
-        var evAttivo = true
-
 
         // Aggiunto listener per i bottoni di filtro
         binding.btnFiltroBenzina.setOnClickListener {
@@ -96,7 +103,69 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         // Aggiunto listener per il pulsante di my location
         binding.btnMyLocation.setOnClickListener {
-            moveToCurrentLocation()
+            moveToCurrentLocation(refreshData = true)
+        }
+
+        // Listener per il pulsante "Cerca in questa zona"
+        binding.btnSearchArea.setOnClickListener {
+            cercaInQuestaZona()
+        }
+
+        // Configurazione della barra di ricerca
+        setupSearchView()
+    }
+
+    // Configurazione della barra di ricerca
+    private fun setupSearchView() {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            // Listener per l'invio del testo nella barra di ricerca
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                // Quando l'utente preme invio, esegui la ricerca
+                if (!query.isNullOrBlank()) {
+                    cercaLuogo(query)
+                }
+                binding.searchView.clearFocus()
+                return true
+            }
+
+            // Listener per il cambio di testo nella barra di ricerca
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
+    }
+
+    // Funzione per cercare un luogo tramite Geocoding
+    private fun cercaLuogo(indirizzo: String) {
+        // Geocoding per ottenere le coordinate geografiche
+        val geocoder = Geocoder(requireContext(), Locale.getDefault())
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // Ottieni le coordinate geografiche in base all'indirizzo fornito
+                val list = geocoder.getFromLocationName(indirizzo, 1)
+                // Se ci sono risultati, ottieni la prima posizione e crea un marker
+                if (!list.isNullOrEmpty()) {
+                    // Ottieni la prima posizione
+                    val location = list[0]
+                    // Crea un LatLng con le coordinate geografiche
+                    val latLng = LatLng(location.latitude, location.longitude)
+
+                    // Centra la mappa sulla posizione e esegui la ricerca
+                    withContext(Dispatchers.Main) {
+                        // Centra la mappa sulla posizione
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14f))
+                        // Esegui la ricerca
+                        eseguiRicerca(location.latitude, location.longitude)
+                        binding.btnSearchArea.visibility = View.GONE
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Luogo non trovato", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("Fuelly", "Errore Geocoding: ${e.message}")
+            }
         }
     }
 
@@ -104,78 +173,58 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         mMap = googleMap
 
         try {
-            //imposto lo sitle custom presente su res/raw
+            // Imposto lo sitle custom presente su res/raw
             val success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style))
             if (!success) Log.e("Fuelly", "Errore nel caricamento dello stile JSON.")
 
-            //rimozione di alcune feature non necessarie sulla mappa
+            // Rimozione di alcune feature non necessarie sulla mappa
             mMap.isBuildingsEnabled = false //rimozione degli edifici 3D
             mMap.uiSettings.isTiltGesturesEnabled = false //rimozione della gesture di tilt della mappa
             mMap.uiSettings.isRotateGesturesEnabled = false //rimozione della gesture di rotazione della mappa
             mMap.uiSettings.isMapToolbarEnabled = false //rimozione della toolbar della mappa
 
-            //se ho i permessi di geolocalizzazione, posiziono la camera della mappa sulla posizione dell'utente
+            // Se ho i permessi di geolocalizzazione, posiziono la camera della mappa sulla posizione dell'utente
             if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mMap.isMyLocationEnabled = true
                 mMap.uiSettings.isMyLocationButtonEnabled = false
-                moveToCurrentLocation()
+                moveToCurrentLocation(refreshData = false)
             }
 
-            val iconaCustom = vectorToBitmap(R.drawable.fuel_marker) //imposto il marker custom (per i benzinai)
-            if (Benzinaio.listaVicini.isNotEmpty()) {
-                //per ogni benzinaio nella lista, aggiungi il marker
-                for (stazione in Benzinaio.listaVicini) {
-                    val marker = mMap.addMarker(
-                        MarkerOptions()
-                            .position(LatLng(stazione.lat, stazione.lon))
-                            .icon(iconaCustom)
-                            .anchor(0.5f, 1.0f) // Punta alla base del bitmap ritagliato
-                    )
-                    marker?.tag = stazione
-                    marker?.let { markersBenzina.add(it) }
-                }
+            // Aggiungi marker iniziali
+            aggiornaMarkerMappa()
 
-                if (!mMap.isMyLocationEnabled) {
-                    val focus = LatLng( Benzinaio.listaVicini[0].lat,  Benzinaio.listaVicini[0].lon)
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(focus, 14f))
+            // Listener per il movimento della camera per mostrare il tasto "Cerca in questa zona"
+            mMap.setOnCameraMoveStartedListener { reason ->
+                if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+                    binding.btnSearchArea.visibility = View.VISIBLE
                 }
             }
 
-            val iconaEV = vectorToBitmap(R.drawable.ev_marker) //imposto il marker custom (per le colonnine EV)
-            for (ev in ColonninaEV.listaVicini) {
-                //per ogni colonnina, aggiungo un marker
-                val marker = mMap.addMarker(
-                    MarkerOptions()
-                        .position(LatLng(ev.lat, ev.lon))
-                        .icon(iconaEV)
-                        .anchor(0.5f, 1.0f) // Punta alla base del bitmap ritagliato
-                )
-                marker?.tag = ev
-                marker?.let { markersEV.add(it) }
-            }
-
+            // Recupero il layout della card
             val card = binding.root.findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
+
             val btnMyLocation = binding.btnMyLocation
 
-            //ricavo la custom bottom navbar
+            // Ricavo la custom bottom navbar
             val mainActivityNav = requireActivity().findViewById<LinearLayout>(R.id.customBottomNav)
 
-            //listener per il click di un marker sulla mappa
+            // Listener per il click di un marker sulla mappa
             mMap.setOnMarkerClickListener { marker ->
+                // Rimuovi la card se presente
                 val data = marker.tag
                 if (data is Benzinaio) setupCardBenzinaio(data) //se il marker è di un benzinaio, chiamo il setup della card per i benzinai
                 else if (data is ColonninaEV) setupCardElettrica(data) //se il marker è di una colonnina EV, chiamo il setup della card per le colonnine
 
-                //nascondo la bottom navbar
+                // Nascondo la bottom navbar
                 mainActivityNav?.animate()?.translationY(600f)?.setDuration(300)?.start()
                 btnMyLocation.animate().translationY(600f).setDuration(300).start()
 
-                //mostro la card
+                // Mostro la card
                 card.visibility = View.VISIBLE
                 card.alpha = 0f
                 card.animate().alpha(1f).setDuration(300).start()
 
-                //listener per il click sulla card
+                // Listener per il click sulla card
                 card.setOnClickListener {
                     if (data is Benzinaio) apriDettaglio(data.id.toLong(), "BENZINA", data.gestore)
                     else if (data is ColonninaEV) apriDettaglio(data.id.toLong(), "EV",data.operatore)
@@ -183,9 +232,9 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 false
             }
 
-            //listener del click sulla mappa
+            // Listener per il listener del click sulla mappa
             mMap.setOnMapClickListener {
-                //nascondo la card e mostro la bottom navbar se la card è attiva
+                // Nascondo la card e mostro la bottom navbar se la card è attiva
                 if (card.isVisible) {
                     card.animate().alpha(0f).setDuration(200).withEndAction { card.visibility = View.GONE }.start()
                     mainActivityNav?.animate()?.translationY(0f)?.setDuration(300)?.start()
@@ -197,13 +246,96 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    //funzione che sposta la camera della mappa sulla posizione corrente dell'utente
-    private fun moveToCurrentLocation() {
+    private fun aggiornaMarkerMappa() {
+        // Pulisco i marker esistenti
+        markersBenzina.forEach { it.remove() }
+        markersEV.forEach { it.remove() }
+        markersBenzina.clear()
+        markersEV.clear()
+
+        val iconaCustom = vectorToBitmap(R.drawable.fuel_marker)
+        for (stazione in Benzinaio.listaVicini) {
+            val marker = mMap.addMarker(
+                MarkerOptions()
+                    .position(LatLng(stazione.lat, stazione.lon))
+                    .icon(iconaCustom)
+                    .anchor(0.5f, 1.0f)
+            )
+            marker?.tag = stazione
+            marker?.isVisible = benzinaAttiva
+            marker?.let { markersBenzina.add(it) }
+        }
+
+        val iconaEV = vectorToBitmap(R.drawable.ev_marker)
+        for (ev in ColonninaEV.listaVicini) {
+            val marker = mMap.addMarker(
+                MarkerOptions()
+                    .position(LatLng(ev.lat, ev.lon))
+                    .icon(iconaEV)
+                    .anchor(0.5f, 1.0f)
+            )
+            marker?.tag = ev
+            marker?.isVisible = evAttivo
+            marker?.let { markersEV.add(it) }
+        }
+    }
+
+    // Funzione per eseguire una ricerca
+    private suspend fun eseguiRicerca(lat: Double, lon: Double) {
+        try {
+            // --- Chiamata Benzinai ---
+            val response = SupabaseInstance.client.postgrest.rpc(
+                function = "get_benzinai_vicini",
+                parameters = mapOf(
+                    "user_lat" to lat,
+                    "user_lon" to lon,
+                    "raggio_km" to 10.0
+                )
+            )
+            Benzinaio.listaVicini = Benzinaio.parseLista(response.data)
+
+            // --- Chiamata Colonnine ---
+            val responseEV = SupabaseInstance.client.postgrest.rpc(
+                function = "get_colonnine_vicine",
+                parameters = mapOf(
+                    "user_lat" to lat,
+                    "user_lon" to lon,
+                    "raggio_km" to 10.0
+                )
+            )
+            ColonninaEV.listaVicini = ColonninaEV.parseLista(responseEV.data)
+
+            // Aggiorna la mappa con i nuovi risultati
+            aggiornaMarkerMappa()
+
+        } catch (e: Exception) {
+            Log.e("Fuelly", "Errore ricerca: ${e.message}")
+        }
+    }
+
+    // Funzione per cercare in questa zona
+    private fun cercaInQuestaZona() {
+        binding.btnSearchArea.visibility = View.GONE
+        // Ottieni le coordinate della posizione corrente
+        val center = mMap.cameraPosition.target
+        lifecycleScope.launch {
+            eseguiRicerca(center.latitude, center.longitude)
+        }
+    }
+
+    // Funzione che sposta la camera della mappa sulla posizione corrente dell'utente
+    private fun moveToCurrentLocation(refreshData: Boolean = false) {
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 val currentLatLng = LatLng(location.latitude, location.longitude)
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 14f))
+                if (refreshData) {
+                    binding.btnSearchArea.visibility = View.GONE
+                    lifecycleScope.launch {
+                        eseguiRicerca(location.latitude, location.longitude)
+                    }
+                }
             }
         }
     }
