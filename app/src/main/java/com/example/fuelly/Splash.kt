@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.os.*
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresPermission
@@ -14,12 +15,14 @@ import com.example.fuelly.classes.*
 import com.example.fuelly.utils.Utils
 import com.example.fuelly.supabase.SupabaseInstance
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.user.UserSession
 import io.github.jan.supabase.postgrest.*
 import kotlinx.coroutines.*
 
 class Splash : AppCompatActivity() {
+    private lateinit var progressBar: LinearProgressIndicator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +32,7 @@ class Splash : AppCompatActivity() {
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.isAppearanceLightStatusBars = false  // icone status bar bianche
         windowInsetsController.isAppearanceLightNavigationBars = false  // icone nav bar bianche
-
+        progressBar = findViewById(R.id.progressIndicator)
         try {
             //richiedo i permessi alla mappa
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 100)
@@ -122,6 +125,7 @@ class Splash : AppCompatActivity() {
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun avviaPrecaricamento() {
+        runOnUiThread { progressBar.visibility = View.VISIBLE }
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         // Definiamo cosa fare quando otteniamo la posizione (sia da cache che da nuova richiesta)
@@ -187,6 +191,7 @@ class Splash : AppCompatActivity() {
 
             } catch (e: Exception) {
                 Log.e("Fuelly", "Errore Supabase: ${e.message}")
+                runOnUiThread { progressBar.visibility = View.INVISIBLE }
                 vaiALogin()
             }
         }

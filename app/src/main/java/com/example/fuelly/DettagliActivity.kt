@@ -165,6 +165,10 @@ class DettagliActivity : AppCompatActivity() {
         findViewById<ImageButton>(R.id.btnSalva)?.setOnClickListener {
             salvaElemento(idRicevuto)
         }
+
+        findViewById<ImageButton>(R.id.btnCondividi)?.setOnClickListener {
+            shareStazione()
+        }
     }
 
     //funzione per recuperare la posizione dell'utente e aggiornare la distanza nell'header
@@ -370,6 +374,33 @@ class DettagliActivity : AppCompatActivity() {
         if (lat != null && lon != null) {
             val intent = Intent(Intent.ACTION_VIEW, "google.navigation:q=$lat,$lon".toUri())
             startActivity(intent)
+        }
+    }
+
+    //funzione che gestisce l'intent per la condivisione del benzinaio/colonnina
+    private fun shareStazione() {
+        //recupero il tipo della stazione ricevuto
+        val testoDaCondividere = when (tipoRicevuto) {
+            "BENZINA" -> {
+                val stazione = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
+                stazione?.getShareText()
+            }
+            "EV" -> {
+                val colonnina = ColonninaEV.listaVicini.find { it.id.toLong() == idRicevuto }
+                colonnina?.getShareText()
+            }
+            else -> null
+        }
+
+        //se abbiamo il testo, facciamo partire l'intent di condivisione
+        if (testoDaCondividere != null) {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, testoDaCondividere)
+            }
+            startActivity(Intent.createChooser(shareIntent, "Condividi stazione tramite:"))
+        } else {
+            Toast.makeText(this, "Errore nel recupero dati per la condivisione", Toast.LENGTH_SHORT).show()
         }
     }
 }

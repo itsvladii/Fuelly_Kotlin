@@ -89,4 +89,18 @@ data class Benzinaio(
             else -> R.drawable.fuelly_logo_foreground
         }
     }
+
+    fun getShareText(): String {
+        val sb = StringBuilder()
+        sb.append("⛽ *${bandiera}*\n")
+        sb.append("📍 ${indirizzo}, ${comune}\n\n")
+
+        if (prezzoBenzina > 0) sb.append("🟢 Benzina: ${String.format("%.3f", prezzoBenzina)}€\n")
+        if (prezzoDiesel > 0) sb.append("🟡 Diesel: ${String.format("%.3f", prezzoDiesel)}€\n")
+
+        sb.append("\nGuarda su Google Maps:\n")
+        sb.append("https://www.google.com/maps/search/?api=1&query=${lat},${lon}")
+
+        return sb.toString()
+    }
 }

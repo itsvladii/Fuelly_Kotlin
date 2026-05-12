@@ -81,5 +81,16 @@ data class ColonninaEV(
         }
     }
 
+    fun getShareText(): String {
+        return """
+        ⚡ *${titolo}*
+        📍 ${indirizzo}, ${comune}
+        
+        🔋 Potenza: ${potenzaKW} kW
+        
+        🗺️ Apri su Maps: https://www.google.com/maps/search/?api=1&query=$lat,$lon
+    """.trimIndent()
+    }
+
 
 }
