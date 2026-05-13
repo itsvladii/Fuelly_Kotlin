@@ -34,6 +34,9 @@ import androidx.core.view.WindowCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import androidx.core.graphics.createBitmap
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.supabase.SupabaseInstance
 import io.github.jan.supabase.postgrest.postgrest
@@ -86,6 +89,18 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         // Ottieni il SupportMapFragment e richiama il metodo getMapAsync
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.searchCard) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            // Applichiamo il margine superiore dinamico basato sulla barra di sistema
+            // insets.top è l'altezza esatta della tua status bar (quella che copre ora la card)
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = insets.top + (16 * resources.displayMetrics.density).toInt()
+            }
+
+            windowInsets
+        }
 
 
         // Aggiunto listener per i bottoni di filtro
