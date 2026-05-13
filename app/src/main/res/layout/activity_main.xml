@@ -48,11 +48,12 @@
                 android:layout_height="24dp"
                 android:src="@drawable/maps_pin"
                 app:tint="@color/fuelly_yellow_fluo" />
+
             <TextView
                 android:id="@+id/txtNavMappa"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
+                android:fontFamily="@font/roboto_medium"
                 android:text="Mappa"
                 android:textColor="@color/fuelly_yellow_fluo"
                 android:textSize="12sp" />
@@ -74,11 +75,12 @@
                 android:layout_height="24dp"
                 android:src="@drawable/bookmark_svg"
                 app:tint="@color/grey_inactive" />
+
             <TextView
                 android:id="@+id/txtNavSalvati"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
+                android:fontFamily="@font/roboto_medium"
                 android:text="Salvati"
                 android:textColor="@color/grey_inactive"
                 android:textSize="12sp" />
@@ -100,11 +102,12 @@
                 android:layout_height="24dp"
                 android:src="@drawable/search_svg"
                 app:tint="@color/grey_inactive" />
+
             <TextView
                 android:id="@+id/txtNavCerca"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
+                android:fontFamily="@font/roboto_medium"
                 android:text="Cerca"
                 android:textColor="@color/grey_inactive"
                 android:textSize="12sp" />
@@ -126,11 +129,12 @@
                 android:layout_height="24dp"
                 android:src="@drawable/user"
                 app:tint="@color/grey_inactive" />
+
             <TextView
                 android:id="@+id/txtNavProfilo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/dm_sans_medium"
+                android:fontFamily="@font/roboto_medium"
                 android:text="Profilo"
                 android:textColor="@color/grey_inactive"
                 android:textSize="12sp" />

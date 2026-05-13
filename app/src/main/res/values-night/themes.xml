@@ -14,5 +14,12 @@
         <item name="android:textColorHighlight">#40DFFF00</item>
     </style>
 
+    <style name="WhiteSearchViewText" parent="Widget.AppCompat.SearchView">
+        <item name="android:editTextColor">#FFFFFF</item>
+        <item name="android:textColorHint">#888888</item>
+        <item name="colorControlNormal">#FFFFFF</item>
+        <item name="drawableTint">#FFFFFF</item>
+    </style>
+
     <style name="Theme.Fuelly" parent="Base.Theme.Fuelly" />
 </resources>

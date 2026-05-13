@@ -22,10 +22,9 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
-        android:theme="@style/Theme.Fuelly"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="#1A1C1E"
         app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
+        app:cardElevation="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -35,10 +34,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:iconifiedByDefault="false"
-            app:queryHint="Cerca stazione..." />
-
-
-    </androidx.cardview.widget.CardView>
+            app:queryHint="Cerca stazione..."
+            app:theme="@style/WhiteSearchViewText" /> </androidx.cardview.widget.CardView>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSearchArea"
