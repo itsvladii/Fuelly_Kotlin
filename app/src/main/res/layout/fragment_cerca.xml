@@ -1,59 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#FFFFFF"
-    tools:context=".CercaFragment">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F8F9FA"
+        tools:context=".CercaFragment">
+
+    <View
+        android:id="@+id/headerView"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:background="@drawable/bg_header_cerca"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textViewTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="48dp"
         android:fontFamily="@font/chakra_petch_semibold"
-        android:text="Cerca Benzinai"
-        android:textColor="#000000"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Cerca"
+        android:textColor="#DFFF00"
+        android:textSize="32sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Barra di Ricerca -->
+    <TextView
+        android:id="@+id/textViewSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/dm_sans_medium"
+        android:text="Cerca il benzinaio adatto alle tue esigenze"
+        android:textColor="#A0FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@id/textViewTitle"
+        app:layout_constraintTop_toBottomOf="@id/textViewTitle" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/searchLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="16dp"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
-        app:boxCornerRadiusTopStart="12dp"
-        app:boxStrokeColor="@color/fuelly_green_dark"
-        app:endIconDrawable="@drawable/ic_tune"
-        app:endIconMode="custom"
-        app:endIconTint="@color/black"
+        android:layout_marginTop="20dp"
+        android:textColorHint="@color/grey_inactive"
+        app:boxBackgroundColor="#FFFFFF"
+        app:boxCornerRadiusBottomEnd="16dp"
+        app:boxCornerRadiusBottomStart="16dp"
+        app:boxCornerRadiusTopEnd="16dp"
+        app:boxCornerRadiusTopStart="16dp"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="0dp"
+        app:elevation="8dp"
         app:hintEnabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textViewTitle"
+        app:layout_constraintTop_toBottomOf="@id/textViewSubtitle"
         app:startIconDrawable="@drawable/search_svg"
-        app:startIconTint="@color/black">
+        app:startIconTint="@color/fuelly_green_dark"
+        app:endIconDrawable="@drawable/ic_tune"
+        app:endIconMode="custom"
+        app:endIconTint="@color/black">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editSearch"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:hint="Cerca per Bandiera o Comune..."
+            android:layout_height="wrap_content"
+            android:hint="Cerca città o brand..."
             android:inputType="text"
-            android:paddingVertical="0dp"
             android:textColor="@color/black"
             android:textColorHint="@color/grey_inactive"
-            android:textSize="14sp" />
+            android:textSize="15sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Filtri Rapidi -->
@@ -61,8 +81,10 @@
         android:id="@+id/filterScrollView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="10dp"
         android:scrollbars="none"
+        app:layout_constraintBottom_toTopOf="@+id/rvCerca"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchLayout">
