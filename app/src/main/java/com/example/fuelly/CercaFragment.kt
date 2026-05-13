@@ -140,7 +140,7 @@ class CercaFragment : Fragment() {
     private fun applicaFiltri() {
         val query = binding.editSearch.text.toString().lowercase().trim()
 
-        val listaFiltrata = listaTotaleOriginale.filter { item ->
+        var listaFiltrata = listaTotaleOriginale.filter { item ->
             // --- A. FILTRO PER CATEGORIA (Benzinai/EV/Tutti) ---
             val passaTipo = when (filtroTipoSelezionatoId) {
                 R.id.btnTipoBenzina -> item is Benzinaio
@@ -177,6 +177,18 @@ class CercaFragment : Fragment() {
             } else true
 
             passaTipo && passaRicerca && passaBenzinaio && passaEV
+        }
+
+        // ORDINAMENTO (si fa sulla lista già filtrata, fuori dal blocco filter)
+        listaFiltrata = when (binding.filterChipGroup.checkedChipId) {
+            R.id.chipBenzina -> {
+                // Filtriamo solo i benzinai per sicurezza e ordiniamo
+                listaFiltrata.filterIsInstance<Benzinaio>().sortedBy { it.prezzoBenzina }
+            }
+            R.id.chipDiesel -> {
+                listaFiltrata.filterIsInstance<Benzinaio>().sortedBy { it.prezzoDiesel }
+            }
+            else -> listaFiltrata // Mantieni l'ordine originale (vicinanza)
         }
 
         adapter.updateData(listaFiltrata)

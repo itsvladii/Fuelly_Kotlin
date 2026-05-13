@@ -112,6 +112,32 @@
                 app:chipStrokeWidth="1dp" />
 
             <com.google.android.material.chip.Chip
+                android:id="@+id/chipPiuVicini"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/chip_background_selector_benzinai"
+                android:text="Vicino a me"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
+                app:chipBackgroundColor="@color/white"
+                app:chipStrokeColor="@color/fuelly_green_dark"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipTopSalvati"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/chip_background_selector_benzinai"
+                android:text="Top salvati"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
+                app:chipBackgroundColor="@color/white"
+                app:chipStrokeColor="@color/fuelly_green_dark"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
                 android:id="@+id/chipBenzina"
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
