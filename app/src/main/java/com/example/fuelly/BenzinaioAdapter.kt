@@ -30,10 +30,12 @@ class BenzinaioAdapter(
     // 2. ViewHolder per il footer (spazio vuoto)
     class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
+    // Se la posizione è l'ultima (footer), ritorna TYPE_FOOTER, altrimenti TYPE_ITEM
     override fun getItemViewType(position: Int): Int {
         return if (position == lista.size) TYPE_FOOTER else TYPE_ITEM
     }
 
+    // Alla lista devono arrivare tutti gli elementi + il footer
     override fun getItemCount(): Int {
         return lista.size + 1
     }

@@ -11,31 +11,35 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.fuelly.classes.Benzinaio
 import com.example.fuelly.classes.ColonninaEV
 import org.json.JSONArray
+import android.location.Location
 
 class StazioneAdapter(
-    private var items: List<Any>,
+    private var lista: List<Any>,
+    private var userLat: Double? = null,
+    private var userLon: Double? = null,
     private val onClick: (Any) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private const val TYPE_STATION = 0 // Usiamo lo stesso tipo per entrambi
+        private const val TYPE_STATION = 0
         private const val TYPE_FOOTER = 1
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == items.size) TYPE_FOOTER else TYPE_STATION
+        return if (position == lista.size) TYPE_FOOTER else TYPE_STATION
     }
 
-    override fun getItemCount(): Int = items.size + 1
+    override fun getItemCount(): Int = lista.size + 1
 
     class StationViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val card: CardView = view.findViewById(R.id.stationCard)
         val txtName: TextView = view.findViewById(R.id.txtStationName)
         val txtCity: TextView = view.findViewById(R.id.txtStationCity)
         val txtAddress: TextView = view.findViewById(R.id.txtStationAddress)
-        val txtInfo1: TextView = view.findViewById(R.id.txtBenzina) // Ricicliamo per info EV
-        val txtInfo2: TextView = view.findViewById(R.id.txtDiesel)  // Ricicliamo per info EV
+        val txtInfo1: TextView = view.findViewById(R.id.txtBenzina)
+        val txtInfo2: TextView = view.findViewById(R.id.txtDiesel)
         val imgLogo: ImageView = view.findViewById(R.id.imgPompa)
+        val txtDistanza: TextView = view.findViewById(R.id.txtDistanza)
     }
 
     class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view)
@@ -58,17 +62,22 @@ class StazioneAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is StationViewHolder && position < items.size) {
-            val item = items[position]
+        if (holder is StationViewHolder && position < lista.size) {
+            val item = lista[position]
+            var itemLat = 0.0
+            var itemLon = 0.0
 
             if (item is Benzinaio) {
-                // --- CONFIGURAZIONE FUEL (Giallo) ---
+                itemLat = item.lat
+                itemLon = item.lon
+                // --- CONFIGURAZIONE (BENZINAIO) ---
                 holder.card.setCardBackgroundColor("#0B3D2E".toColorInt())
                 holder.txtName.setTextColor("#DFFF00".toColorInt())
                 holder.txtInfo1.setTextColor("#DFFF00".toColorInt())
                 holder.txtInfo2.setTextColor("#DFFF00".toColorInt())
+                holder.txtDistanza.setTextColor("#DFFF00".toColorInt())
 
-                holder.txtName.text = item.bandiera
+                holder.txtName.text = item.bandiera + " "
                 holder.txtCity.text = "${item.comune} (${item.provincia})"
                 holder.txtAddress.text = item.indirizzo
                 holder.txtInfo1.text = if (item.prezzoBenzina > 0) "B: ${String.format("%.3f", item.prezzoBenzina)}€" else "B: N.D."
@@ -76,13 +85,16 @@ class StazioneAdapter(
                 holder.imgLogo.setImageResource(item.getLogoResource())
 
             } else if (item is ColonninaEV) {
-                // --- CONFIGURAZIONE EV (Ciano) ---
+                // --- CONFIGURAZIONE (EV) ---
+                itemLat = item.lat
+                itemLon = item.lon
                 holder.card.setCardBackgroundColor("#0B101E".toColorInt())
                 holder.txtName.setTextColor("#00FFC2".toColorInt())
                 holder.txtInfo1.setTextColor("#00FFC2".toColorInt())
                 holder.txtInfo2.setTextColor("#00FFC2".toColorInt())
+                holder.txtDistanza.setTextColor("#00FFC2".toColorInt())
 
-                holder.txtName.text = item.titolo
+                holder.txtName.text = item.titolo + " "
                 holder.txtCity.text = item.indirizzo // Usiamo indirizzo come city se manca
                 holder.txtAddress.text = "Stazione di ricarica elettrica"
 
@@ -100,12 +112,31 @@ class StazioneAdapter(
                 holder.imgLogo.setImageResource(item.getLogoResource())
             }
 
+            // Calcolo e visualizzazione distanza
+            if (userLat != null && userLon != null && itemLat != 0.0) {
+                val results = FloatArray(1)
+                Location.distanceBetween(userLat!!, userLon!!, itemLat, itemLon, results)
+                val metri = results[0]
+                holder.txtDistanza.text = if (metri >= 1000) {
+                    "${String.format("%.1f", metri / 1000)} km"
+                } else {
+                    "${metri.toInt()} m"
+                }
+                holder.txtDistanza.visibility = View.VISIBLE
+            } else {
+                holder.txtDistanza.visibility = View.GONE
+            }
+
             holder.itemView.setOnClickListener { onClick(item) }
         }
     }
 
-    fun updateData(newItems: List<Any>) {
-        items = newItems
+    fun updateData(newLista: List<Any>, lat: Double? = null, lon: Double? = null) {
+        lista = newLista
+        if (lat != null && lon != null) {
+            userLat = lat
+            userLon = lon
+        }
         notifyDataSetChanged()
     }
 }

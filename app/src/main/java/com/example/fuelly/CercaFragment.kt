@@ -1,12 +1,15 @@
 package com.example.fuelly
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,6 +17,8 @@ import com.example.fuelly.classes.Benzinaio
 import com.example.fuelly.classes.ColonninaEV
 import com.example.fuelly.databinding.DialogFiltriBinding
 import com.example.fuelly.databinding.FragmentCercaBinding
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.ChipGroup
 //TODO: filtro testuale e per tipo funziona, da sistemare i chip "rapidi" e i chip dei tipi di carburante/prese
@@ -22,6 +27,7 @@ class CercaFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var adapter: StazioneAdapter
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var listaTotaleOriginale: List<Any> = emptyList()
 
     // Stato dei filtri persistente nel Fragment
@@ -29,6 +35,10 @@ class CercaFragment : Fragment() {
     private var soloOperative: Boolean = false
     private val carburantiSelezionatiIds = mutableSetOf<Int>()
     private val connettoriSelezionatiIds = mutableSetOf<Int>()
+
+    // Coordinate dell'utente
+    private var userLat: Double? = null
+    private var userLon: Double? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,8 +51,10 @@ class CercaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        
         setupRecyclerView()
-        caricaDatiIniziali()
+        recuperaPosizioneECaricaDati()
 
         // Ricerca testuale reattiva
         binding.editSearch.addTextChangedListener(object : TextWatcher {
@@ -58,7 +70,7 @@ class CercaFragment : Fragment() {
             mostraDialogFiltri()
         }
 
-        // Filtri rapidi (Benzina/Diesel) nell'header
+        // Filtri rapidi (Piu vicini, Economici, ecc.) nell'header
         binding.filterChipGroup.setOnCheckedChangeListener { _, _ ->
             applicaFiltri()
         }
@@ -66,7 +78,7 @@ class CercaFragment : Fragment() {
 
     private fun setupRecyclerView() {
         binding.rvCerca.layoutManager = LinearLayoutManager(requireContext())
-        adapter = StazioneAdapter(emptyList()) { item ->
+        adapter = StazioneAdapter(emptyList(), userLat, userLon) { item ->
             val intent = Intent(requireContext(), DettagliActivity::class.java)
             when (item) {
                 is Benzinaio -> {
@@ -78,14 +90,31 @@ class CercaFragment : Fragment() {
                     intent.putExtra("TIPO_ELEMENTO", "EV")
                 }
             }
+            // Passiamo la posizione utente ai dettagli
+            intent.putExtra("USER_LAT", userLat ?: 0.0)
+            intent.putExtra("USER_LON", userLon ?: 0.0)
             startActivity(intent)
         }
         binding.rvCerca.adapter = adapter
     }
 
+    private fun recuperaPosizioneECaricaDati() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    userLat = location.latitude
+                    userLon = location.longitude
+                }
+                caricaDatiIniziali()
+            }
+        } else {
+            caricaDatiIniziali()
+        }
+    }
+
     private fun caricaDatiIniziali() {
         listaTotaleOriginale = Benzinaio.listaVicini + ColonninaEV.listaVicini
-        adapter.updateData(listaTotaleOriginale)
+        adapter.updateData(listaTotaleOriginale, userLat, userLon)
     }
 
     private fun mostraDialogFiltri() {
@@ -216,13 +245,14 @@ class CercaFragment : Fragment() {
             R.id.chipPiuVicini, R.id.chipAll -> {
                 // Restituisce la lista filtrata mantenendo l'ordine di vicinanza
                 // (che è l'ordine naturale con cui arrivano da Supabase tramite RPC)
-                listaFiltrata
+                listaFiltrata.filterIsInstance<Benzinaio>()
+                    .sortedBy { Benzinaio.listaVicini.indexOf(it) }
             }
 
             else -> listaFiltrata
         }
 
-        adapter.updateData(listaFiltrata)
+        adapter.updateData(listaFiltrata, userLat, userLon)
         binding.rvCerca.scrollToPosition(0)
     }
 

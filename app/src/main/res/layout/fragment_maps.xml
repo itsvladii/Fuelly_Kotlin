@@ -35,7 +35,8 @@
             android:layout_height="wrap_content"
             app:iconifiedByDefault="false"
             app:queryHint="Cerca stazione..."
-            app:theme="@style/WhiteSearchViewText" /> </androidx.cardview.widget.CardView>
+            app:theme="@style/WhiteSearchViewText" />
+    </androidx.cardview.widget.CardView>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSearchArea"

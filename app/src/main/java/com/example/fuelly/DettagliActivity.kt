@@ -99,7 +99,7 @@ class DettagliActivity : AppCompatActivity() {
         val color = "#DFFF00".toColorInt()
         findViewById<TextView>(R.id.txtStationName)?.apply {
             setTextColor(color)
-            text = b.bandiera
+            text = b.bandiera + " "
         }
         findViewById<TextView>(R.id.txtStationCity)?.apply {
             setTextColor(color)
@@ -124,7 +124,7 @@ class DettagliActivity : AppCompatActivity() {
         val color = "#00FFC2".toColorInt()
         findViewById<TextView>(R.id.txtStationName)?.apply {
             setTextColor(color)
-            text = ev.titolo
+            text = ev.titolo + " "
         }
         findViewById<TextView>(R.id.txtStationCity)?.apply {
             setTextColor(color)
@@ -194,9 +194,17 @@ class DettagliActivity : AppCompatActivity() {
         if (latUser != 0.0 && lonUser != 0.0) {
             val start = android.location.Location("A").apply { latitude = latUser; longitude = lonUser }
             val end = android.location.Location("B").apply { latitude = latDest; longitude = lonDest }
-            distanzaSalvata = (start.distanceTo(end) / 1000).toDouble()
+            distanzaSalvata = (start.distanceTo(end)).toDouble()
 
-            findViewById<TextView>(R.id.txtDistance)?.text = "${String.format("%.1f", distanzaSalvata)} km"
+            if (distanzaSalvata >= 1000) {
+                distanzaSalvata = distanzaSalvata/1000
+                findViewById<TextView>(R.id.txtDistance)?.text = "${String.format("%.1f", distanzaSalvata)} km"
+            }
+            else{
+                findViewById<TextView>(R.id.txtDistance)?.text = "${String.format("%.0f", distanzaSalvata)} m"
+
+            }
+
         }
     }
 
