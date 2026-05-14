@@ -30,4 +30,11 @@ object Utils {
             Log.e("Fuelly", "Errore caricamento salvati: ${e.message}")
         }
     }
+
+
+    fun calcolaDistanza(latUser: Double, lonUser: Double, latItem: Double, lonItem: Double): Double {
+        val start = android.location.Location("A").apply { latitude = latUser; longitude = lonUser }
+        val end = android.location.Location("B").apply { latitude = latItem; longitude = lonItem }
+        return (start.distanceTo(end)).toDouble()
+    }
 }

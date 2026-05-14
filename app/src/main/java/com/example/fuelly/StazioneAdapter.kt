@@ -12,6 +12,7 @@ import com.example.fuelly.classes.Benzinaio
 import com.example.fuelly.classes.ColonninaEV
 import org.json.JSONArray
 import android.location.Location
+import com.example.fuelly.utils.Utils
 
 class StazioneAdapter(
     private var lista: List<Any>,
@@ -114,13 +115,11 @@ class StazioneAdapter(
 
             // Calcolo e visualizzazione distanza
             if (userLat != null && userLon != null && itemLat != 0.0) {
-                val results = FloatArray(1)
-                Location.distanceBetween(userLat!!, userLon!!, itemLat, itemLon, results)
-                val metri = results[0]
-                holder.txtDistanza.text = if (metri >= 1000) {
-                    "${String.format("%.1f", metri / 1000)} km"
+                val distanza = Utils.calcolaDistanza(userLat!!, userLon!!, itemLat, itemLon)
+                holder.txtDistanza.text = if (distanza >= 1000) {
+                    "${String.format("%.1f", distanza / 1000)} km"
                 } else {
-                    "${metri.toInt()} m"
+                    "$${String.format("%.0f", distanza)} m"
                 }
                 holder.txtDistanza.visibility = View.VISIBLE
             } else {

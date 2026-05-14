@@ -178,7 +178,7 @@ class DettagliActivity : AppCompatActivity() {
                             b?.let { calcolaDistanzaDettaglio(it.lat, it.lon) }
                         }
                         "EV" -> {
-                            val ev = ColonninaEV.listaVicini.find { it.id.toLong() == idRicevuto }
+                            val ev = ColonninaEV.listaCompleta.find { it.id.toLong() == idRicevuto }
                             ev?.let { calcolaDistanzaDettaglio(it.lat, it.lon) }
                         }
                     }
@@ -192,9 +192,7 @@ class DettagliActivity : AppCompatActivity() {
         val lonUser = intent.getDoubleExtra("USER_LON", 0.0)
 
         if (latUser != 0.0 && lonUser != 0.0) {
-            val start = android.location.Location("A").apply { latitude = latUser; longitude = lonUser }
-            val end = android.location.Location("B").apply { latitude = latDest; longitude = lonDest }
-            distanzaSalvata = (start.distanceTo(end)).toDouble()
+            distanzaSalvata = Utils.calcolaDistanza(latUser, lonUser, latDest, lonDest)
 
             if (distanzaSalvata >= 1000) {
                 distanzaSalvata = distanzaSalvata/1000
