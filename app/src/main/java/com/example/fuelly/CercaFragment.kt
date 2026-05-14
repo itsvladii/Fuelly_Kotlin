@@ -141,7 +141,7 @@ class CercaFragment : Fragment() {
         val query = binding.editSearch.text.toString().lowercase().trim()
 
         var listaFiltrata = listaTotaleOriginale.filter { item ->
-            // --- A. FILTRO PER CATEGORIA (Benzinai/EV/Tutti) ---
+            // --- A. FILTRO PER CATEGORIA (Benzinai/EV) ---
             val passaTipo = when (filtroTipoSelezionatoId) {
                 R.id.btnTipoBenzina -> item is Benzinaio
                 R.id.btnTipoEV -> item is ColonninaEV
@@ -156,24 +156,36 @@ class CercaFragment : Fragment() {
             }
 
             // --- C. FILTRO SPECIFICO BENZINAIO ---
-            val passaBenzinaio = if (item is Benzinaio) {
-                // Controllo chip rapidi header
-                val passaHeader = when (binding.filterChipGroup.checkedChipId) {
-                    R.id.chipBenzina -> item.prezzoBenzina > 0
-                    R.id.chipDiesel -> item.prezzoDiesel > 0
-                    else -> true
-                }
-
-                // (Opzionale) Controllo chip nel Dialog se vuoi filtrare per carburanti specifici
-                passaHeader
+            val passaBenzinaio = if (item is Benzinaio && carburantiSelezionatiIds.isNotEmpty()) {
+                // Controlliamo se il benzinaio ha almeno uno dei carburanti scelti nel Dialog
+                var match = false
+                if (carburantiSelezionatiIds.contains(R.id.chipBenzina) && item.prezzoBenzina > 0) match = true
+                if (carburantiSelezionatiIds.contains(R.id.chipDiesel) && item.prezzoDiesel > 0) match = true
+                if (carburantiSelezionatiIds.contains(R.id.chipMetano) && item.prezzoMetano > 0) match = true
+                if (carburantiSelezionatiIds.contains(R.id.chipGPL) && item.prezzoGPL > 0) match = true
+                match
             } else true
 
             // --- D. FILTRO SPECIFICO EV ---
             val passaEV = if (item is ColonninaEV) {
+                // Filtro operatività
                 val passaOperativo = if (soloOperative) item.stato.contains("Operational", true) else true
 
-                // (Opzionale) Aggiungi qui controllo connettoriJson basato su connettoriSelezionatiIds
-                passaOperativo
+                // Filtro connettori (Presa Type 2, CCS, ecc)
+                val passaConnettori = if (connettoriSelezionatiIds.isNotEmpty()) {
+                    val json = item.connettoriJson?.lowercase() ?: ""
+                    var matchConnettore = false
+
+                    // Mappa i tuoi ID chip alle stringhe contenute nel JSON di Supabase
+                    if (connettoriSelezionatiIds.contains(R.id.chipType2) && json.contains("type 2")) matchConnettore = true
+                    if (connettoriSelezionatiIds.contains(R.id.chipCCS2) && (json.contains("ccs") || json.contains("combo"))) matchConnettore = true
+                    if (connettoriSelezionatiIds.contains(R.id.chipCHAdeMO) && json.contains("chademo")) matchConnettore = true
+                    if (connettoriSelezionatiIds.contains(R.id.chipTesla) && json.contains("tesla")) matchConnettore = true
+
+                    matchConnettore
+                } else true
+
+                passaOperativo && passaConnettori
             } else true
 
             passaTipo && passaRicerca && passaBenzinaio && passaEV
@@ -187,6 +199,12 @@ class CercaFragment : Fragment() {
             }
             R.id.chipDiesel -> {
                 listaFiltrata.filterIsInstance<Benzinaio>().sortedBy { it.prezzoDiesel }
+            }
+            R.id.chipMetano->{
+                listaFiltrata.filterIsInstance<Benzinaio>().sortedBy { it.prezzoMetano }
+            }
+            R.id.chipGPL->{
+                listaFiltrata.filterIsInstance<Benzinaio>().sortedBy { it.prezzoGPL }
             }
             else -> listaFiltrata // Mantieni l'ordine originale (vicinanza)
         }
