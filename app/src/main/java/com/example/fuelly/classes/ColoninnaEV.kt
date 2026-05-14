@@ -71,13 +71,13 @@ data class ColonninaEV(
         }
 
         fun getIconaConnettore(typeName: String?): Int {
-            if (typeName == null) return R.drawable.ev_logo
+            if (typeName == null) return R.drawable.ic_ev_logo
             val name = typeName.lowercase()
             return when {
-                name.contains("type 2") || name.contains("mennekes") -> R.drawable.type2_logo
-                name.contains("ccs") || name.contains("combo") -> R.drawable.ccs_type2_logo
-                name.contains("chademo") -> R.drawable.chademo_logo
-                else -> R.drawable.ev_logo
+                name.contains("type 2") || name.contains("mennekes") -> R.drawable.ic_type2
+                name.contains("ccs") || name.contains("combo") -> R.drawable.ic_ccs_type2
+                name.contains("chademo") -> R.drawable.ic_chademo
+                else -> R.drawable.ic_ev_logo
             }
         }
     }
@@ -88,7 +88,7 @@ data class ColonninaEV(
             op.contains("enel") -> R.drawable.logo_enelx
             op.contains("tesla") -> R.drawable.logo_tesla
             op.contains("be charge") || op.contains("plenitude") || op.contains("eni") -> R.drawable.logo_plenitude
-            else -> R.drawable.ev_logo
+            else -> R.drawable.ic_ev_logo
         }
     }
 

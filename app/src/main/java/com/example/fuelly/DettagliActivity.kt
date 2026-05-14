@@ -228,7 +228,7 @@ class DettagliActivity : AppCompatActivity() {
                     }
                     runOnUiThread {
                         Toast.makeText(this@DettagliActivity, "Rimosso dai salvati", Toast.LENGTH_SHORT).show()
-                        findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_svg)
+                        findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.ic_bookmark)
                     }
                 } else {
                     val nuovoSalvato = Salvato(
@@ -238,7 +238,7 @@ class DettagliActivity : AppCompatActivity() {
                     SupabaseInstance.client.from(tabella).insert(nuovoSalvato)
                     runOnUiThread {
                         Toast.makeText(this@DettagliActivity, "Salvato!", Toast.LENGTH_SHORT).show()
-                        findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_salvato)
+                        findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.ic_bookmark_saved)
                     }
                 }
                 Utils.caricaSalvati(session)
@@ -265,7 +265,7 @@ class DettagliActivity : AppCompatActivity() {
 
                 if (esistente.isNotEmpty()) {
                     runOnUiThread {
-                        findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.bookmark_salvato)
+                        findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.ic_bookmark_saved)
                     }
                 }
             } catch (e: Exception) {

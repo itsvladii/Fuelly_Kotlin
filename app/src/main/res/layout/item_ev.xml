@@ -18,7 +18,7 @@
             android:id="@+id/frameIcon"
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:background="@drawable/ev_logo"
+            android:background="@drawable/ic_ev_logo"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -28,7 +28,7 @@
                 android:layout_width="44dp"
                 android:layout_height="44dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ev_logo"
+                android:src="@drawable/ic_ev_logo"
                 app:tint="#0B3D2E" />
         </FrameLayout>
 

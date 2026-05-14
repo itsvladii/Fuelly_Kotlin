@@ -182,12 +182,12 @@ class PrezziFragment : Fragment() {
             val isPremium = !nome.equals(categoria, ignoreCase = true)
 
             if (diff > 0) {
-                freccia.setImageResource(R.drawable.up_arrow)
+                freccia.setImageResource(R.drawable.ic_up_arrow)
                 freccia.setColorFilter(Color.RED)
                 txtDiff.text = "+${String.format("%.3f", diff)}" + (if (isPremium) " (Prem.)" else "")
                 txtDiff.setTextColor(Color.RED)
             } else {
-                freccia.setImageResource(R.drawable.down_arrow)
+                freccia.setImageResource(R.drawable.ic_downarrow)
                 freccia.setColorFilter("#2E7D32".toColorInt())
                 txtDiff.text = String.format("%.3f", diff)
                 txtDiff.setTextColor("#2E7D32".toColorInt())

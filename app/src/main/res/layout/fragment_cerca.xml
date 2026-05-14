@@ -59,7 +59,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textViewSubtitle"
-        app:startIconDrawable="@drawable/search_svg"
+        app:startIconDrawable="@drawable/ic_search"
         app:startIconTint="@color/fuelly_green_dark"
         app:endIconDrawable="@drawable/ic_tune"
         app:endIconMode="custom"
@@ -184,7 +184,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:background="@drawable/bottom_fade_gradient"
+        android:background="@drawable/bg_bottom_fade_gradient"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

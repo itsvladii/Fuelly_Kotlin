@@ -11,7 +11,7 @@
         android:id="@+id/frameAvatar"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:background="@drawable/user"
+        android:background="@drawable/ic_user"
         android:backgroundTint="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>

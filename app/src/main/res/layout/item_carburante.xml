@@ -18,7 +18,7 @@
             android:id="@+id/imgIconaCarburante"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/pompa_benzina"
+            android:src="@drawable/ic_pompa_benzina"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -64,7 +64,7 @@
                 android:id="@+id/imgFrecciaMedia"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/up_arrow" />
+                android:src="@drawable/ic_up_arrow" />
 
             <TextView
                 android:id="@+id/txtDifferenzaMedia"

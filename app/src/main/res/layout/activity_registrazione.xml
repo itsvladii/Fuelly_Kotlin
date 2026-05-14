@@ -71,7 +71,7 @@
                 app:boxCornerRadiusTopStart="12dp"
                 app:boxStrokeColor="#0D3B2E"
                 app:hintEnabled="false"
-                app:startIconDrawable="@drawable/user"
+                app:startIconDrawable="@drawable/ic_user"
                 app:startIconTint="@color/fuelly_green_dark">
 
                 <com.google.android.material.textfield.TextInputEditText

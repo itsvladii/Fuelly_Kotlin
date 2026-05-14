@@ -268,7 +268,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         markersBenzina.clear()
         markersEV.clear()
 
-        val iconaCustom = vectorToBitmap(R.drawable.fuel_marker)
+        val iconaCustom = vectorToBitmap(R.drawable.ic_fuel_marker)
         for (stazione in Benzinaio.listaVicini) {
             val marker = mMap.addMarker(
                 MarkerOptions()
@@ -281,7 +281,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             marker?.let { markersBenzina.add(it) }
         }
 
-        val iconaEV = vectorToBitmap(R.drawable.ev_marker)
+        val iconaEV = vectorToBitmap(R.drawable.ic_ev_marker)
         for (ev in ColonninaEV.listaVicini) {
             val marker = mMap.addMarker(
                 MarkerOptions()

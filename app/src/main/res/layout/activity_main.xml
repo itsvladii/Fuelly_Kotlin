@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="64dp"
         android:layout_marginBottom="60dp"
-        android:background="@drawable/floating_nav"
+        android:background="@drawable/bg_floating_nav"
         android:elevation="10dp"
         android:gravity="center"
         android:orientation="horizontal"
@@ -46,7 +46,7 @@
                 android:id="@+id/imgNavMappa"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/maps_pin"
+                android:src="@drawable/ic_maps_pin"
                 app:tint="@color/fuelly_yellow_fluo" />
 
             <TextView
@@ -73,7 +73,7 @@
                 android:id="@+id/imgNavSalvati"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/bookmark_svg"
+                android:src="@drawable/ic_bookmark"
                 app:tint="@color/grey_inactive" />
 
             <TextView
@@ -100,7 +100,7 @@
                 android:id="@+id/imgNavCerca"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/search_svg"
+                android:src="@drawable/ic_search"
                 app:tint="@color/grey_inactive" />
 
             <TextView
@@ -127,7 +127,7 @@
                 android:id="@+id/imgNavProfilo"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/user"
+                android:src="@drawable/ic_user"
                 app:tint="@color/grey_inactive" />
 
             <TextView
