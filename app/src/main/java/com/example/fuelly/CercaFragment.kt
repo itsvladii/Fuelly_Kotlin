@@ -160,7 +160,7 @@ class CercaFragment : Fragment() {
                 // Controlliamo se il benzinaio ha almeno uno dei carburanti scelti nel Dialog
                 var match = false
                 if (carburantiSelezionatiIds.contains(R.id.chipBenzina) && item.prezzoBenzina > 0) match = true
-                if (carburantiSelezionatiIds.contains(R.id.chipDiesel) && item.prezzoDiesel > 0) match = true
+                if (carburantiSelezionatiIds.contains(R.id.chipGasolio) && item.prezzoDiesel > 0) match = true
                 if (carburantiSelezionatiIds.contains(R.id.chipMetano) && item.prezzoMetano > 0) match = true
                 if (carburantiSelezionatiIds.contains(R.id.chipGPL) && item.prezzoGPL > 0) match = true
                 match
@@ -193,20 +193,22 @@ class CercaFragment : Fragment() {
 
         // ORDINAMENTO (si fa sulla lista già filtrata, fuori dal blocco filter)
         listaFiltrata = when (binding.filterChipGroup.checkedChipId) {
-            R.id.chipBenzina -> {
-                // Filtriamo solo i benzinai per sicurezza e ordiniamo
-                listaFiltrata.filterIsInstance<Benzinaio>().sortedBy { it.prezzoBenzina }
+            R.id.chipBenzinaEconomica -> {
+                listaFiltrata.filterIsInstance<Benzinaio>()
+                    .filter { it.prezzoBenzina > 0 }
+                    .sortedBy { it.prezzoBenzina }
             }
-            R.id.chipDiesel -> {
-                listaFiltrata.filterIsInstance<Benzinaio>().sortedBy { it.prezzoDiesel }
+            R.id.chipDieselEconomico -> {
+                listaFiltrata.filterIsInstance<Benzinaio>()
+                    .filter { it.prezzoDiesel > 0 }
+                    .sortedBy { it.prezzoDiesel }
             }
-            R.id.chipMetano->{
-                listaFiltrata.filterIsInstance<Benzinaio>().sortedBy { it.prezzoMetano }
+            // Ordiniamo per distanza se selezionato "Piu Vicini" o "Tutti"
+            R.id.chipPiuVicini, R.id.chipAll -> {
+                // Qui l'ordine è già quello di vicinanza caricato all'inizio
+                listaFiltrata
             }
-            R.id.chipGPL->{
-                listaFiltrata.filterIsInstance<Benzinaio>().sortedBy { it.prezzoGPL }
-            }
-            else -> listaFiltrata // Mantieni l'ordine originale (vicinanza)
+            else -> listaFiltrata
         }
 
         adapter.updateData(listaFiltrata)
