@@ -17,6 +17,7 @@ import com.example.fuelly.classes.Benzinaio
 import com.example.fuelly.classes.ColonninaEV
 import com.example.fuelly.databinding.DialogFiltriBinding
 import com.example.fuelly.databinding.FragmentCercaBinding
+import com.example.fuelly.utils.Utils
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -242,11 +243,14 @@ class CercaFragment : Fragment() {
                     .sortedBy { Benzinaio.listaTopSalvatiIds.indexOf(it.id) }
             }
 
-            R.id.chipPiuVicini, R.id.chipAll -> {
+            R.id.chipPiuVicini -> {
                 // Restituisce la lista filtrata mantenendo l'ordine di vicinanza
-                // (che è l'ordine naturale con cui arrivano da Supabase tramite RPC)
                 listaFiltrata.filterIsInstance<Benzinaio>()
-                    .sortedBy { Benzinaio.listaVicini.indexOf(it) }
+                    .sortedBy { Utils.calcolaDistanza(userLat ?: 0.0, userLon ?: 0.0, it.lat, it.lon) }
+            }
+
+            R.id.chipAll -> {
+                listaTotaleOriginale
             }
 
             else -> listaFiltrata

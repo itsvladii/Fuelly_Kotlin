@@ -119,7 +119,7 @@ class StazioneAdapter(
                 holder.txtDistanza.text = if (distanza >= 1000) {
                     "${String.format("%.1f", distanza / 1000)} km"
                 } else {
-                    "$${String.format("%.0f", distanza)} m"
+                    "${String.format("%.0f", distanza)} m"
                 }
                 holder.txtDistanza.visibility = View.VISIBLE
             } else {
