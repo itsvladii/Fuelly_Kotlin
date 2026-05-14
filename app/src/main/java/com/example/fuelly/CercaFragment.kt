@@ -191,23 +191,34 @@ class CercaFragment : Fragment() {
             passaTipo && passaRicerca && passaBenzinaio && passaEV
         }
 
-        // ORDINAMENTO (si fa sulla lista già filtrata, fuori dal blocco filter)
+        // --- ORDINAMENTO E FILTRAGGIO FINALE ---
         listaFiltrata = when (binding.filterChipGroup.checkedChipId) {
             R.id.chipBenzinaEconomica -> {
                 listaFiltrata.filterIsInstance<Benzinaio>()
                     .filter { it.prezzoBenzina > 0 }
                     .sortedBy { it.prezzoBenzina }
             }
+
             R.id.chipDieselEconomico -> {
                 listaFiltrata.filterIsInstance<Benzinaio>()
                     .filter { it.prezzoDiesel > 0 }
                     .sortedBy { it.prezzoDiesel }
             }
-            // Ordiniamo per distanza se selezionato "Piu Vicini" o "Tutti"
+
+            R.id.chipTopSalvati -> {
+                // Mostra solo i benzinai che compaiono nella classifica "Top" globale
+                // e ordinali in base alla loro posizione in classifica (indexOf)
+                listaFiltrata.filterIsInstance<Benzinaio>()
+                    .filter { Benzinaio.listaTopSalvatiIds.contains(it.id) }
+                    .sortedBy { Benzinaio.listaTopSalvatiIds.indexOf(it.id) }
+            }
+
             R.id.chipPiuVicini, R.id.chipAll -> {
-                // Qui l'ordine è già quello di vicinanza caricato all'inizio
+                // Restituisce la lista filtrata mantenendo l'ordine di vicinanza
+                // (che è l'ordine naturale con cui arrivano da Supabase tramite RPC)
                 listaFiltrata
             }
+
             else -> listaFiltrata
         }
 

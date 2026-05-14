@@ -59,6 +59,17 @@ data class ColonninaEV(
             return lista
         }
 
+        private fun parseTopSalvatiIds(data: Any?): List<Int> {
+            val ids = mutableListOf<Int>()
+            try {
+                val jsonArray = org.json.JSONArray(data.toString())
+                for (i in 0 until jsonArray.length()) {
+                    ids.add(jsonArray.getJSONObject(i).getInt("idImpianto"))
+                }
+            } catch (e: Exception) { /* gestione errore */ }
+            return ids
+        }
+
         fun getIconaConnettore(typeName: String?): Int {
             if (typeName == null) return R.drawable.ev_logo
             val name = typeName.lowercase()

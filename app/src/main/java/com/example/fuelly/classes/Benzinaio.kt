@@ -27,6 +27,8 @@ data class Benzinaio(
 
         var listaSalvati: List<Benzinaio> = emptyList()
 
+        var listaTopSalvatiIds: List<Int> = emptyList()
+
         // Lista che unisce salvati e vicini senza duplicati
         val listaCompleta: List<Benzinaio>
             get() = (listaSalvati + listaVicini).distinctBy { it.id }
@@ -72,6 +74,18 @@ data class Benzinaio(
             }
 
             return lista
+        }
+
+        // Funzione di supporto per il parsing degli ID
+        fun parseTopSalvatiIds(data: Any?): List<Int> {
+            val ids = mutableListOf<Int>()
+            try {
+                val jsonArray = org.json.JSONArray(data.toString())
+                for (i in 0 until jsonArray.length()) {
+                    ids.add(jsonArray.getJSONObject(i).getInt("idImpianto"))
+                }
+            } catch (e: Exception) { /* gestione errore */ }
+            return ids
         }
     }
 

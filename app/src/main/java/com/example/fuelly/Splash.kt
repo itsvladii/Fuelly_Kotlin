@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.classes.*
+import com.example.fuelly.classes.Benzinaio.Companion.parseTopSalvatiIds
 import com.example.fuelly.utils.Utils
 import com.example.fuelly.supabase.SupabaseInstance
 import com.google.android.gms.location.LocationServices
@@ -174,6 +175,14 @@ class Splash : AppCompatActivity() {
                     )
                 )
                 Benzinaio.listaVicini = Benzinaio.parseLista(response.data)
+
+                val responseTop = SupabaseInstance.client.postgrest.rpc(
+                    function = "get_benzinai_piu_salvati" // La funzione SQL che abbiamo creato prima
+                )
+
+                // Salviamo i dati in una nuova variabile globale (es. Benzinaio.listaTopSalvati)
+                // Nota: dovrai definire questa variabile nel companion object di Benzinaio.kt
+                Benzinaio.listaTopSalvatiIds = Benzinaio.parseTopSalvatiIds(responseTop.data)
 
                 // --- Chiamata Colonnine ---
                 val responseEV = SupabaseInstance.client.postgrest.rpc(
