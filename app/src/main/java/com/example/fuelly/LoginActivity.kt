@@ -149,7 +149,8 @@ class LoginActivity : AppCompatActivity() {
                         //se l'utente ha gia effettuato l'accesso, vado direttamente alla MainActivity (che contiene la navbar), altrimenti alla login
                         if (session != null) {
                             //carico i preferiti dell'utente (se loggato)
-                            Utils.caricaSalvati(session)
+                            Utils.BenzinaiSalvati(session)
+                            Utils.ColonnineSalvate(session)
 
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             goToMappa()

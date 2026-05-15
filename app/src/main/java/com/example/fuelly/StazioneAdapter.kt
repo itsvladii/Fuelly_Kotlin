@@ -138,4 +138,5 @@ class StazioneAdapter(
         }
         notifyDataSetChanged()
     }
+
 }

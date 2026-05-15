@@ -209,7 +209,10 @@ class Splash : AppCompatActivity() {
     private suspend fun gestisciNavigazionePostCaricamento() {
         val session = SupabaseInstance.client.auth.currentSessionOrNull()
         if (session != null) {
-            Utils.caricaSalvati(session)
+            Utils.ColonnineSalvate(session)
+            Utils.BenzinaiSalvati(session)
+
+
             startActivity(Intent(this, MainActivity::class.java))
         } else {
             startActivity(Intent(this, LoginActivity::class.java))

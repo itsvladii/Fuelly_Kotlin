@@ -248,7 +248,7 @@ class DettagliActivity : AppCompatActivity() {
                     }
                 }
                 Utils.BenzinaiSalvati(session)
-                Utils.ColonnineSalvati(session)
+                Utils.ColonnineSalvate(session)
             } catch (e: Exception) {
                 runOnUiThread {
                     Toast.makeText(this@DettagliActivity, "Errore nella gestione dei salvati", Toast.LENGTH_SHORT).show()
