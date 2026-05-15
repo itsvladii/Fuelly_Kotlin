@@ -115,7 +115,7 @@ class CercaFragment : Fragment() {
 
     private fun caricaDatiIniziali() {
         listaTotaleOriginale = Benzinaio.listaVicini + ColonninaEV.listaVicini
-        adapter.updateData(listaTotaleOriginale, userLat, userLon)
+        adapter.updateData(Benzinaio.listaVicini, userLat, userLon)
     }
 
     private fun mostraDialogFiltri() {

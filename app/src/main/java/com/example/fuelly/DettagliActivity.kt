@@ -292,7 +292,9 @@ class DettagliActivity : AppCompatActivity() {
         }
 
         if (lat != null && lon != null) {
-            val intent = Intent(Intent.ACTION_VIEW, "google.navigation:q=$lat,$lon".toUri())
+            val gmmIntentUri = "https://www.google.com/maps/dir/?api=1&destination=$lat,$lon".toUri()
+            val intent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+            intent.setPackage("com.google.android.apps.maps")
             startActivity(intent)
         }
     }
