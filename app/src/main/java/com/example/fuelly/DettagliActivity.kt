@@ -247,7 +247,8 @@ class DettagliActivity : AppCompatActivity() {
                         findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.ic_bookmark_saved)
                     }
                 }
-                Utils.caricaSalvati(session)
+                Utils.BenzinaiSalvati(session)
+                Utils.ColonnineSalvati(session)
             } catch (e: Exception) {
                 runOnUiThread {
                     Toast.makeText(this@DettagliActivity, "Errore nella gestione dei salvati", Toast.LENGTH_SHORT).show()
