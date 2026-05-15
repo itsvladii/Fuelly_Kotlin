@@ -250,7 +250,7 @@ class CercaFragment : Fragment() {
             }
 
             R.id.chipAll -> {
-                listaTotaleOriginale
+                listaFiltrata
             }
 
             else -> listaFiltrata
