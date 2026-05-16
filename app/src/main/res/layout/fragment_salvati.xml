@@ -10,8 +10,8 @@
 
     <View
         android:id="@+id/headerView"
-        android:layout_width="403dp"
-        android:layout_height="186dp"
+        android:layout_width="414dp"
+        android:layout_height="152dp"
         android:background="@drawable/bg_header_cerca"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -43,33 +43,66 @@
             android:textColor="#B0FFFFFF"
             android:textSize="14sp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/salvatiBenzinai"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Benzinai salvati" />
-
-            <Button
-                android:id="@+id/salvatiColonnine"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Button" />
-        </LinearLayout>
-
     </LinearLayout>
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleGroupSalvati"
+        android:layout_width="350dp"
+        android:layout_height="38dp"
+        android:layout_marginTop="160dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/headerView"
+        app:selectionRequired="true"
+        app:singleSelection="true">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSalvatiBenzina"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="36dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:drawableTint="@color/black"
+            android:fontFamily="@font/dm_sans_medium"
+            android:text="Benzinai"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:textSize="13sp"
+            app:backgroundTint="@color/chip_background_selector_benzinai"
+            app:cornerRadius="8dp"
+            app:icon="@drawable/ic_fuel"
+            app:iconGravity="textStart"
+            app:iconSize="16dp"
+            app:iconTint="@color/grey_inactive"
+            app:strokeColor="@color/ic_launcher_background"
+            app:strokeWidth="1.5dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSalvatiEV"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:drawableTint="@color/black"
+            android:fontFamily="@font/dm_sans_medium"
+            android:text="EV"
+            android:textColor="@color/black"
+            android:textSize="13sp"
+            app:backgroundTint="@color/chip_background_selector_ev"
+            app:cornerRadius="8dp"
+            app:icon="@drawable/ic_ev_logo"
+            app:iconGravity="textStart"
+            app:iconSize="16dp"
+            app:iconTint="@color/grey_inactive"
+            app:strokeColor="#00FFC2"
+            app:strokeWidth="1.5dp" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSalvati"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="60dp"
         android:clipToPadding="false"
         android:padding="8dp"
         android:paddingBottom="130dp"
