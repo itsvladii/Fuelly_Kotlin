@@ -4,18 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:background="#F8F9FA">
+
+    <View
+        android:id="@+id/headerView"
+        android:layout_width="417dp"
+        android:layout_height="257dp"
+        android:background="@drawable/bg_header_cerca"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textViewTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="50dp"
         android:fontFamily="@font/chakra_petch_semibold"
         android:text="Profilo Utente"
-        android:textColor="#000000"
-        android:textSize="26sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="#DFFF00"
+        android:textSize="32sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -23,8 +32,9 @@
         android:id="@+id/profileCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        app:cardBackgroundColor="@color/fuelly_yellow_fluo"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="20dp"
+        app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="16dp"
         app:cardElevation="6dp"
         app:layout_constraintTop_toBottomOf="@id/textViewTitle"
@@ -32,42 +42,57 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:paddingLeft="24dp"
-            android:paddingTop="24dp"
-            android:paddingRight="24dp"
-            android:paddingBottom="24dp">
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="20dp">
 
-            <TextView
-                android:id="@+id/nomeUtente"
-                android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/imgAvatarPlaceholder"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_search_white"
+                android:padding="8dp"
+                android:src="@drawable/ic_user"
+                app:tint="@color/fuelly_green_dark" />
+
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/chakra_petch_medium_italic"
-                android:text="Caricamento..."
-                android:textColor="@color/black"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/emailUtente"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="email@esempio.it"
-                android:textColor="#555555"
-                android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/nomeUtente"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/chakra_petch_semibold"
+                    android:text="Caricamento..."
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
 
-            <Button
+                <TextView
+                    android:id="@+id/emailUtente"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="@font/dm_sans_medium"
+                    android:text="email@esempio.it"
+                    android:textColor="#777777"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/Logout"
-                android:layout_width="140dp"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:backgroundTint="#FF0000"
-                android:text="Logout"
+                android:text="Esci"
                 android:textAllCaps="false"
-                app:cornerRadius="8dp" />
+                android:textColor="#CC3838"
+                android:fontFamily="@font/chakra_petch_semibold"
+                app:rippleColor="#22FF0000" />
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -76,11 +101,12 @@
         android:id="@+id/TextRecensioni"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="40dp"
+        android:fontFamily="@font/chakra_petch_semibold"
         android:text="Le tue recensioni"
+        android:textColor="@color/fuelly_green_dark"
         android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/profileCard" />
 
@@ -90,10 +116,16 @@
         android:layout_height="0dp"
         android:layout_marginTop="12dp"
         android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
         android:paddingBottom="130dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/TextRecensioni"
-        tools:layout_editor_absoluteX="16dp"
         tools:listitem="@layout/item_recensione" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:background="@drawable/bg_bottom_fade_gradient"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
