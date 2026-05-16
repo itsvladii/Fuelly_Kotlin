@@ -48,58 +48,15 @@ class ProfiloFragment : Fragment() {
         // Impostiamo il LayoutManager subito, così la RecyclerView è pronta
         binding.listaRecensioni.layoutManager = LinearLayoutManager(requireContext())
 
-        //ID UTENTE, NOME, EMAIL CHE RECUPERO DALLA SESSIONE
-        val idUtente = arguments?.getString("USER_ID")
-        val nomeUtente = arguments?.getString("NomeUtente")
-        val emailUtente = arguments?.getString("EmailUtente")
-
         val btnLogout = binding.Logout
 
         btnLogout.setOnClickListener {
-
             logout()
-
         }
 
+        //funzione di caricamento delle recensioni dell'utente
+        caricaRecensioni(arguments?.getString("USER_ID"),arguments?.getString("NomeUtente"),arguments?.getString("EmailUtente"))
 
-        //SE SONO LOGGATO IN SESSIONE
-        if (idUtente != null) {
-
-            //CICLO DI VITA
-            lifecycleScope.launch {
-
-                try {
-
-                    //visualizzo subito le informazioni dell'utente in sessione
-                    binding.nomeUtente.text = nomeUtente
-                    binding.emailUtente.text = emailUtente
-
-                    //QUERY DI LETTURA DALLA TABELLA recensioni
-                    val recensioni = SupabaseInstance.client.from("recensioni_benzinai")
-                        .select {
-                            filter { eq("idUtente", idUtente) }
-                        }.decodeList<Recensione>()
-
-                    if (recensioni.isNotEmpty()) {
-                        binding.listaRecensioni.visibility = View.VISIBLE
-
-                        // Basta passare la lista qui. L'Adapter farà il resto per ogni riga.
-                        val adapter = RecensioniAdapter(recensioni.toMutableList())
-                        binding.listaRecensioni.adapter = adapter
-                    }
-                    else
-                    {
-                        binding.listaRecensioni.visibility = View.GONE
-                        Toast.makeText(requireContext(), "Nessuna recensione", Toast.LENGTH_SHORT).show()
-                    }
-
-                } catch (e: Exception)
-                {
-                    Log.e("ProfiloFragment", "Errore: ${e.message}")
-                    Toast.makeText(requireContext(), "Errore nel caricamento dati", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
     }
 
     override fun onDestroyView() {
@@ -107,7 +64,7 @@ class ProfiloFragment : Fragment() {
         _binding = null // Importante per evitare memory leak
     }
 
-    fun logout() {
+    private fun logout() {
         lifecycleScope.launch {
             try {
                 // Effettua la logout su Supabase
@@ -131,4 +88,75 @@ class ProfiloFragment : Fragment() {
             }
         }
     }
+
+    private fun caricaRecensioni(idUt:String?,nome:String?,email:String?)
+    {
+        //SE SONO LOGGATO IN SESSIONE
+        if (idUt != null) {
+            //CICLO DI VITA
+            lifecycleScope.launch {
+
+                try {
+
+                    //visualizzo subito le informazioni dell'utente in sessione
+                    binding.nomeUtente.text = nome
+                    binding.emailUtente.text = email
+
+                    //QUERY DI LETTURA DALLA TABELLA recensioni
+                    val recensioni = SupabaseInstance.client.from("recensioni_benzinai")
+                        .select {
+                            filter { eq("idUtente", idUt) }
+                        }.decodeList<Recensione>()
+
+                    if (recensioni.isNotEmpty()) {
+                        binding.listaRecensioni.visibility = View.VISIBLE
+
+                        // Passiamo la lista e la lambda che chiama la funzione di eliminazione locale
+                        val adapter = RecensioniAdapter(recensioni.toMutableList()) { recensioneDaEliminare ->
+                            eliminaRecensioneDalProfilo(recensioneDaEliminare)
+                        }
+                        binding.listaRecensioni.adapter = adapter
+                    }
+                    else
+                    {
+                        binding.listaRecensioni.visibility = View.GONE
+                        Toast.makeText(requireContext(), "Nessuna recensione", Toast.LENGTH_SHORT).show()
+                    }
+
+                } catch (e: Exception)
+                {
+                    Log.e("ProfiloFragment", "Errore: ${e.message}")
+                    Toast.makeText(requireContext(), "Errore nel caricamento dati", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun eliminaRecensioneDalProfilo(recensione: Recensione) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+
+                val tabella = if (recensione.tipo == "BENZINA") "recensioni_benzinai" else "recensioni_ev"
+
+                SupabaseInstance.client.from(tabella).delete {
+                    filter {
+                        eq("idRecensione", recensione.idRecensione)
+                        eq("idUtente", recensione.idUtente)
+                    }
+                }
+
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "Recensione eliminata con successo", Toast.LENGTH_SHORT).show()
+                    caricaRecensioni(arguments?.getString("USER_ID"),arguments?.getString("NomeUtente"),arguments?.getString("EmailUtente"))
+                }
+
+            } catch (e: Exception) {
+                Log.e("ProfiloFragment", "Errore eliminazione: ${e.message}")
+                activity?.runOnUiThread {
+                    Toast.makeText(requireContext(), "Impossibile eliminare la recensione", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
 }

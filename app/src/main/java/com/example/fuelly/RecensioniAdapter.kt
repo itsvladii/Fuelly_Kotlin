@@ -1,20 +1,25 @@
 package com.example.fuelly
 
+import android.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fuelly.classes.Recensione
+import com.example.fuelly.supabase.SupabaseInstance
+import io.github.jan.supabase.auth.auth
 
-class RecensioniAdapter(private var lista: MutableList<Recensione>) :
+class RecensioniAdapter(private var lista: MutableList<Recensione>,private val onEliminaClick: (Recensione) -> Unit) :
     RecyclerView.Adapter<RecensioniAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val nome: TextView = view.findViewById(R.id.lblNomeUtente)
         val testo: TextView = view.findViewById(R.id.lblTestoRecensione)
         val rating: RatingBar = view.findViewById(R.id.ratingSingolo)
+        val btnElimina: ImageButton = view.findViewById(R.id.btnEliminaRecensione)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -27,6 +32,25 @@ class RecensioniAdapter(private var lista: MutableList<Recensione>) :
         holder.nome.text = r.nome
         holder.testo.text = r.descRecensione
         holder.rating.rating = r.rating.toFloat()
+
+        val idUtenteLoggato = SupabaseInstance.client.auth.currentSessionOrNull()?.user?.id
+
+        if (r.idUtente == idUtenteLoggato) {
+            holder.btnElimina.visibility = View.VISIBLE
+            holder.btnElimina.setOnClickListener {
+                AlertDialog.Builder(holder.itemView.context)
+                    .setTitle("Elimina Recensione")
+                    .setMessage("Sei sicuro di voler eliminare definitivamente questo commento?")
+                    .setPositiveButton("Elimina") { _, _ ->
+                        onEliminaClick(r) // Scateniamo l'azione passata dal Fragment
+                    }
+                    .setNegativeButton("Annulla", null)
+                    .show()
+            }
+        } else {
+            holder.btnElimina.visibility = View.GONE
+        }
+
     }
 
     override fun getItemCount() = lista.size

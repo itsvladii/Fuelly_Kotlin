@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class Recensione(
     @SerialName("idUtente") val idUtente: String,
     @SerialName("idImpianto") val idBenzinaio: Long,
-    @SerialName("idRecensione")val idRecensione: String? = null,
+    @SerialName("idRecensione")val idRecensione: String= java.util.UUID.randomUUID().toString(),
     @SerialName("rating") val rating: Int,
     @SerialName("descRecensione") val descRecensione: String,
     @SerialName("created_at") val data_inserimento: String?=null,

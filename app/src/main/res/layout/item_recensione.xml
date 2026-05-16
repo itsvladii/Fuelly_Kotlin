@@ -6,7 +6,6 @@
     android:layout_height="wrap_content"
     android:paddingVertical="12dp">
 
-    <!-- Iniziale Utente (Avatar generato) -->
     <FrameLayout
         android:id="@+id/frameAvatar"
         android:layout_width="40dp"
@@ -16,7 +15,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- Nome Utente -->
     <TextView
         android:id="@+id/lblNomeUtente"
         android:layout_width="0dp"
@@ -30,20 +28,33 @@
         app:layout_constraintTop_toTopOf="@+id/frameAvatar"
         tools:text="Mario Rossi" />
 
-    <!-- Data Recensione -->
+    <ImageButton
+        android:id="@+id/btnEliminaRecensione"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Elimina recensione"
+        android:src="@android:drawable/ic_menu_delete"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/lblNomeUtente"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/lblNomeUtente"
+        app:tint="#CC3838"
+        tools:visibility="visible" />
+
     <TextView
         android:id="@+id/lblDataRecensione"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:fontFamily="@font/dm_sans_medium"
         android:textColor="#999999"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/lblNomeUtente"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnEliminaRecensione"
         app:layout_constraintTop_toTopOf="@+id/lblNomeUtente"
         tools:text="2 gg fa" />
 
-    <!-- Rating Bar (Stelline della singola recensione) -->
     <RatingBar
         android:id="@+id/ratingSingolo"
         style="@android:style/Widget.Material.RatingBar.Small"
@@ -58,7 +69,6 @@
         app:layout_constraintTop_toBottomOf="@+id/lblNomeUtente"
         tools:rating="4" />
 
-    <!-- Testo del Commento -->
     <TextView
         android:id="@+id/lblTestoRecensione"
         android:layout_width="0dp"
@@ -71,9 +81,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/lblNomeUtente"
         app:layout_constraintTop_toBottomOf="@+id/ratingSingolo"
-        tools:text="Ottimo distributore, prezzi onesti e personale molto gentile. La colonnina elettrica è sempre libera." />
+        tools:text="Ottimo distributore, prezzi onesti e personale molto gentile." />
 
-    <!-- Divider sottile -->
     <View
         android:layout_width="0dp"
         android:layout_height="1dp"

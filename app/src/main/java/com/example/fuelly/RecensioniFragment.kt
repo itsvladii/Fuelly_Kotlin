@@ -63,24 +63,23 @@ class RecensioniFragment : Fragment() {
         rvRecensioni = view.findViewById(R.id.rvRecensioni)
         txtVuoto = view.findViewById(R.id.txtNessunaRecensione)
 
-        // Setup RecyclerView
-        adapter = RecensioniAdapter(listaRecensioni)
+        // Setup RecyclerView passandogli la lambda di eliminazione
+        adapter = RecensioniAdapter(listaRecensioni) { recensioneDaEliminare ->
+            eliminaRecensione(recensioneDaEliminare)
+        }
+
         rvRecensioni.layoutManager = LinearLayoutManager(context)
         rvRecensioni.adapter = adapter
 
-        if(typeStation=="EV")
-        {
+        if(typeStation == "EV") {
             setupGraficaEV(view)
         }
 
-
-        // Listener per scrivere una recensione
         view.findViewById<Button>(R.id.btnScriviRecensione).setOnClickListener {
             mostraDialogRecensione()
         }
 
         caricaRecensioni()
-
         return view
     }
 
@@ -169,7 +168,6 @@ class RecensioniFragment : Fragment() {
 
                     //creo nuova istanza di classe Recensione
                     val nuova = Recensione(
-
                         idUtente = user.id,
                         idBenzinaio = stationId,
                         rating = ratingInput.rating.toInt(),
@@ -177,7 +175,6 @@ class RecensioniFragment : Fragment() {
                         nome=nomeCompleto,
                         avatar_url = avatarUrl,
                         tipo= typeStation
-
                     )
 
                     if(typeStation=="BENZINA") {
@@ -214,6 +211,32 @@ class RecensioniFragment : Fragment() {
         val ratingMedia = rootView.findViewById<RatingBar>(R.id.ratingMedia)
         ratingMedia?.progressTintList = ColorStateList.valueOf(coloreEV)
         ratingMedia?.secondaryProgressTintList = ColorStateList.valueOf(coloreEV)
+    }
+
+    private fun eliminaRecensione(recensione: Recensione) {
+        lifecycleScope.launch {
+            try {
+                // Selezioniamo la tabella corretta in base al tipo di stazione
+                val tabella = if (typeStation == "BENZINA") "recensioni_benzinai" else "recensioni_ev"
+
+                SupabaseInstance.client.from(tabella).delete {
+                    filter {
+                        eq("idRecensione",recensione.idRecensione)
+                        eq("idUtente",recensione.idUtente)
+                    }
+                }
+
+                activity?.runOnUiThread {
+                    Toast.makeText(context, "Recensione eliminata", Toast.LENGTH_SHORT).show()
+                    caricaRecensioni() // Eseguiamo il refresh per ricalcolare la media e aggiornare i dati
+                }
+            } catch (e: Exception) {
+                Log.e("Fuelly", "Errore durante l'eliminazione: ${e.message}")
+                activity?.runOnUiThread {
+                    Toast.makeText(context, "Impossibile eliminare la recensione", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
 
