@@ -63,7 +63,7 @@ class DettagliActivity : AppCompatActivity() {
                 stazione?.let { setupUIBenzina(it) }
             }
             "EV" -> {
-                val colonnina = ColonninaEV.listaVicini.find { it.id.toLong() == idRicevuto }
+                val colonnina = ColonninaEV.listaCompleta.find { it.id.toLong() == idRicevuto }
                 colonnina?.let { setupUIElettrica(it) }
             }
         }

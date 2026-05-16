@@ -72,7 +72,7 @@ class PrezziFragment : Fragment() {
         when (tipoRicevuto) {
             "BENZINA" -> ricavaPrezziBenzinaio(view, idRicevuto.toInt(), false)
             "EV" -> {
-                val colonnina = ColonninaEV.listaVicini.find { it.id.toLong() == idRicevuto }
+                val colonnina = ColonninaEV.listaCompleta.find { it.id.toLong() == idRicevuto }
                 colonnina?.let { ricavaInfoEV(view, it) }
             }
         }
