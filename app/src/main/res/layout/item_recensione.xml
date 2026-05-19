@@ -34,7 +34,7 @@
         android:layout_height="44dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Elimina recensione"
-        android:src="@android:drawable/ic_menu_delete"
+        android:src="@drawable/ic_bin"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/lblNomeUtente"
         app:layout_constraintEnd_toEndOf="parent"

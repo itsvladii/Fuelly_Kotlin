@@ -38,14 +38,23 @@ class RecensioniAdapter(private var lista: MutableList<Recensione>,private val o
         if (r.idUtente == idUtenteLoggato) {
             holder.btnElimina.visibility = View.VISIBLE
             holder.btnElimina.setOnClickListener {
-                AlertDialog.Builder(holder.itemView.context)
+                val dialog = AlertDialog.Builder(holder.itemView.context)
                     .setTitle("Elimina Recensione")
                     .setMessage("Sei sicuro di voler eliminare definitivamente questo commento?")
                     .setPositiveButton("Elimina") { _, _ ->
-                        onEliminaClick(r) // Scateniamo l'azione passata dal Fragment
+                        onEliminaClick(r)
                     }
                     .setNegativeButton("Annulla", null)
-                    .show()
+                    .create() // Usiamo create() invece di show() diretto
+
+                dialog.show() // Lo mostriamo a schermo
+
+                // --- CAMBIO COLORE DEI PULSANTI ---
+                // Pulsante Elimina (Positivo) -> Rosso
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(android.graphics.Color.parseColor("#CC3838"))
+
+                // Pulsante Annulla (Negativo) -> Grigio Scuro o Nero
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(android.graphics.Color.parseColor("#666666"))
             }
         } else {
             holder.btnElimina.visibility = View.GONE
