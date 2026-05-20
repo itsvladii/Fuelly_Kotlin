@@ -2,8 +2,10 @@ package com.example.fuelly.classes
 
 import kotlinx.serialization.Serializable
 
+//classe Utente per memorizzare le informazioni degli utenti, come ID e email,
+//utilizzata principalmente per l'autenticazione e la gestione degli account
 @Serializable
 data class Utente(
-    val Id: String, // Assicurati che nel DB sia TEXT o UUID
+    val Id: String,
     val Email: String,
 )

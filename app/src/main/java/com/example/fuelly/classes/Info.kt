@@ -4,11 +4,13 @@ import kotlinx.datetime.LocalTime
 import kotlinx.serialization.Serializable
 
 
+//classe Info per memorizzare le informazioni aggiuntive sui benzinai,
+//come orari di apertura/chiusura, presenza di bar o bagno, e una descrizione estesa.
 @Serializable
 data class Info(
-    val id: String? = null,           // Deve essere String? per gestire l'UUID
-    val idImpianto: Long? = null,     // Verifica che il nome sia identico al DB
-    val idUtente: String? = null,     // Deve essere String? per l'UUID
+    val id: String? = null,
+    val idImpianto: Long? = null,
+    val idUtente: String? = null,
     val orarioApertura: String? = null,
     val orarioChiusura: String? = null,
     val isBar: Boolean? = null,
