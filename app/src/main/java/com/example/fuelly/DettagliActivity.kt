@@ -37,12 +37,15 @@ class DettagliActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_dettagli)
 
+        // Imposta lo sfondo della barra di navigazione e della barra di stato
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.isAppearanceLightStatusBars = false
         windowInsetsController.isAppearanceLightNavigationBars = true
 
+        // Inizializza il fusedLocationClient
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        // Recupero i dati passati dall'intent della mappa
         idRicevuto = intent.getLongExtra("ID_ELEMENTO", -1L)
         tipoRicevuto = intent.getStringExtra("TIPO_ELEMENTO")
 
@@ -56,6 +59,7 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    // Funzione di inizializzazione dell'header della pagina
     private fun setupHeader() {
         when (tipoRicevuto) {
             "BENZINA" -> {
@@ -69,6 +73,7 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    // Funzione di inizializzazione del ViewPager2 e del TabLayout
     private fun setupViewPager() {
         val viewPager = findViewById<ViewPager2>(R.id.viewPager)
         val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
@@ -148,6 +153,7 @@ class DettagliActivity : AppCompatActivity() {
         calcolaDistanzaDettaglio(ev.lat, ev.lon)
     }
 
+    // Funzione di inizializzazione dei listener
     private fun setupListeners() {
         findViewById<Button>(R.id.btnOttieniIndicazioni)?.setOnClickListener {
             avviaNavigatore()
@@ -281,9 +287,12 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    // Funzione che gestisce l'intent di navigazione verso Google Maps
+    // Quando cliccato il bottone, aprirà Google Maps con la posizione della stazione/colonnina con le indicazioni stradali per raggiungerla
     private fun avviaNavigatore() {
         val lat: Double?
         val lon: Double?
+        // Recupero le coordinate della stazione/colonnina
         if (tipoRicevuto == "BENZINA") {
             val s = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
             lat = s?.lat; lon = s?.lon
@@ -292,6 +301,7 @@ class DettagliActivity : AppCompatActivity() {
             lat = c?.lat; lon = c?.lon
         }
 
+        // Avvio l'intent di navigazione
         if (lat != null && lon != null) {
             val gmmIntentUri = "https://www.google.com/maps/dir/?api=1&destination=$lat,$lon".toUri()
             val intent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
@@ -300,9 +310,11 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
-    //funzione che gestisce l'intent per la condivisione del benzinaio/colonnina
+    // Funzione che gestisce l'intent per la condivisione della posizione
+    // su Google Maps del benzinaio/colonnina
     private fun shareStazione() {
-        //recupero il tipo della stazione ricevuto
+        // Recupero il tipo della stazione ricevuto e quindi il testo da condividere
+        // che sarebbe la posizione della stazione/colonnina stessa
         val testoDaCondividere = when (tipoRicevuto) {
             "BENZINA" -> {
                 val stazione = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
@@ -315,13 +327,20 @@ class DettagliActivity : AppCompatActivity() {
             else -> null
         }
 
-        //se abbiamo il testo, facciamo partire l'intent di condivisione
+        // Se abbiamo il testo, facciamo partire l'intent di condivisione
         if (testoDaCondividere != null) {
+            // Crea un Intent di condivisione
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, testoDaCondividere)
             }
-            startActivity(Intent.createChooser(shareIntent, "Condividi stazione tramite:"))
+
+            // In base al tipo (stazione/colonnina), apriamo l'intent appropriato
+            when (tipoRicevuto) {
+                "BENZINA" -> startActivity(Intent.createChooser(shareIntent, "Condividi stazione tramite:"))
+                "EV" -> startActivity(Intent.createChooser(shareIntent, "Condividi colonnina tramite:"))
+            }
+
         } else {
             Toast.makeText(this, "Errore nel recupero dati per la condivisione", Toast.LENGTH_SHORT).show()
         }

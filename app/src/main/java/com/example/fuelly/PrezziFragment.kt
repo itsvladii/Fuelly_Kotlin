@@ -87,7 +87,7 @@ class PrezziFragment : Fragment() {
         lifecycleScope.launch {
             loader?.visibility = View.VISIBLE
             try {
-                //in maniera asincrona, vato a ricavare la provincia di appartenenza e i prezzi del benzinaio
+                //in maniera asincrona, vado a ricavare la provincia di appartenenza e i prezzi del benzinaio
                 val defMapping = async { SupabaseInstance.client.from("province_regioni").select{ filter{ eq("provincia", siglaProvincia) } } }
                 val defPrezzi = async { SupabaseInstance.client.from("prezzi").select{ filter{ eq("idImpianto", idImpianto) } } }
 
