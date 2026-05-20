@@ -22,7 +22,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.ChipGroup
-//TODO: filtro testuale e per tipo funziona, da sistemare i chip "rapidi" e i chip dei tipi di carburante/prese
+
 class CercaFragment : Fragment() {
     private var _binding: FragmentCercaBinding? = null
     private val binding get() = _binding!!
@@ -31,13 +31,13 @@ class CercaFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var listaTotaleOriginale: List<Any> = emptyList()
 
-    // Stato dei filtri persistente nel Fragment
-    private var filtroTipoSelezionatoId: Int = R.id.btnTipoBenzina // ID predefinito per "Tutti"
+    //stato dei filtri persistente nel Fragment
+    private var filtroTipoSelezionatoId: Int = R.id.btnTipoBenzina //di base mostriamo i benzinai
     private var soloOperative: Boolean = false
     private val carburantiSelezionatiIds = mutableSetOf<Int>()
     private val connettoriSelezionatiIds = mutableSetOf<Int>()
 
-    // Coordinate dell'utente
+    //coordinate dell'utente
     private var userLat: Double? = null
     private var userLon: Double? = null
 
@@ -53,30 +53,32 @@ class CercaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        
+
         setupRecyclerView()
         recuperaPosizioneECaricaDati()
 
-        // Ricerca testuale reattiva
+        //ricerca testuale (mano a mano che l'utente scrive, applichiamo i filtri)
         binding.editSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 applicaFiltri()
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // Pulsante filtri avanzati
+        //listener per il click sull'icona dei filtri all'interno della SearchView
         binding.searchLayout.setEndIconOnClickListener {
             mostraDialogFiltri()
         }
 
-        // Filtri rapidi (Piu vicini, Economici, ecc.) nell'header
+        //listner per i filtri rapidi (benzina economica, diesel economico, ect.)
         binding.filterChipGroup.setOnCheckedChangeListener { _, _ ->
             applicaFiltri()
         }
     }
 
+    //funzione di configurazione del RecyclerView con il suo adapter e layout manager
     private fun setupRecyclerView() {
         binding.rvCerca.layoutManager = LinearLayoutManager(requireContext())
         adapter = StazioneAdapter(emptyList(), userLat, userLon) { item ->
@@ -86,12 +88,13 @@ class CercaFragment : Fragment() {
                     intent.putExtra("ID_ELEMENTO", item.id.toLong())
                     intent.putExtra("TIPO_ELEMENTO", "BENZINA")
                 }
+
                 is ColonninaEV -> {
                     intent.putExtra("ID_ELEMENTO", item.id.toLong())
                     intent.putExtra("TIPO_ELEMENTO", "EV")
                 }
             }
-            // Passiamo la posizione utente ai dettagli
+            //passiamo la posizione utente ai dettagli
             intent.putExtra("USER_LAT", userLat ?: 0.0)
             intent.putExtra("USER_LON", userLon ?: 0.0)
             startActivity(intent)
@@ -99,8 +102,13 @@ class CercaFragment : Fragment() {
         binding.rvCerca.adapter = adapter
     }
 
+    //funzione che recupera la posizione dell'utente (se permesso) nel caso in cui non sia già stata recuperata in precedenza
     private fun recuperaPosizioneECaricaDati() {
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     userLat = location.latitude
@@ -113,17 +121,20 @@ class CercaFragment : Fragment() {
         }
     }
 
+    //funzione che unisce le liste di benzinai e colonnine EV in un'unica lista totale originale e
+    // aggiorna l'adapter con i benzinai (di default)
     private fun caricaDatiIniziali() {
         listaTotaleOriginale = Benzinaio.listaVicini + ColonninaEV.listaVicini
         adapter.updateData(Benzinaio.listaVicini, userLat, userLon)
     }
 
+    //funzione che gestisce il dialog con i filtri avanzati
     private fun mostraDialogFiltri() {
         val dialog = BottomSheetDialog(requireContext())
         val dialogBinding = DialogFiltriBinding.inflate(layoutInflater)
         dialog.setContentView(dialogBinding.root)
 
-        // 1. RIPRISTINO STATO
+        // 1. INIZIALIZZAZIONE STATO INIZIALE DEL DIALOG
         dialogBinding.toggleGroupTipo.check(filtroTipoSelezionatoId)
         dialogBinding.switchSoloOperative.isChecked = soloOperative
         carburantiSelezionatiIds.forEach { dialogBinding.chipGroupCarburante.check(it) }
@@ -140,6 +151,7 @@ class CercaFragment : Fragment() {
             if (isChecked) aggiornaSezioni(checkedId)
         }
 
+        // Listener per il tasto "Reset" che riporta tutti i filtri allo stato iniziale di default
         dialogBinding.btnReset.setOnClickListener {
             dialogBinding.toggleGroupTipo.check(R.id.btnTipoBenzina)
             dialogBinding.chipGroupCarburante.clearCheck()
@@ -147,10 +159,11 @@ class CercaFragment : Fragment() {
             dialogBinding.switchSoloOperative.isChecked = false
         }
 
+        // Listener per il tasto "Annulla" che chiude semplicemente il dialog senza salvare le modifiche
         dialogBinding.btnAnnulla.setOnClickListener { dialog.dismiss() }
 
+        // Listener per il tasto "Applica" che salva lo stato dei filtri, applica i filtri alla lista e chiude il dialog
         dialogBinding.btnApplicaFiltri.setOnClickListener {
-            // SALVATAGGIO STATO
             filtroTipoSelezionatoId = dialogBinding.toggleGroupTipo.checkedButtonId
             soloOperative = dialogBinding.switchSoloOperative.isChecked
 
@@ -167,6 +180,8 @@ class CercaFragment : Fragment() {
         dialog.show()
     }
 
+    //funzione che applica tutti i filtri (categoria, ricerca testuale, filtri specifici per benzinai e EV)
+    // alla lista totale originale e aggiorna l'adapter con la lista filtrata risultante
     private fun applicaFiltri() {
         val query = binding.editSearch.text.toString().lowercase().trim()
 
@@ -207,10 +222,14 @@ class CercaFragment : Fragment() {
                     var matchConnettore = false
 
                     // Mappa i tuoi ID chip alle stringhe contenute nel JSON di Supabase
-                    if (connettoriSelezionatiIds.contains(R.id.chipType2) && json.contains("type 2")) matchConnettore = true
-                    if (connettoriSelezionatiIds.contains(R.id.chipCCS2) && (json.contains("ccs") || json.contains("combo"))) matchConnettore = true
-                    if (connettoriSelezionatiIds.contains(R.id.chipCHAdeMO) && json.contains("chademo")) matchConnettore = true
-                    if (connettoriSelezionatiIds.contains(R.id.chipTesla) && json.contains("tesla")) matchConnettore = true
+                    if (connettoriSelezionatiIds.contains(R.id.chipType2) && json.contains("type 2")) matchConnettore =
+                        true
+                    if (connettoriSelezionatiIds.contains(R.id.chipCCS2) && (json.contains("ccs") || json.contains("combo"))) matchConnettore =
+                        true
+                    if (connettoriSelezionatiIds.contains(R.id.chipCHAdeMO) && json.contains("chademo")) matchConnettore =
+                        true
+                    if (connettoriSelezionatiIds.contains(R.id.chipTesla) && json.contains("tesla")) matchConnettore =
+                        true
 
                     matchConnettore
                 } else true

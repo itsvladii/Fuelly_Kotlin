@@ -55,7 +55,11 @@ class ProfiloFragment : Fragment() {
         }
 
         //funzione di caricamento delle recensioni dell'utente
-        caricaRecensioni(arguments?.getString("USER_ID"),arguments?.getString("NomeUtente"),arguments?.getString("EmailUtente"))
+        caricaRecensioni(
+            arguments?.getString("USER_ID"),
+            arguments?.getString("NomeUtente"),
+            arguments?.getString("EmailUtente")
+        )
 
     }
 
@@ -78,7 +82,7 @@ class ProfiloFragment : Fragment() {
 
                 //FLAG CHE PULISCONO LA CRONOLOGIA DELL'APPLICAZIONE
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                
+
                 startActivity(intent)
 
 
@@ -89,8 +93,7 @@ class ProfiloFragment : Fragment() {
         }
     }
 
-    private fun caricaRecensioni(idUt:String?,nome:String?,email:String?)
-    {
+    private fun caricaRecensioni(idUt: String?, nome: String?, email: String?) {
         //SE SONO LOGGATO IN SESSIONE
         if (idUt != null) {
             //CICLO DI VITA
@@ -116,15 +119,12 @@ class ProfiloFragment : Fragment() {
                             eliminaRecensioneDalProfilo(recensioneDaEliminare)
                         }
                         binding.listaRecensioni.adapter = adapter
-                    }
-                    else
-                    {
+                    } else {
                         binding.listaRecensioni.visibility = View.GONE
                         Toast.makeText(requireContext(), "Nessuna recensione", Toast.LENGTH_SHORT).show()
                     }
 
-                } catch (e: Exception)
-                {
+                } catch (e: Exception) {
                     Log.e("ProfiloFragment", "Errore: ${e.message}")
                     Toast.makeText(requireContext(), "Errore nel caricamento dati", Toast.LENGTH_SHORT).show()
                 }
@@ -132,12 +132,15 @@ class ProfiloFragment : Fragment() {
         }
     }
 
+    //funzione che elimina una recensione, con gestione degli errori e aggiornamento dell'UI
     private fun eliminaRecensioneDalProfilo(recensione: Recensione) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-
+                //elimino la recensione dal database, usando il filtro per idRecensione e idUtente per sicurezza
                 val tabella = if (recensione.tipo == "BENZINA") "recensioni_benzinai" else "recensioni_ev"
 
+                //elimino la recensione usando un filtro per idRecensione e idUtente,
+                // così da essere sicuri di eliminare solo la recensione specifica dell'utente
                 SupabaseInstance.client.from(tabella).delete {
                     filter {
                         eq("idRecensione", recensione.idRecensione)
@@ -145,9 +148,14 @@ class ProfiloFragment : Fragment() {
                     }
                 }
 
+                // Aggiorno l'UI dopo l'eliminazione, ricaricando le recensioni per riflettere la modifica
                 activity?.runOnUiThread {
                     Toast.makeText(requireContext(), "Recensione eliminata con successo", Toast.LENGTH_SHORT).show()
-                    caricaRecensioni(arguments?.getString("USER_ID"),arguments?.getString("NomeUtente"),arguments?.getString("EmailUtente"))
+                    caricaRecensioni(
+                        arguments?.getString("USER_ID"),
+                        arguments?.getString("NomeUtente"),
+                        arguments?.getString("EmailUtente")
+                    )
                 }
 
             } catch (e: Exception) {

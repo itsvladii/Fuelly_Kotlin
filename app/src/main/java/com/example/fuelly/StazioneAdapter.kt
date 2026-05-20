@@ -14,8 +14,9 @@ import org.json.JSONArray
 import android.location.Location
 import com.example.fuelly.utils.Utils
 
+// Adapter per RecyclerView che mostra sia stazioni di servizio che colonnine EV
 class StazioneAdapter(
-    private var lista: List<Any>,
+    private var lista: List<Any>, //lista che può contenere sia Benzinaio che ColonninaEV
     private var userLat: Double? = null,
     private var userLon: Double? = null,
     private val onClick: (Any) -> Unit
@@ -33,6 +34,7 @@ class StazioneAdapter(
     override fun getItemCount(): Int = lista.size + 1
 
     class StationViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        //riferimenti alle view del layout item_benzinaio.xml
         val card: CardView = view.findViewById(R.id.stationCard)
         val txtName: TextView = view.findViewById(R.id.txtStationName)
         val txtCity: TextView = view.findViewById(R.id.txtStationCity)
@@ -56,7 +58,7 @@ class StazioneAdapter(
             }
             FooterViewHolder(space)
         } else {
-            // Entrambi caricano lo stesso file XML
+            //entrambi caricano lo stesso file XML
             val view = inflater.inflate(R.layout.item_benzinaio, parent, false)
             StationViewHolder(view)
         }
@@ -68,10 +70,11 @@ class StazioneAdapter(
             var itemLat = 0.0
             var itemLon = 0.0
 
+            //in base al tipo di item (Benzinaio o ColonninaEV) configuriamo la card in modo diverso
             if (item is Benzinaio) {
                 itemLat = item.lat
                 itemLon = item.lon
-                // --- CONFIGURAZIONE (BENZINAIO) ---
+                //
                 holder.card.setCardBackgroundColor("#0B3D2E".toColorInt())
                 holder.txtName.setTextColor("#DFFF00".toColorInt())
                 holder.txtInfo1.setTextColor("#DFFF00".toColorInt())
@@ -81,12 +84,13 @@ class StazioneAdapter(
                 holder.txtName.text = item.bandiera + " "
                 holder.txtCity.text = "${item.comune} (${item.provincia})"
                 holder.txtAddress.text = item.indirizzo
-                holder.txtInfo1.text = if (item.prezzoBenzina > 0) "B: ${String.format("%.3f", item.prezzoBenzina)}€" else "B: N.D."
-                holder.txtInfo2.text = if (item.prezzoDiesel > 0) "D: ${String.format("%.3f", item.prezzoDiesel)}€" else "D: N.D."
+                holder.txtInfo1.text =
+                    if (item.prezzoBenzina > 0) "B: ${String.format("%.3f", item.prezzoBenzina)}€" else "B: N.D."
+                holder.txtInfo2.text =
+                    if (item.prezzoDiesel > 0) "D: ${String.format("%.3f", item.prezzoDiesel)}€" else "D: N.D."
                 holder.imgLogo.setImageResource(item.getLogoResource())
 
             } else if (item is ColonninaEV) {
-                // --- CONFIGURAZIONE (EV) ---
                 itemLat = item.lat
                 itemLon = item.lon
                 holder.card.setCardBackgroundColor("#0B101E".toColorInt())
@@ -99,21 +103,23 @@ class StazioneAdapter(
                 holder.txtCity.text = item.indirizzo // Usiamo indirizzo come city se manca
                 holder.txtAddress.text = "Stazione di ricarica elettrica"
 
-                // Calcolo prese dal JSON come abbiamo fatto per la mappa
+                //calcolo numero di prese dal JSON come abbiamo fatto per la mappa
                 var totalePrese = 0
                 try {
                     val array = JSONArray(item.connettoriJson)
                     for (i in 0 until array.length()) {
                         totalePrese += array.getJSONObject(i).optInt("quantita", 1)
                     }
-                } catch (e: Exception) { totalePrese = item.numPunti }
+                } catch (e: Exception) {
+                    totalePrese = item.numPunti
+                }
 
                 holder.txtInfo1.text = "${item.potenzaKW} kW"
                 holder.txtInfo2.text = "$totalePrese prese"
                 holder.imgLogo.setImageResource(item.getLogoResource())
             }
 
-            // Calcolo e visualizzazione distanza
+            //calcolo e visualizzazione distanza
             if (userLat != null && userLon != null && itemLat != 0.0) {
                 val distanza = Utils.calcolaDistanza(userLat!!, userLon!!, itemLat, itemLon)
                 holder.txtDistanza.text = if (distanza >= 1000) {

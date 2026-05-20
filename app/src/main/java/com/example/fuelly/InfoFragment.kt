@@ -23,9 +23,10 @@ import kotlinx.coroutines.launch
 
 class InfoFragment : Fragment() {
 
+    //variabili per memorizzare i dati ricevuti dall'Intent precedente
     private var idRicevuto: Long = -1L
-    private var nomeBenzinaioRicevuto: String =""
-    private var infoId: String? = null // Variabile per memorizzare l'ID del record nel DB
+    private var nomeBenzinaioRicevuto: String = ""
+    private var infoId: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,9 +34,11 @@ class InfoFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_info, container, false)
 
+        //recupera i dati dall'Intent
         idRicevuto = activity?.intent?.getLongExtra("ID_ELEMENTO", -1L) ?: -1L
         nomeBenzinaioRicevuto = activity?.intent?.getStringExtra("NOME_BENZINAIO") ?: ""
 
+        //elementi UI dell'activity
         val nomeBenzinaio = view.findViewById<TextView>(R.id.textNomeBenzinaio)
         val orarioApertura = view.findViewById<TextInputEditText>(R.id.textOrarioApertura)
         val orarioChiusura = view.findViewById<TextInputEditText>(R.id.textOrarioChiusura)
@@ -46,8 +49,10 @@ class InfoFragment : Fragment() {
         val btnSalva = view.findViewById<MaterialButton>(R.id.saveButton)
         val btnSegnala = view.findViewById<MaterialButton>(R.id.segnalaButton)
 
+        //di default i campi sono disabilitati, si abilitano solo quando l'utente clicca su "Modifica"
         setFieldsEnabled(false, orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
 
+        //carichiamo il nome del benzinaio e le info esistenti (se presenti)
         lifecycleScope.launch {
             try {
                 val datiBenzinaio = SupabaseInstance.client.from("benzinai")
@@ -62,6 +67,7 @@ class InfoFragment : Fragment() {
             caricaInfoEsistenti(orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
         }
 
+        //gestione click sui pulsanti
         btnModifica.setOnClickListener {
             setFieldsEnabled(true, orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
             Toast.makeText(context, "Modalità modifica attivata", Toast.LENGTH_SHORT).show()
@@ -78,16 +84,18 @@ class InfoFragment : Fragment() {
         return view
     }
 
+    //funzione di gestione della segnalazione, con intent per inviare una email precompilata all'indirizzo di supporto
     fun inviaSegnalazione() {
         val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
-            putExtra(Intent.EXTRA_EMAIL, arrayOf("admin@gmail.com"))
+            putExtra(Intent.EXTRA_EMAIL, arrayOf("info@fuelly.com"))
             putExtra(Intent.EXTRA_SUBJECT, "Segnalazione Benzinaio: $nomeBenzinaioRicevuto")
             putExtra(Intent.EXTRA_TEXT, "Problemi riscontrati: ")
         }
         startActivity(Intent.createChooser(emailIntent, "Invia email con..."))
     }
 
+    //funzione di utilità per abilitare/disabilitare i campi di input in modo centralizzato
     private fun setFieldsEnabled(enabled: Boolean, vararg views: View) {
         views.forEach { v ->
             v.isEnabled = enabled
@@ -98,20 +106,23 @@ class InfoFragment : Fragment() {
         }
     }
 
+    //funzione per caricare le informazioni esistenti dal database e popolare i campi, se presenti.
     private suspend fun caricaInfoEsistenti(
         ap: TextInputEditText, ch: TextInputEditText,
         bagno: SwitchMaterial, bar: SwitchMaterial, desc: TextInputEditText
     ) {
         try {
+            //recuperiamo tutte le info per questo impianto
             val risposta = SupabaseInstance.client.from("info_benzinai").select {
                 filter { eq("idImpianto", idRicevuto) }
             }.decodeList<Info>()
 
             if (risposta.isNotEmpty()) {
-                // Prendiamo l'ultima versione disponibile se ci sono più righe (ordinamento implicito)
-                val info = risposta.last() 
-                infoId = info.id // Salviamo l'ID per i futuri salvataggi
-                
+                //prendiamo l'ultima versione disponibile se ci sono più righe
+                val info = risposta.last()
+                infoId = info.id //salviamo l'ID per i futuri salvataggi
+
+                //popoliamo i campi con i dati recuperati
                 ap.setText(info.orarioApertura?.take(5) ?: "")
                 ch.setText(info.orarioChiusura?.take(5) ?: "")
                 bagno.isChecked = info.isBagno ?: false
@@ -123,16 +134,19 @@ class InfoFragment : Fragment() {
         }
     }
 
+    //funzione per salvare le informazioni inserite dall'utente, con validazione e gestione degli errori.
     private fun salvaInformazioni(
         ap: TextInputEditText, ch: TextInputEditText,
         bagno: SwitchMaterial, bar: SwitchMaterial, desc: TextInputEditText
     ) {
+        //verifichiamo che l'utente sia loggato prima di permettere il salvataggio
         val session = SupabaseInstance.client.auth.currentSessionOrNull()
         if (session == null) {
             Toast.makeText(context, "Effettua il login per salvare", Toast.LENGTH_SHORT).show()
             return
         }
 
+        //validazione dei campi obbligatori
         val apStr = ap.text.toString().trim()
         val chStr = ch.text.toString().trim()
         val descStr = desc.text.toString().trim()
@@ -144,8 +158,9 @@ class InfoFragment : Fragment() {
 
         lifecycleScope.launch {
             try {
+                //creiamo un oggetto Info con i dati inseriti
                 val nuovaInfo = Info(
-                    id = infoId, // Fondamentale per aggiornare la stessa riga
+                    id = infoId,
                     idImpianto = idRicevuto,
                     idUtente = session.user?.id.toString(),
                     orarioApertura = apStr,
@@ -155,13 +170,13 @@ class InfoFragment : Fragment() {
                     descEstesa = descStr
                 )
 
-                // Usiamo upsert e recuperiamo il risultato per aggiornare l'infoId locale
+                //usiamo upsert e recuperiamo il risultato per aggiornare l'infoId locale
                 val result = SupabaseInstance.client.from("info_benzinai").upsert(nuovaInfo) {
                     select()
                 }.decodeSingle<Info>()
 
                 infoId = result.id
-                
+
                 Toast.makeText(context, "Dati salvati con successo", Toast.LENGTH_SHORT).show()
                 setFieldsEnabled(false, ap, ch, bagno, bar, desc)
             } catch (e: Exception) {

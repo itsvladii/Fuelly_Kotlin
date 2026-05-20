@@ -37,8 +37,7 @@ class Splash : AppCompatActivity() {
         try {
             //richiedo i permessi alla mappa
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 100)
-        }
-        catch (e: SecurityException) {
+        } catch (e: SecurityException) {
             Log.e("Fuelly", "Errore di sicurezza: ${e.message}")
         }
 
@@ -70,6 +69,7 @@ class Splash : AppCompatActivity() {
         }
     }
 
+    //funzione che controlla se il GPS è attivo e, in caso contrario, mostra il popup di sistema per attivarlo
     private fun controllaGpsEAvvia() {
         val locationRequest = com.google.android.gms.location.LocationRequest.Builder(
             com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, 10000
@@ -89,14 +89,15 @@ class Splash : AppCompatActivity() {
         task.addOnFailureListener { exception ->
             if (exception is com.google.android.gms.common.api.ResolvableApiException) {
                 try {
-                    // Il GPS è spento, mostriamo il popup di sistema per attivarlo
+                    //se il GPS è spento, mostriamo il popup di sistema per attivarlo
                     exception.startResolutionForResult(this, 200)
                 } catch (sendEx: android.content.IntentSender.SendIntentException) {
-                    // Errore nel mostrare il popup, procediamo al login
+                    //errore nel mostrare il popup, procediamo al login
                     vaiALogin()
                 }
             } else {
-                // Dispositivo non supportato o errore grave
+                //come fallback, se c'è un errore diverso, procediamo comunque al login
+                // (anche se senza GPS non avremo i marker vicini)
                 vaiALogin()
             }
         }
@@ -107,16 +108,19 @@ class Splash : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 200) {
             if (resultCode == RESULT_OK) {
-                // L'utente ha attivato il GPS!
+                //se l'utente ha accettato di attivare il GPS, procediamo con il precaricamento
                 avviaPrecaricamento()
             } else {
-                // L'utente ha rifiutato di attivare il GPS
+                //se l'utente ha rifiutato di attivare il GPS, mostriamo un messaggio e procediamo al login
+                // (senza GPS non avremo i marker vicini)
                 Toast.makeText(this, "Il GPS è necessario per i prezzi vicini", Toast.LENGTH_SHORT).show()
                 vaiALogin()
             }
         }
     }
 
+    //funzione di passaggio alla schermata di login,
+    //con un piccolo delay per permettere all'utente di leggere eventuali messaggi
     private fun vaiALogin() {
         Handler(Looper.getMainLooper()).postDelayed({
             startActivity(Intent(this, LoginActivity::class.java))
@@ -124,12 +128,15 @@ class Splash : AppCompatActivity() {
         }, 1500)
     }
 
+    //funzione che si occupa di ottenere la posizione dell'utente
+    // e di eseguire le query al database per precaricare i marker vicini
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun avviaPrecaricamento() {
         runOnUiThread { progressBar.visibility = View.VISIBLE }
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // Definiamo cosa fare quando otteniamo la posizione (sia da cache che da nuova richiesta)
+        //se otteniamo la posizione, eseguiamo le query al database,
+        // altrimenti mostriamo un messaggio di errore e procediamo al login
         val onLocationReceived: (android.location.Location?) -> Unit = { location ->
             if (location != null) {
                 eseguiQueryDatabase(location)
@@ -139,15 +146,17 @@ class Splash : AppCompatActivity() {
             }
         }
 
-        // 1. Proviamo prima con la posizione rapida in cache
+        //prima otteniamo la posizione dalla cache
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 onLocationReceived(location)
             } else {
-                // 2. Se è NULL (comune dopo aver appena attivato il GPS), forziamo un aggiornamento
+                // se non abbiamo un ultima posizione nella cache, la calcoliamo
                 Log.d("Fuelly", "LastLocation null, richiedo posizione attuale...")
 
+                //priority HIGH_ACCURACY per ottenere la posizione più precisa possibile
                 val priority = com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
+                //otteniamo la posizione attuale
                 fusedLocationClient.getCurrentLocation(priority, null)
                     .addOnSuccessListener { newLocation ->
                         onLocationReceived(newLocation)
@@ -160,12 +169,13 @@ class Splash : AppCompatActivity() {
         }
     }
 
+    //funzione che esegue le query al database per ottenere i marker vicini
     private fun eseguiQueryDatabase(location: android.location.Location) {
         lifecycleScope.launch {
             try {
                 Log.d("Fuelly", "Eseguo query per: ${location.latitude}, ${location.longitude}")
 
-                // --- Chiamata Benzinai ---
+                //ricavo i benzinai vicini tramite la funzione rpc su Supabase
                 val response = SupabaseInstance.client.postgrest.rpc(
                     function = "get_benzinai_vicini",
                     parameters = mapOf(
@@ -176,15 +186,16 @@ class Splash : AppCompatActivity() {
                 )
                 Benzinaio.listaVicini = Benzinaio.parseLista(response.data)
 
+                //ricavo i benzinai più salvati da tutti gli utenti tramite la funzione rpc su Supabase
+                // (senza parameters, quindi è una SELECT *)
                 val responseTop = SupabaseInstance.client.postgrest.rpc(
-                    function = "get_benzinai_piu_salvati" // La funzione SQL che abbiamo creato prima
+                    function = "get_benzinai_piu_salvati"
                 )
 
-                // Salviamo i dati in una nuova variabile globale (es. Benzinaio.listaTopSalvati)
-                // Nota: dovrai definire questa variabile nel companion object di Benzinaio.kt
+                //salviamo i dati nella variabile globale
                 Benzinaio.listaTopSalvatiIds = Benzinaio.parseTopSalvatiIds(responseTop.data)
 
-                // --- Chiamata Colonnine ---
+                //ricavo le colonnine vicine tramite la funzione rpc su Supabase
                 val responseEV = SupabaseInstance.client.postgrest.rpc(
                     function = "get_colonnine_vicine",
                     parameters = mapOf(
@@ -193,9 +204,11 @@ class Splash : AppCompatActivity() {
                         "raggio_km" to 10.0
                     )
                 )
+                //salviamo i dati nella variabile globale
                 ColonninaEV.listaVicini = ColonninaEV.parseLista(responseEV.data)
 
-                // --- Gestione Sessione e Navigazione ---
+                //richiamo la funzione che gestisce la navigazione dopo il caricamento,
+                //  che decide se andare al login o alla home
                 gestisciNavigazionePostCaricamento()
 
             } catch (e: Exception) {
@@ -206,15 +219,17 @@ class Splash : AppCompatActivity() {
         }
     }
 
+    //funzione che gestisce la navigazione dopo il caricamento,
     private suspend fun gestisciNavigazionePostCaricamento() {
+        //se l'utente è già loggato, salviamo i dati dei benzinai e delle colonnine salvati
         val session = SupabaseInstance.client.auth.currentSessionOrNull()
         if (session != null) {
             Utils.ColonnineSalvate(session)
             Utils.BenzinaiSalvati(session)
-
-
+            //dopo aver precaricato i dati, passiamo alla home
             startActivity(Intent(this, MainActivity::class.java))
         } else {
+            //se l'utente non è loggato, passiamo al login
             startActivity(Intent(this, LoginActivity::class.java))
         }
         finish()

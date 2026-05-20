@@ -27,6 +27,7 @@ import com.example.fuelly.utils.Utils
 
 class DettagliActivity : AppCompatActivity() {
 
+
     private var idRicevuto: Long = -1L
     private var tipoRicevuto: String? = null
     private var distanzaSalvata: Double = 0.0
@@ -37,35 +38,39 @@ class DettagliActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_dettagli)
 
-        // Imposta lo sfondo della barra di navigazione e della barra di stato
+        //imposta lo sfondo della barra di navigazione e della barra di stato
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.isAppearanceLightStatusBars = false
         windowInsetsController.isAppearanceLightNavigationBars = true
 
-        // Inizializza il fusedLocationClient
+        //inizializza il fusedLocationClient (servizio per ottenere la posizione dell'utente)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // Recupero i dati passati dall'intent della mappa
+        //recupero i dati passati dall'intent della MapsActivity
         idRicevuto = intent.getLongExtra("ID_ELEMENTO", -1L)
         tipoRicevuto = intent.getStringExtra("TIPO_ELEMENTO")
 
-        setupHeader()
-        setupViewPager()
-        setupListeners()
-        verificaSeSalvato(idRicevuto)
+        setupHeader() //inizializza l'header della pagina
+        setupViewPager() //inizializza il ViewPager2 e il TabLayout con i relativi fragment
+        setupListeners() //inizializza i listener per i bottoni di navigazione, salvataggio e condivisione
+        verificaSeSalvato(idRicevuto) //verifica se l'elemento è già salvato dall'utente e aggiorna l'icona di conseguenza
 
+        //se non abbiamo già la posizione dell'utente per qualche motivo
+        //la recuperiamo e aggiorniamo la distanza mostrata
         if (intent.getDoubleExtra("USER_LAT", 0.0) == 0.0) {
             recuperaPosizioneEAggiorna()
         }
     }
 
-    // Funzione di inizializzazione dell'header della pagina
+    //funzione di inizializzazione dell'header della pagina
     private fun setupHeader() {
+        //in base al tipo di elemento ricevuto, aggiorno l'UI dell'header
         when (tipoRicevuto) {
             "BENZINA" -> {
                 val stazione = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
                 stazione?.let { setupUIBenzina(it) }
             }
+
             "EV" -> {
                 val colonnina = ColonninaEV.listaCompleta.find { it.id.toLong() == idRicevuto }
                 colonnina?.let { setupUIElettrica(it) }
@@ -73,20 +78,20 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
-    // Funzione di inizializzazione del ViewPager2 e del TabLayout
+    //funzione di inizializzazione del ViewPager2 e del TabLayout
     private fun setupViewPager() {
         val viewPager = findViewById<ViewPager2>(R.id.viewPager)
         val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
 
-        // Espande i tab su tutta la larghezza (equamente distribuiti)
+        //espando i tab su tutta la larghezza (equamente distribuiti)
         tabLayout.tabMode = TabLayout.MODE_FIXED
         tabLayout.tabGravity = TabLayout.GRAVITY_FILL
 
-        // Inizializza l'adapter passando il tipo ricevuto
+        //inizializzo l'adapter passando il tipo ricevuto
         val adapter = DettagliPagerAdapter(this, tipoRicevuto)
         viewPager.adapter = adapter
 
-        // Sincronizza TabLayout e ViewPager2
+        //sincronizzo TabLayout e ViewPager2
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {
                 0 -> "PREZZI"
@@ -97,6 +102,7 @@ class DettagliActivity : AppCompatActivity() {
         }.attach()
     }
 
+    //funzione di inizializzazione dell'UI dell'header per i benzinai
     private fun setupUIBenzina(b: Benzinaio) {
         findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.stationHeader)
             ?.setBackgroundColor("#0B3D2E".toColorInt())
@@ -122,6 +128,7 @@ class DettagliActivity : AppCompatActivity() {
         calcolaDistanzaDettaglio(b.lat, b.lon)
     }
 
+    //funzione di inizializzazione dell'UI dell'header per le colonnine
     private fun setupUIElettrica(ev: ColonninaEV) {
         findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.stationHeader)
             ?.setBackgroundColor("#0B101E".toColorInt())
@@ -143,7 +150,7 @@ class DettagliActivity : AppCompatActivity() {
         }
         findViewById<ImageView>(R.id.imgPompa)?.setImageResource(ev.getLogoResource())
         findViewById<TextView>(R.id.txtDistance)?.setTextColor(color)
-        
+
         // Colori tab specifici per EV
         val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
         tabLayout?.setSelectedTabIndicatorColor(color)
@@ -153,7 +160,7 @@ class DettagliActivity : AppCompatActivity() {
         calcolaDistanzaDettaglio(ev.lat, ev.lon)
     }
 
-    // Funzione di inizializzazione dei listener
+    //funzione di inizializzazione dei listener
     private fun setupListeners() {
         findViewById<Button>(R.id.btnOttieniIndicazioni)?.setOnClickListener {
             avviaNavigatore()
@@ -172,17 +179,25 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    //funzione che recupera la posizione dell'utente e aggiorna la distanza mostrata nell'header
+    // (usato come fallback in caso di non averla già recuperata in precedenza)
     private fun recuperaPosizioneEAggiorna() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     intent.putExtra("USER_LAT", location.latitude)
                     intent.putExtra("USER_LON", location.longitude)
+                    //dopo aver ottenuto la posizione, calcoliamo la distanza per mostrarla correttamente
                     when (tipoRicevuto) {
                         "BENZINA" -> {
                             val b = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
                             b?.let { calcolaDistanzaDettaglio(it.lat, it.lon) }
                         }
+
                         "EV" -> {
                             val ev = ColonninaEV.listaCompleta.find { it.id.toLong() == idRicevuto }
                             ev?.let { calcolaDistanzaDettaglio(it.lat, it.lon) }
@@ -193,6 +208,8 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    //funzione che calcola la distanza tra la posizione dell'utente e quella
+    //della stazione/colonnina e aggiorna il testo nell'header
     private fun calcolaDistanzaDettaglio(latDest: Double, lonDest: Double) {
         val latUser = intent.getDoubleExtra("USER_LAT", 0.0)
         val lonUser = intent.getDoubleExtra("USER_LON", 0.0)
@@ -200,11 +217,12 @@ class DettagliActivity : AppCompatActivity() {
         if (latUser != 0.0 && lonUser != 0.0) {
             distanzaSalvata = Utils.calcolaDistanza(latUser, lonUser, latDest, lonDest)
 
+            //se la distanza è maggiore di 1000 metri,
+            //la mostriamo in km con una cifra decimale, altrimenti in metri senza decimali
             if (distanzaSalvata >= 1000) {
-                distanzaSalvata = distanzaSalvata/1000
+                distanzaSalvata = distanzaSalvata / 1000
                 findViewById<TextView>(R.id.txtDistance)?.text = "${String.format("%.1f", distanzaSalvata)} km"
-            }
-            else{
+            } else {
                 findViewById<TextView>(R.id.txtDistance)?.text = "${String.format("%.0f", distanzaSalvata)} m"
 
             }
@@ -212,7 +230,9 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    //funzione che gestisce il salvataggio o la rimozione dai salvati dell'elemento visualizzato
     private fun salvaElemento(idImpianto: Long) {
+        //verifico se l'utente è loggato, altrimenti mostro un messaggio e esco dalla funzione
         val session = SupabaseInstance.client.auth.currentSessionOrNull()
         if (session == null) {
             Toast.makeText(this, "Devi essere loggato per gestire i tuoi elementi salvati", Toast.LENGTH_SHORT).show()
@@ -221,8 +241,10 @@ class DettagliActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
+                //in base al tipo di elemento, scelgo la tabella corretta su cui operare
                 val tabella = if (tipoRicevuto == "BENZINA") "salvati_benzinai" else "salvati_ev"
-                
+
+                //verifico se l'elemento è già salvato dall'utente
                 val esistente = SupabaseInstance.client.from(tabella)
                     .select {
                         filter {
@@ -231,6 +253,7 @@ class DettagliActivity : AppCompatActivity() {
                         }
                     }.decodeList<Salvato>()
 
+                //se esiste già, lo rimuovo dai salvati, altrimenti lo aggiungo
                 if (esistente.isNotEmpty()) {
                     SupabaseInstance.client.from(tabella).delete {
                         filter {
@@ -257,17 +280,23 @@ class DettagliActivity : AppCompatActivity() {
                 Utils.ColonnineSalvate(session)
             } catch (e: Exception) {
                 runOnUiThread {
-                    Toast.makeText(this@DettagliActivity, "Errore nella gestione dei salvati", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@DettagliActivity, "Errore nella gestione dei salvati", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
     }
 
+    //funzione che verifica se l'elemento visualizzato è già salvato
+    // dall'utente e aggiorna l'icona di conseguenza
     private fun verificaSeSalvato(idImpianto: Long) {
+        //verifico se l'utente è loggato
         val session = SupabaseInstance.client.auth.currentSessionOrNull() ?: return
         lifecycleScope.launch {
             try {
+                //in base al tipo di elemento, scelgo la tabella corretta su cui operare
                 val tabella = if (tipoRicevuto == "BENZINA") "salvati_benzinai" else "salvati_ev"
+                //verifico se l'elemento è già salvato dall'utente
                 val esistente = SupabaseInstance.client.from(tabella)
                     .select {
                         filter {
@@ -276,66 +305,70 @@ class DettagliActivity : AppCompatActivity() {
                         }
                     }.decodeList<Salvato>()
 
+                //se esiste già, aggiorno l'icona per indicare che è salvato, altrimenti lascio l'icona di default
                 if (esistente.isNotEmpty()) {
                     runOnUiThread {
                         findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.ic_bookmark_saved)
                     }
                 }
             } catch (e: Exception) {
-                // Silenzioso
+                runOnUiThread {
+                    Toast.makeText(this@DettagliActivity, "Errore nella verifica dei salvati", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         }
     }
 
-    // Funzione che gestisce l'intent di navigazione verso Google Maps
-    // Quando cliccato il bottone, aprirà Google Maps con la posizione della stazione/colonnina con le indicazioni stradali per raggiungerla
+    //funzione che gestisce l'intent di navigazione verso Google Maps
     private fun avviaNavigatore() {
-        val lat: Double?
-        val lon: Double?
-        // Recupero le coordinate della stazione/colonnina
+        var lat: Double?=0.0
+        var lon: Double?=0.0
+        //recupero le coordinate della stazione/colonnina
         if (tipoRicevuto == "BENZINA") {
             val s = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
             lat = s?.lat; lon = s?.lon
-        } else {
+        } else if (tipoRicevuto == "EV") {
             val c = ColonninaEV.listaCompleta.find { it.id.toLong() == idRicevuto }
             lat = c?.lat; lon = c?.lon
         }
 
-        // Avvio l'intent di navigazione
+        //avvio l'intent di navigazione se abbiamo le coordinate
         if (lat != null && lon != null) {
+            //creo l'URI per Google Maps con le coordinate della destinazione
             val gmmIntentUri = "https://www.google.com/maps/dir/?api=1&destination=$lat,$lon".toUri()
             val intent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-            intent.setPackage("com.google.android.apps.maps")
+            intent.setPackage("com.google.android.apps.maps") //specifico di aprire con Google Maps
             startActivity(intent)
         }
     }
 
-    // Funzione che gestisce l'intent per la condivisione della posizione
-    // su Google Maps del benzinaio/colonnina
+    //funzione che gestisce l'intent per la condivisione della posizione
     private fun shareStazione() {
-        // Recupero il tipo della stazione ricevuto e quindi il testo da condividere
-        // che sarebbe la posizione della stazione/colonnina stessa
+        //recupero il tipo della stazione ricevuto e quindi il testo da condividere in base al tipo
         val testoDaCondividere = when (tipoRicevuto) {
             "BENZINA" -> {
                 val stazione = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
                 stazione?.getShareText()
             }
+
             "EV" -> {
                 val colonnina = ColonninaEV.listaVicini.find { it.id.toLong() == idRicevuto }
                 colonnina?.getShareText()
             }
+
             else -> null
         }
 
-        // Se abbiamo il testo, facciamo partire l'intent di condivisione
+        //se abbiamo il testo, facciamo partire l'intent di condivisione
         if (testoDaCondividere != null) {
-            // Crea un Intent di condivisione
+            //crea un Intent di condivisione
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_TEXT, testoDaCondividere)
             }
 
-            // In base al tipo (stazione/colonnina), apriamo l'intent appropriato
+            //in base al tipo (stazione/colonnina), apriamo l'intent appropriato
             when (tipoRicevuto) {
                 "BENZINA" -> startActivity(Intent.createChooser(shareIntent, "Condividi stazione tramite:"))
                 "EV" -> startActivity(Intent.createChooser(shareIntent, "Condividi colonnina tramite:"))

@@ -17,23 +17,19 @@ import kotlinx.serialization.json.jsonPrimitive
 
 class MainActivity : AppCompatActivity() {
 
-    // Aggiunto binding per il layout
     private lateinit var binding: ActivityMainBinding
 
-    // Aggiunto inizializzazione del binding e settaggio del layout alla creazione dell'activity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inizializza il binding con il layout dell'activity
         binding = ActivityMainBinding.inflate(layoutInflater)
         enableEdgeToEdge()
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.isAppearanceLightStatusBars = false  // icone status bar bianche
 
-        // Imposta il layout binding comeContentView
         setContentView(binding.root)
 
-        // Carica il fragment iniziale (Mappa)
+        //carica il fragment iniziale (Mappa)
         if (savedInstanceState == null) {
             replaceFragment(MapsFragment(), "MAPPA")
         }
@@ -41,37 +37,40 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
     }
 
-    // Imposta il listener per i bottoni di navigazione e aggiorna l'UI
+    //funzione che imposta i listener per i bottoni di navigazione e aggiorna l'UI
     private fun setupNavigation() {
-        // Aggiunto listener per i bottoni di navigazione
+        //listener per i bottoni di navigazione
         binding.btnNavMappa.setOnClickListener {
             replaceFragment(MapsFragment(), "MAPPA")
             updateNavbarUI("MAPPA")
         }
 
-        // Aggiunto listener per il pulsante di navigazione "Salvati"
+        //listener per il pulsante di navigazione "Salvati"
         binding.btnNavSalvati.setOnClickListener {
             replaceFragment(SalvatiFragment(), "SALVATI")
             updateNavbarUI("SALVATI")
         }
 
-        // Aggiunto listener per il pulsante di navigazione "Cerca"
+        //listener per il pulsante di navigazione "Cerca"
         binding.btnNavCerca.setOnClickListener {
             replaceFragment(CercaFragment(), "CERCA")
             updateNavbarUI("CERCA")
         }
 
-        // Aggiunto listener per il pulsante di navigazione "Profilo"
+        //listener per il pulsante di navigazione "Profilo"
         binding.btnNavProfilo.setOnClickListener {
+            // Recupera i dati dell'utente attualmente autenticato
+            // (con fallback in caso in cui l'utente non sia autenticato)
             val user = SupabaseInstance.client.auth.currentUserOrNull()
             var nomeCompleto = user?.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull ?: "Utente Anonimo"
             var email = user?.email ?: "Non disponibile"
 
+            //al passaggio del fragment Profilo, passo i dati dell'utente (id, nome completo ed email) tramite Bundle
             val fragment = ProfiloFragment().apply {
                 arguments = Bundle().apply {
                     putString("USER_ID", user?.id)
-                    putString("NomeUtente",user?.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull)
-                    putString("EmailUtente",user?.email)
+                    putString("NomeUtente", user?.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull)
+                    putString("EmailUtente", user?.email)
                 }
             }
             replaceFragment(fragment, "PROFILO")
@@ -79,31 +78,33 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Sostituisce il fragment corrente con il nuovo fragment
+    //funzione che gestisce il passaggio dal fragment corrente al nuovo fragment
     private fun replaceFragment(fragment: Fragment, tag: String) {
-        // Ottieni il fragment corrente
+        //ottieni il fragment corrente
         val currentFragment = supportFragmentManager.findFragmentByTag(tag)
-        // Se il fragment corrente esiste ed è visibile, non sostituisci nulla
+        //se il fragment corrente esiste ed è visibile, non sostituisci nulla
         if (currentFragment != null && currentFragment.isVisible) return
 
-        // Rimuovi tutti i fragment tranne quello corrente
+        //rimuovi tutti i fragment tranne quello corrente
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment, tag)
             .commit()
     }
 
-    // Aggiorna l'UI della navbar in base al fragment selezionato
+    //Funzione che aggiorna l'UI della navbar in base al fragment selezionato
     private fun updateNavbarUI(selectedTag: String) {
+        //colori da utilizzare per evidenziare il fragment selezionato e per resettare gli altri
         val yellow = ContextCompat.getColor(this, R.color.fuelly_yellow_fluo)
         val grey = ContextCompat.getColor(this, R.color.grey_inactive)
 
-        // Reset tutti a grigio
+        //di default, resetta tutti i bottoni della navbar con i colori di default (grigio)
+        // prima di evidenziare quello selezionato
         resetItem(binding.imgNavMappa, binding.txtNavMappa, grey)
         resetItem(binding.imgNavSalvati, binding.txtNavSalvati, grey)
         resetItem(binding.imgNavCerca, binding.txtNavCerca, grey)
         resetItem(binding.imgNavProfilo, binding.txtNavProfilo, grey)
 
-        // Evidenzia il selezionato
+        //evidenzia il selezionato
         when (selectedTag) {
             "MAPPA" -> highlightItem(binding.imgNavMappa, binding.txtNavMappa, yellow)
             "SALVATI" -> highlightItem(binding.imgNavSalvati, binding.txtNavSalvati, yellow)
@@ -112,13 +113,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Aggiunto metodo per resettare l'item della navbar con colori iniziali
+    //Funzione che resetta l'item della navbar con colori iniziali
     private fun resetItem(img: ImageView, txt: TextView, color: Int) {
         img.setColorFilter(color)
         txt.setTextColor(color)
     }
 
-    // Aggiunto metodo per evidenziare l'item della navbar con colori diversi
+    //Funzione che evidenzia l'item della navbar con colori diversi
     private fun highlightItem(img: ImageView, txt: TextView, color: Int) {
         img.setColorFilter(color)
         txt.setTextColor(color)

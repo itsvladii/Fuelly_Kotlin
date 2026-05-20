@@ -26,11 +26,11 @@ import kotlinx.serialization.json.jsonPrimitive
 class RecensioniFragment : Fragment() {
 
     private var stationId: Long = -1L
-    private var typeStation: String=""
+    private var typeStation: String = ""
     private lateinit var adapter: RecensioniAdapter
     private val listaRecensioni = mutableListOf<Recensione>()
 
-    // Riferimenti UI
+    //elementi UI del fragment
     private lateinit var txtMediaVoto: TextView
     private lateinit var ratingMedia: RatingBar
     private lateinit var rvRecensioni: RecyclerView
@@ -48,8 +48,9 @@ class RecensioniFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //recupero l'id della stazione passato dall'activity precedente tramite Intent
         stationId = activity?.intent?.getLongExtra("ID_ELEMENTO", -1L) ?: -1L
-        typeStation= activity?.intent?.getStringExtra("TIPO_ELEMENTO").toString()
+        typeStation = activity?.intent?.getStringExtra("TIPO_ELEMENTO").toString()
 
 
     }
@@ -57,13 +58,12 @@ class RecensioniFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_recensioni, container, false)
 
-        // Inizializzazione View
+        //inizializzazione delle view
         txtMediaVoto = view.findViewById(R.id.txtMediaVoto)
         ratingMedia = view.findViewById(R.id.ratingMedia)
         rvRecensioni = view.findViewById(R.id.rvRecensioni)
         txtVuoto = view.findViewById(R.id.txtNessunaRecensione)
 
-        // Setup RecyclerView passandogli la lambda di eliminazione
         adapter = RecensioniAdapter(listaRecensioni) { recensioneDaEliminare ->
             eliminaRecensione(recensioneDaEliminare)
         }
@@ -71,7 +71,8 @@ class RecensioniFragment : Fragment() {
         rvRecensioni.layoutManager = LinearLayoutManager(context)
         rvRecensioni.adapter = adapter
 
-        if(typeStation == "EV") {
+        //se è una colonnina, cambio i colori del pulsante e delle stelle
+        if (typeStation == "EV") {
             setupGraficaEV(view)
         }
 
@@ -83,21 +84,22 @@ class RecensioniFragment : Fragment() {
         return view
     }
 
+    //funzione per caricare le recensioni dal database e aggiornare la UI
     private fun caricaRecensioni() {
         lifecycleScope.launch {
             try {
 
                 var result: List<Recensione> = emptyList()
 
-                if(typeStation=="BENZINA"){
-                result = SupabaseInstance.client.from("recensioni_benzinai").select {
-                    filter {
-                        eq("idImpianto", stationId)
-                    }
-                    order("created_at", order = Order.DESCENDING)
-                }.decodeList<Recensione>()
-                }
-                else if(typeStation=="EV"){
+                //carico le recensioni dal DB, ordinandole dalla più recente alla più vecchia
+                if (typeStation == "BENZINA") {
+                    result = SupabaseInstance.client.from("recensioni_benzinai").select {
+                        filter {
+                            eq("idImpianto", stationId)
+                        }
+                        order("created_at", order = Order.DESCENDING)
+                    }.decodeList<Recensione>()
+                } else if (typeStation == "EV") {
                     result = SupabaseInstance.client.from("recensioni_ev").select {
                         filter {
                             eq("idImpianto", stationId)
@@ -135,6 +137,7 @@ class RecensioniFragment : Fragment() {
         ratingMedia.rating = media.toFloat()
     }
 
+    //funzione per mostrare un dialog con i campi per inserire una nuova recensione, e gestire l'inserimento nel database
     private fun mostraDialogRecensione() {
         val dialog = BottomSheetDialog(requireContext())
         val dialogView = layoutInflater.inflate(R.layout.dialog_nuova_recensione, null)
@@ -144,6 +147,7 @@ class RecensioniFragment : Fragment() {
         val ratingInput = dialogView.findViewById<RatingBar>(R.id.ratingInput)
         val editCommento = dialogView.findViewById<EditText>(R.id.editCommento)
 
+        //se è una colonnina, cambio i colori del pulsante e delle stelle
         if (typeStation == "EV") {
             val coloreEV = "#00FFC2".toColorInt()
             btnInvia?.backgroundTintList = ColorStateList.valueOf(coloreEV)
@@ -153,6 +157,8 @@ class RecensioniFragment : Fragment() {
             ratingInput?.secondaryProgressTintList = ColorStateList.valueOf(coloreEV)
         }
 
+        //gestione del click sul pulsante di invio recensione,
+        // con controllo che l'utente sia loggato e inserimento della recensione nel database
         btnInvia.setOnClickListener {
             val user = SupabaseInstance.client.auth.currentUserOrNull()
             val nomeCompleto = user?.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull ?: "Utente Anonimo"
@@ -172,16 +178,16 @@ class RecensioniFragment : Fragment() {
                         idBenzinaio = stationId,
                         rating = ratingInput.rating.toInt(),
                         descRecensione = editCommento.text.toString(),
-                        nome=nomeCompleto,
+                        nome = nomeCompleto,
                         avatar_url = avatarUrl,
-                        tipo= typeStation
+                        tipo = typeStation
                     )
 
-                    if(typeStation=="BENZINA") {
-                        //inserisco nel DB
+                    //inserisco nel DB nella rispettiva tabella in base al tipo di stazione (benzina o EV)
+                    if (typeStation == "BENZINA") {
+
                         SupabaseInstance.client.from("recensioni_benzinai").insert(nuova)
-                    }else if(typeStation=="EV")
-                    {
+                    } else if (typeStation == "EV") {
                         SupabaseInstance.client.from("recensioni_ev").insert(nuova)
                     }
 
@@ -198,6 +204,7 @@ class RecensioniFragment : Fragment() {
         dialog.show()
     }
 
+    //funzione per cambiare i colori del pulsante di scrittura recensione e delle stelle, se è una colonnina EV
     private fun setupGraficaEV(rootView: View) {
         val coloreEV = Color.parseColor("#00FFC2")
         val coloreTesto = Color.BLACK
@@ -213,16 +220,18 @@ class RecensioniFragment : Fragment() {
         ratingMedia?.secondaryProgressTintList = ColorStateList.valueOf(coloreEV)
     }
 
+    //funzione per eliminare una recensione, con gestione degli errori e aggiornamento dell'UI
     private fun eliminaRecensione(recensione: Recensione) {
         lifecycleScope.launch {
             try {
-                // Selezioniamo la tabella corretta in base al tipo di stazione
+                //selezioniamo la tabella corretta in base al tipo di stazione
                 val tabella = if (typeStation == "BENZINA") "recensioni_benzinai" else "recensioni_ev"
 
+                //elimino la recensione usando un filtro per idRecensione e idUtente,
                 SupabaseInstance.client.from(tabella).delete {
                     filter {
-                        eq("idRecensione",recensione.idRecensione)
-                        eq("idUtente",recensione.idUtente)
+                        eq("idRecensione", recensione.idRecensione)
+                        eq("idUtente", recensione.idUtente)
                     }
                 }
 

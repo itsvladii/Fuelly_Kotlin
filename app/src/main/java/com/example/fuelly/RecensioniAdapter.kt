@@ -12,7 +12,7 @@ import com.example.fuelly.classes.Recensione
 import com.example.fuelly.supabase.SupabaseInstance
 import io.github.jan.supabase.auth.auth
 
-class RecensioniAdapter(private var lista: MutableList<Recensione>,private val onEliminaClick: (Recensione) -> Unit) :
+class RecensioniAdapter(private var lista: MutableList<Recensione>, private val onEliminaClick: (Recensione) -> Unit) :
     RecyclerView.Adapter<RecensioniAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -38,6 +38,7 @@ class RecensioniAdapter(private var lista: MutableList<Recensione>,private val o
         if (r.idUtente == idUtenteLoggato) {
             holder.btnElimina.visibility = View.VISIBLE
             holder.btnElimina.setOnClickListener {
+                //alert di conferma prima di eliminare la recensione
                 val dialog = AlertDialog.Builder(holder.itemView.context)
                     .setTitle("Elimina Recensione")
                     .setMessage("Sei sicuro di voler eliminare definitivamente questo commento?")
@@ -45,16 +46,16 @@ class RecensioniAdapter(private var lista: MutableList<Recensione>,private val o
                         onEliminaClick(r)
                     }
                     .setNegativeButton("Annulla", null)
-                    .create() // Usiamo create() invece di show() diretto
+                    .create()
 
-                dialog.show() // Lo mostriamo a schermo
+                //impostazione dei colori dei pulsanti dell'AlertDialog
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                    ?.setTextColor(android.graphics.Color.parseColor("#CC3838"))
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                    ?.setTextColor(android.graphics.Color.parseColor("#666666"))
 
-                // --- CAMBIO COLORE DEI PULSANTI ---
-                // Pulsante Elimina (Positivo) -> Rosso
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(android.graphics.Color.parseColor("#CC3838"))
+                dialog.show()
 
-                // Pulsante Annulla (Negativo) -> Grigio Scuro o Nero
-                dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(android.graphics.Color.parseColor("#666666"))
             }
         } else {
             holder.btnElimina.visibility = View.GONE

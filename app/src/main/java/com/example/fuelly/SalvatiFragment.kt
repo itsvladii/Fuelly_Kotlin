@@ -52,6 +52,7 @@ class SalvatiFragment : Fragment() {
         binding.toggleGroupSalvati.check(R.id.btnSalvatiBenzina)
     }
 
+    //funzione che configura la RecyclerView
     private fun setupRecyclerView() {
         binding.rvSalvati.layoutManager = LinearLayoutManager(requireContext())
 
@@ -63,6 +64,7 @@ class SalvatiFragment : Fragment() {
                     intent.putExtra("ID_ELEMENTO", item.id.toLong())
                     intent.putExtra("TIPO_ELEMENTO", "BENZINA")
                 }
+
                 is ColonninaEV -> {
                     intent.putExtra("ID_ELEMENTO", item.id.toLong())
                     intent.putExtra("TIPO_ELEMENTO", "EV")
@@ -76,7 +78,7 @@ class SalvatiFragment : Fragment() {
         binding.rvSalvati.adapter = adapter
     }
 
-    // funzione di caricamento della lista benzinai salvati
+    //funzione di caricamento della lista benzinai salvati
     private fun caricaBenzinaiSalvate() {
         adapter.updateData(Benzinaio.listaSalvati)
         riportaInCima()
