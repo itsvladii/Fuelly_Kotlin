@@ -288,7 +288,7 @@ class DettagliActivity : AppCompatActivity() {
             val s = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
             lat = s?.lat; lon = s?.lon
         } else {
-            val c = ColonninaEV.listaVicini.find { it.id.toLong() == idRicevuto }
+            val c = ColonninaEV.listaCompleta.find { it.id.toLong() == idRicevuto }
             lat = c?.lat; lon = c?.lon
         }
 
