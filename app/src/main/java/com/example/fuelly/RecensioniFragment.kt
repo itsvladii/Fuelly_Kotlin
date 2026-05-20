@@ -164,7 +164,7 @@ class RecensioniFragment : Fragment() {
             val nomeCompleto = user?.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull ?: "Utente Anonimo"
             val avatarUrl = user?.userMetadata?.get("avatar_url")?.jsonPrimitive?.contentOrNull
             if (user == null) {
-                Toast.makeText(context, "Effettua il login per recensire", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.review_login_required), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -194,7 +194,7 @@ class RecensioniFragment : Fragment() {
                     activity?.runOnUiThread {
                         dialog.dismiss()
                         caricaRecensioni() //refresh della lista recensioni post-inserimento
-                        Toast.makeText(context, "Recensione inviata!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, getString(R.string.review_success), Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
                     Log.e("Fuelly", "Errore invio: ${e.message}")
@@ -236,13 +236,13 @@ class RecensioniFragment : Fragment() {
                 }
 
                 activity?.runOnUiThread {
-                    Toast.makeText(context, "Recensione eliminata", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.review_deleted), Toast.LENGTH_SHORT).show()
                     caricaRecensioni() // Eseguiamo il refresh per ricalcolare la media e aggiornare i dati
                 }
             } catch (e: Exception) {
                 Log.e("Fuelly", "Errore durante l'eliminazione: ${e.message}")
                 activity?.runOnUiThread {
-                    Toast.makeText(context, "Impossibile eliminare la recensione", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.profile_review_delete_error), Toast.LENGTH_SHORT).show()
                 }
             }
         }

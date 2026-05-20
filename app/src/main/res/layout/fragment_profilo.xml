@@ -22,7 +22,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="50dp"
         android:fontFamily="@font/chakra_petch_semibold"
-        android:text="Profilo Utente"
+        android:text="@string/profile_title"
         android:textColor="#DFFF00"
         android:textSize="32sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -68,7 +68,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/chakra_petch_semibold"
-                    android:text="Caricamento..."
+                    android:text="@string/profile_loading"
                     android:textColor="@color/black"
                     android:textSize="20sp" />
 
@@ -78,7 +78,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:fontFamily="@font/dm_sans_medium"
-                    android:text="email@esempio.it"
+                    android:text="@string/profile_email_placeholder"
                     android:textColor="#777777"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -88,7 +88,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Esci"
+                android:text="@string/profile_logout"
                 android:textAllCaps="false"
                 android:textColor="#CC3838"
                 android:fontFamily="@font/chakra_petch_semibold"
@@ -104,7 +104,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="40dp"
         android:fontFamily="@font/chakra_petch_semibold"
-        android:text="Le tue recensioni"
+        android:text="@string/profile_my_reviews"
         android:textColor="@color/fuelly_green_dark"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -121,6 +121,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/TextRecensioni"
         tools:listitem="@layout/item_recensione" />
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminate="true"
+        app:indicatorColor="@color/fuelly_green_dark"
+        app:layout_constraintTop_toBottomOf="@id/TextRecensioni"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <View
         android:layout_width="match_parent"

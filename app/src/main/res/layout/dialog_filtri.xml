@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="@font/chakra_petch_semibold"
-            android:text="Filtri Avanzati"
+            android:text="@string/filter_title"
             android:textColor="#0B101E"
             android:textSize="22sp" />
 
@@ -48,7 +48,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:fontFamily="@font/dm_sans_medium"
             android:padding="8dp"
-            android:text="Reset"
+            android:text="@string/filter_reset"
             android:textColor="#80000000"
             android:textSize="13sp" />
     </LinearLayout>
@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/chakra_petch_medium_italic"
             android:letterSpacing="0.12"
-            android:text="TIPO DI STAZIONE"
+            android:text="@string/filter_station_type"
             android:textColor="#80000000"
             android:textSize="11sp" />
 
@@ -96,7 +96,7 @@
                 android:layout_height="40dp"
                 android:layout_weight="1"
                 android:fontFamily="@font/dm_sans_medium"
-                android:text="Benzinai"
+                android:text="@string/filter_station_benzinai"
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:backgroundTint="@color/chip_background_selector_benzinai"
@@ -115,7 +115,7 @@
                 android:layout_height="40dp"
                 android:layout_weight="1"
                 android:fontFamily="@font/dm_sans_medium"
-                android:text="EV"
+                android:text="@string/filter_station_ev"
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:backgroundTint="@color/chip_background_selector_ev"
@@ -149,7 +149,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/chakra_petch_medium_italic"
             android:letterSpacing="0.12"
-            android:text="CARBURANTE"
+            android:text="@string/filter_fuel_type"
             android:textColor="#80000000"
             android:textSize="11sp" />
 
@@ -169,7 +169,7 @@
                 android:layout_height="wrap_content"
                 android:checkable="true"
                 android:fontFamily="@font/dm_sans_medium"
-                android:text="Benzina"
+                android:text="@string/filter_fuel_petrol"
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:chipBackgroundColor="@color/chip_background_selector_benzinai"
@@ -183,7 +183,7 @@
                 android:layout_height="wrap_content"
                 android:checkable="true"
                 android:fontFamily="@font/dm_sans_medium"
-                android:text="Diesel"
+                android:text="@string/filter_fuel_diesel"
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:chipBackgroundColor="@color/chip_background_selector_benzinai"
@@ -197,7 +197,7 @@
                 android:layout_height="wrap_content"
                 android:checkable="true"
                 android:fontFamily="@font/dm_sans_medium"
-                android:text="GPL"
+                android:text="@string/filter_fuel_gpl"
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:chipBackgroundColor="@color/chip_background_selector_benzinai"
@@ -211,7 +211,7 @@
                 android:layout_height="wrap_content"
                 android:checkable="true"
                 android:fontFamily="@font/dm_sans_medium"
-                android:text="Metano"
+                android:text="@string/filter_fuel_metano"
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:chipBackgroundColor="@color/chip_background_selector_benzinai"
@@ -225,7 +225,7 @@
                 android:layout_height="wrap_content"
                 android:checkable="true"
                 android:fontFamily="@font/dm_sans_medium"
-                android:text="GNL"
+                android:text="@string/filter_fuel_gnl"
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:chipBackgroundColor="@color/chip_background_selector_benzinai"
@@ -263,7 +263,7 @@
             android:layout_marginTop="16dp"
             android:fontFamily="@font/chakra_petch_medium_italic"
             android:letterSpacing="0.12"
-            android:text="TIPO CONNETTORE"
+            android:text="@string/filter_connector_type"
             android:textColor="#80000000"
             android:textSize="11sp" />
 
@@ -349,7 +349,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/chakra_petch_medium_italic"
             android:letterSpacing="0.12"
-            android:text="OPZIONI"
+            android:text="@string/filter_options"
             android:textColor="#80000000"
             android:textSize="11sp" />
 
@@ -371,7 +371,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/dm_sans_medium"
-                    android:text="Solo stazioni operative"
+                    android:text="@string/filter_only_operative"
                     android:textColor="#0B101E"
                     android:textSize="15sp" />
 
@@ -379,7 +379,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/dm_sans_medium"
-                    android:text="Escludi stazioni di ricarica EV non disponibili"
+                    android:text="@string/filter_exclude_unavailable_ev"
                     android:textColor="#80000000"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -432,7 +432,7 @@
             android:layout_marginEnd="12dp"
             android:layout_weight="0.4"
             android:fontFamily="@font/chakra_petch_semibold"
-            android:text="Annulla"
+            android:text="@string/cancel"
             android:textColor="#0B101E"
             android:textSize="14sp"
             app:cornerRadius="12dp"
@@ -446,7 +446,7 @@
             android:layout_weight="0.6"
             android:backgroundTint="@color/fuelly_yellow_fluo"
             android:fontFamily="@font/chakra_petch_semibold"
-            android:text="APPLICA FILTRI"
+            android:text="@string/filter_apply"
             android:textColor="#0B101E"
             android:textSize="14sp"
             app:cornerRadius="12dp" />

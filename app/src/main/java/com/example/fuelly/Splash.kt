@@ -113,7 +113,7 @@ class Splash : AppCompatActivity() {
             } else {
                 //se l'utente ha rifiutato di attivare il GPS, mostriamo un messaggio e procediamo al login
                 // (senza GPS non avremo i marker vicini)
-                Toast.makeText(this, "Il GPS è necessario per i prezzi vicini", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.gps_required), Toast.LENGTH_SHORT).show()
                 vaiALogin()
             }
         }

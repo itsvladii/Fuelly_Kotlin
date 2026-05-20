@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/chakra_petch_semibold"
-            android:text="Salvati"
+            android:text="@string/saved_title"
             android:textColor="#DFFF00"
             android:textSize="32sp" />
 
@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/dm_sans_medium"
-            android:text="Le tue stazioni preferite"
+            android:text="@string/saved_subtitle"
             android:textColor="#B0FFFFFF"
             android:textSize="14sp" />
 
@@ -64,7 +64,7 @@
             android:layout_weight="1"
             android:drawableTint="@color/black"
             android:fontFamily="@font/dm_sans_medium"
-            android:text="Benzinai"
+            android:text="@string/saved_tab_benzinai"
             android:textColor="@color/black"
             android:textColorHint="@color/black"
             android:textSize="13sp"
@@ -85,7 +85,7 @@
             android:layout_weight="1"
             android:drawableTint="@color/black"
             android:fontFamily="@font/dm_sans_medium"
-            android:text="EV"
+            android:text="@string/saved_tab_ev"
             android:textColor="@color/black"
             android:textSize="13sp"
             app:backgroundTint="@color/chip_background_selector_ev"

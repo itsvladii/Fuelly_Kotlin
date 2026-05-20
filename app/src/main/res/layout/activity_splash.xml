@@ -13,7 +13,7 @@
         android:layout_width="293dp"
         android:layout_height="104dp"
         android:fontFamily="@font/chakra_petch_medium_italic"
-        android:text="FUELLY"
+        android:text="@string/fuelly"
         android:textAlignment="center"
         android:textColor="#dfff00"
         android:textSize="60sp"

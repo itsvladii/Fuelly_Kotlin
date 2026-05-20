@@ -39,13 +39,14 @@ class RecensioniAdapter(private var lista: MutableList<Recensione>, private val 
             holder.btnElimina.visibility = View.VISIBLE
             holder.btnElimina.setOnClickListener {
                 //alert di conferma prima di eliminare la recensione
-                val dialog = AlertDialog.Builder(holder.itemView.context)
-                    .setTitle("Elimina Recensione")
-                    .setMessage("Sei sicuro di voler eliminare definitivamente questo commento?")
-                    .setPositiveButton("Elimina") { _, _ ->
+                val context = holder.itemView.context
+                val dialog = AlertDialog.Builder(context)
+                    .setTitle(context.getString(R.string.review_delete_title))
+                    .setMessage(context.getString(R.string.review_delete_confirm))
+                    .setPositiveButton(context.getString(R.string.review_delete_button)) { _, _ ->
                         onEliminaClick(r)
                     }
-                    .setNegativeButton("Annulla", null)
+                    .setNegativeButton(context.getString(R.string.cancel), null)
                     .create()
 
                 //impostazione dei colori dei pulsanti dell'AlertDialog

@@ -167,7 +167,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Luogo non trovato", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.location_not_found), Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {

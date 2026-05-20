@@ -54,12 +54,12 @@ class RegistrazioneActivity : AppCompatActivity() {
 
             //verifico se i campi sono popolati (e che la password sia minimo 6 caratteri)
             if (nome.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Tutti i campi sono obbligatori", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.error_fields_required), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (password.length < 6) {
-                Toast.makeText(this, "La password deve avere almeno 6 caratteri", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.error_password_length), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 

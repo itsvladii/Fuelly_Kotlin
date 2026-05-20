@@ -54,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto_medium"
-                android:text="Mappa"
+                android:text="@string/nav_maps"
                 android:textColor="@color/fuelly_yellow_fluo"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -81,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto_medium"
-                android:text="Salvati"
+                android:text="@string/nav_saved"
                 android:textColor="@color/grey_inactive"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -108,7 +108,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto_medium"
-                android:text="Cerca"
+                android:text="@string/nav_search"
                 android:textColor="@color/grey_inactive"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -135,7 +135,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto_medium"
-                android:text="Profilo"
+                android:text="@string/nav_profile"
                 android:textColor="@color/grey_inactive"
                 android:textSize="12sp" />
         </LinearLayout>

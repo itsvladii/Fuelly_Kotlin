@@ -75,7 +75,7 @@ class ProfiloFragment : Fragment() {
                 SupabaseInstance.client.auth.signOut()
 
                 // Messaggio di conferma
-                Toast.makeText(requireContext(), "Logout effettuato", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.profile_logout_success), Toast.LENGTH_SHORT).show()
 
                 //TORNO ALLA SCHERMATA DI LOGIN
                 val intent = Intent(requireContext(), LoginActivity::class.java)
@@ -88,7 +88,7 @@ class ProfiloFragment : Fragment() {
 
             } catch (e: Exception) {
                 Log.e("Logout", "Errore durante il logout: ${e.message}")
-                Toast.makeText(requireContext(), "Errore durante il logout", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.profile_logout_error), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -98,6 +98,8 @@ class ProfiloFragment : Fragment() {
         if (idUt != null) {
             //CICLO DI VITA
             lifecycleScope.launch {
+                binding.progressBar.visibility = View.VISIBLE
+                binding.listaRecensioni.visibility = View.GONE
 
                 try {
 
@@ -121,12 +123,14 @@ class ProfiloFragment : Fragment() {
                         binding.listaRecensioni.adapter = adapter
                     } else {
                         binding.listaRecensioni.visibility = View.GONE
-                        Toast.makeText(requireContext(), "Nessuna recensione", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.profile_no_reviews), Toast.LENGTH_SHORT).show()
                     }
 
                 } catch (e: Exception) {
                     Log.e("ProfiloFragment", "Errore: ${e.message}")
-                    Toast.makeText(requireContext(), "Errore nel caricamento dati", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.profile_loading_error), Toast.LENGTH_SHORT).show()
+                } finally {
+                    binding.progressBar.visibility = View.GONE
                 }
             }
         }
@@ -150,7 +154,7 @@ class ProfiloFragment : Fragment() {
 
                 // Aggiorno l'UI dopo l'eliminazione, ricaricando le recensioni per riflettere la modifica
                 activity?.runOnUiThread {
-                    Toast.makeText(requireContext(), "Recensione eliminata con successo", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.profile_review_deleted), Toast.LENGTH_SHORT).show()
                     caricaRecensioni(
                         arguments?.getString("USER_ID"),
                         arguments?.getString("NomeUtente"),
@@ -161,7 +165,7 @@ class ProfiloFragment : Fragment() {
             } catch (e: Exception) {
                 Log.e("ProfiloFragment", "Errore eliminazione: ${e.message}")
                 activity?.runOnUiThread {
-                    Toast.makeText(requireContext(), "Impossibile eliminare la recensione", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), getString(R.string.profile_review_delete_error), Toast.LENGTH_SHORT).show()
                 }
             }
         }

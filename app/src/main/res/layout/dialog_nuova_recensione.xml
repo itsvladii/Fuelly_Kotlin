@@ -19,7 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/chakra_petch_semibold"
-        android:text="SCRIVI UNA RECENSIONE"
+        android:text="@string/review_write_title"
         android:textColor="#0B3D2E"
         android:textSize="18sp" />
 
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:fontFamily="@font/roboto_medium"
-        android:text="Che voto daresti a questa stazione?"
+        android:text="@string/review_rating_prompt"
         android:textColor="#666666" />
 
     <!-- Stelle Interattive -->
@@ -80,7 +80,7 @@
         android:layout_marginTop="24dp"
         android:backgroundTint="#DFFF00"
         android:fontFamily="@font/chakra_petch_semibold"
-        android:text="INVIA RECENSIONE"
+        android:text="@string/review_send"
         android:textColor="#0B3D2E"
         app:cornerRadius="12dp" />
 

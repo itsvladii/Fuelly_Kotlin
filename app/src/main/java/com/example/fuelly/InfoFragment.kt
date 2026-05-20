@@ -70,7 +70,7 @@ class InfoFragment : Fragment() {
         //gestione click sui pulsanti
         btnModifica.setOnClickListener {
             setFieldsEnabled(true, orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
-            Toast.makeText(context, "Modalità modifica attivata", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.info_edit_mode), Toast.LENGTH_SHORT).show()
         }
 
         btnSalva.setOnClickListener {
@@ -142,7 +142,7 @@ class InfoFragment : Fragment() {
         //verifichiamo che l'utente sia loggato prima di permettere il salvataggio
         val session = SupabaseInstance.client.auth.currentSessionOrNull()
         if (session == null) {
-            Toast.makeText(context, "Effettua il login per salvare", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.info_login_required), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -152,7 +152,7 @@ class InfoFragment : Fragment() {
         val descStr = desc.text.toString().trim()
 
         if (apStr.isEmpty() || chStr.isEmpty()) {
-            Toast.makeText(context, "Orari obbligatori", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, getString(R.string.info_hours_required), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -177,11 +177,11 @@ class InfoFragment : Fragment() {
 
                 infoId = result.id
 
-                Toast.makeText(context, "Dati salvati con successo", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.info_save_success), Toast.LENGTH_SHORT).show()
                 setFieldsEnabled(false, ap, ch, bagno, bar, desc)
             } catch (e: Exception) {
                 Log.e("InfoFragment", "Errore salvataggio: ${e.message}")
-                Toast.makeText(context, "Errore durante il salvataggio", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.info_save_error), Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -69,7 +69,7 @@ class LoginActivity : AppCompatActivity() {
             val password = passwordEdit.text.toString()
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Inserisci email e password", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.error_login_failed), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -83,7 +83,7 @@ class LoginActivity : AppCompatActivity() {
 
                     //se il login ha successo, andiamo alla mappa
                     runOnUiThread {
-                        Toast.makeText(this@LoginActivity, "Bentornato!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@LoginActivity, getString(R.string.welcome_back), Toast.LENGTH_SHORT).show()
                         val intent = Intent(this@LoginActivity, MainActivity::class.java)
                         startActivity(intent)
                         finish() // chiude l' activity con il login così non si torna indietro con il tasto back

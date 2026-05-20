@@ -220,7 +220,7 @@ class DettagliActivity : AppCompatActivity() {
             //se la distanza è maggiore di 1000 metri,
             //la mostriamo in km con una cifra decimale, altrimenti in metri senza decimali
             if (distanzaSalvata >= 1000) {
-                distanzaSalvata = distanzaSalvata / 1000
+                distanzaSalvata /= 1000
                 findViewById<TextView>(R.id.txtDistance)?.text = "${String.format("%.1f", distanzaSalvata)} km"
             } else {
                 findViewById<TextView>(R.id.txtDistance)?.text = "${String.format("%.0f", distanzaSalvata)} m"
@@ -232,10 +232,10 @@ class DettagliActivity : AppCompatActivity() {
 
     //funzione che gestisce il salvataggio o la rimozione dai salvati dell'elemento visualizzato
     private fun salvaElemento(idImpianto: Long) {
-        //verifico se l'utente è loggato, altrimenti mostro un messaggio e esco dalla funzione
+        //verifico se l'utente è loggato, altrimenti mostro un messaggio ed esco dalla funzione
         val session = SupabaseInstance.client.auth.currentSessionOrNull()
         if (session == null) {
-            Toast.makeText(this, "Devi essere loggato per gestire i tuoi elementi salvati", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.login_required), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -262,7 +262,7 @@ class DettagliActivity : AppCompatActivity() {
                         }
                     }
                     runOnUiThread {
-                        Toast.makeText(this@DettagliActivity, "Rimosso dai salvati", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@DettagliActivity, getString(R.string.details_removed), Toast.LENGTH_SHORT).show()
                         findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.ic_bookmark)
                     }
                 } else {
@@ -272,7 +272,7 @@ class DettagliActivity : AppCompatActivity() {
                     )
                     SupabaseInstance.client.from(tabella).insert(nuovoSalvato)
                     runOnUiThread {
-                        Toast.makeText(this@DettagliActivity, "Salvato!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@DettagliActivity, getString(R.string.details_saved), Toast.LENGTH_SHORT).show()
                         findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.ic_bookmark_saved)
                     }
                 }
@@ -375,7 +375,7 @@ class DettagliActivity : AppCompatActivity() {
             }
 
         } else {
-            Toast.makeText(this, "Errore nel recupero dati per la condivisione", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.details_share_error), Toast.LENGTH_SHORT).show()
         }
     }
 }

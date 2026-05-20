@@ -14,4 +14,111 @@
     <string name="self_service">Self-Service</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Profilo Utente</string>
+    <string name="profile_loading">Caricamento...</string>
+    <string name="profile_email_placeholder">email@esempio.it</string>
+    <string name="profile_logout">Esci</string>
+    <string name="profile_my_reviews">Le tue recensioni</string>
+    <string name="profile_logout_success">Logout effettuato</string>
+    <string name="profile_logout_error">Errore durante il logout</string>
+    <string name="profile_no_reviews">Nessuna recensione</string>
+    <string name="profile_loading_error">Errore nel caricamento dati</string>
+    <string name="profile_review_deleted">Recensione eliminata con successo</string>
+    <string name="profile_review_delete_error">Impossibile eliminare la recensione</string>
+
+    <!-- General -->
+    <string name="fuelly">FUELLY</string>
+    <string name="cancel">Annulla</string>
+    <string name="save">SALVA</string>
+    <string name="edit">Modifica</string>
+    <string name="report">Segnala</string>
+    <string name="ok">OK</string>
+    <string name="loading">Caricamento…</string>
+
+    <!-- Login & Registration -->
+    <string name="login_title">ACCEDI CON IL TUO ACCOUNT</string>
+    <string name="login_button">Accedi</string>
+    <string name="register_prompt">Non hai un account? Registrati!</string>
+    <string name="login_google">Accedi con Google</string>
+    <string name="register_title">CREA IL TUO ACCOUNT</string>
+    <string name="register_button">Registrati</string>
+    <string name="login_prompt">Hai già un account? Accedi</string>
+    <string name="error_fields_required">Tutti i campi sono obbligatori</string>
+    <string name="error_password_length">La password deve avere almeno 6 caratteri</string>
+    <string name="error_login_failed">Inserisci email e password</string>
+    <string name="welcome_back">Bentornato!</string>
+    <string name="login_required">Effettua il login per procedere</string>
+
+    <!-- Navigation -->
+    <string name="nav_maps">Mappa</string>
+    <string name="nav_saved">Salvati</string>
+    <string name="nav_search">Cerca</string>
+    <string name="nav_profile">Profilo</string>
+
+    <!-- Search & Filters -->
+    <string name="search_hint">Cerca il benzinaio adatto alle tue esigenze</string>
+    <string name="search_category_all">Tutti</string>
+    <string name="search_category_nearby">Vicino a me</string>
+    <string name="search_category_top_saved">Top salvati</string>
+    <string name="search_category_cheap_petrol">Benzina economica</string>
+    <string name="search_category_cheap_diesel">Diesel economico</string>
+    <string name="filter_title">Filtri Avanzati</string>
+    <string name="filter_reset">Reset</string>
+    <string name="filter_station_type">TIPO DI STAZIONE</string>
+    <string name="filter_station_benzinai">Benzinai</string>
+    <string name="filter_station_ev">EV</string>
+    <string name="filter_fuel_type">CARBURANTE</string>
+    <string name="filter_fuel_petrol">Benzina</string>
+    <string name="filter_fuel_diesel">Diesel</string>
+    <string name="filter_fuel_gpl">GPL</string>
+    <string name="filter_fuel_metano">Metano</string>
+    <string name="filter_fuel_gnl">GNL</string>
+    <string name="filter_connector_type">TIPO CONNETTORE</string>
+    <string name="filter_options">OPZIONI</string>
+    <string name="filter_only_operative">Solo stazioni operative</string>
+    <string name="filter_exclude_unavailable_ev">Escludi stazioni di ricarica EV non disponibili</string>
+    <string name="filter_apply">APPLICA FILTRI</string>
+    <string name="search_in_this_area">Cerca in questa zona</string>
+
+    <!-- Details & Reviews -->
+    <string name="details_get_directions">Ottieni indicazioni</string>
+    <string name="details_share_error">Errore nel recupero dati per la condivisione</string>
+    <string name="details_saved">Salvato!</string>
+    <string name="details_removed">Rimosso dai salvati</string>
+    <string name="review_write">SCRIVI \nRECENSIONE</string>
+    <string name="review_write_title">SCRIVI UNA RECENSIONE</string>
+    <string name="review_rating_prompt">Che voto daresti a questa stazione?</string>
+    <string name="review_send">INVIA RECENSIONE</string>
+    <string name="review_success">Recensione inviata!</string>
+    <string name="review_deleted">Recensione eliminata</string>
+    <string name="review_none">Nessuna recensione disponibile</string>
+    <string name="review_delete_title">Elimina Recensione</string>
+    <string name="review_delete_confirm">Sei sicuro di voler eliminare definitivamente questo commento?</string>
+    <string name="review_delete_button">Elimina</string>
+    <string name="review_login_required">Effettua il login per recensire</string>
+
+    <!-- Info Screen -->
+    <string name="info_manager_name">NOME GESTORE</string>
+    <string name="info_service_hours">Orari di Servizio</string>
+    <string name="info_toilets">Servizi Igienici</string>
+    <string name="info_bar">Bar / Ristorazione</string>
+    <string name="info_edit_mode">Modalità modifica attivata</string>
+    <string name="info_login_required">Effettua il login per salvare</string>
+    <string name="info_hours_required">Orari obbligatori</string>
+    <string name="info_save_success">Dati salvati con successo</string>
+    <string name="info_save_error">Errore durante il salvataggio</string>
+
+    <!-- Splash & GPS -->
+    <string name="gps_required">Il GPS è necessario per i prezzi vicini</string>
+    <string name="location_not_found">Luogo non trovato</string>
+    <string name="permission_granted">Permesso accordato, avvio caricamento…</string>
+    <string name="permission_denied">Permesso negato</string>
+
+    <!-- Saved Stations -->
+    <string name="saved_title">Salvati</string>
+    <string name="saved_subtitle">Le tue stazioni preferite</string>
+    <string name="saved_tab_benzinai">Benzinai</string>
+    <string name="saved_tab_ev">EV</string>
 </resources>

@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/fuelly_yellow_fluo"
                 android:fontFamily="@font/chakra_petch_semibold"
-                android:text="SCRIVI \nRECENSIONE"
+                android:text="@string/review_write"
                 android:textColor="#0B3D2E"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -69,7 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:gravity="center"
-            android:text="Nessuna recensione disponibile"
+            android:text="@string/review_none"
             android:fontFamily="@font/dm_sans_medium"
             android:textColor="#999999"
             android:visibility="gone" />
