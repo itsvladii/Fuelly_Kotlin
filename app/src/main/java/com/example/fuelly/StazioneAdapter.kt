@@ -12,6 +12,7 @@ import com.example.fuelly.classes.Benzinaio
 import com.example.fuelly.classes.ColonninaEV
 import org.json.JSONArray
 import android.location.Location
+import androidx.core.content.ContextCompat
 import com.example.fuelly.utils.Utils
 
 // Adapter per RecyclerView che mostra sia stazioni di servizio che colonnine EV
@@ -75,11 +76,13 @@ class StazioneAdapter(
                 itemLat = item.lat
                 itemLon = item.lon
                 //
-                holder.card.setCardBackgroundColor("#0B3D2E".toColorInt())
-                holder.txtName.setTextColor("#DFFF00".toColorInt())
-                holder.txtInfo1.setTextColor("#DFFF00".toColorInt())
-                holder.txtInfo2.setTextColor("#DFFF00".toColorInt())
-                holder.txtDistanza.setTextColor("#DFFF00".toColorInt())
+                val context = holder.itemView.context
+                val color = ContextCompat.getColor(context, R.color.fuelly_yellow_fluo)
+                holder.card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.fuelly_green_dark))
+                holder.txtName.setTextColor(color)
+                holder.txtInfo1.setTextColor(color)
+                holder.txtInfo2.setTextColor(color)
+                holder.txtDistanza.setTextColor(color)
 
                 holder.txtName.text = item.bandiera + " "
                 holder.txtCity.text = "${item.comune} (${item.provincia})"
@@ -93,11 +96,13 @@ class StazioneAdapter(
             } else if (item is ColonninaEV) {
                 itemLat = item.lat
                 itemLon = item.lon
-                holder.card.setCardBackgroundColor("#0B101E".toColorInt())
-                holder.txtName.setTextColor("#00FFC2".toColorInt())
-                holder.txtInfo1.setTextColor("#00FFC2".toColorInt())
-                holder.txtInfo2.setTextColor("#00FFC2".toColorInt())
-                holder.txtDistanza.setTextColor("#00FFC2".toColorInt())
+                val context = holder.itemView.context
+                val color = ContextCompat.getColor(context, R.color.ev_cyan)
+                holder.card.setCardBackgroundColor(ContextCompat.getColor(context, R.color.ev_dark_blue))
+                holder.txtName.setTextColor(color)
+                holder.txtInfo1.setTextColor(color)
+                holder.txtInfo2.setTextColor(color)
+                holder.txtDistanza.setTextColor(color)
 
                 holder.txtName.text = item.titolo + " "
                 holder.txtCity.text = item.indirizzo // Usiamo indirizzo come city se manca

@@ -62,8 +62,6 @@ class MainActivity : AppCompatActivity() {
             // Recupera i dati dell'utente attualmente autenticato
             // (con fallback in caso in cui l'utente non sia autenticato)
             val user = SupabaseInstance.client.auth.currentUserOrNull()
-            var nomeCompleto = user?.userMetadata?.get("full_name")?.jsonPrimitive?.contentOrNull ?: "Utente Anonimo"
-            var email = user?.email ?: "Non disponibile"
 
             //al passaggio del fragment Profilo, passo i dati dell'utente (id, nome completo ed email) tramite Bundle
             val fragment = ProfiloFragment().apply {

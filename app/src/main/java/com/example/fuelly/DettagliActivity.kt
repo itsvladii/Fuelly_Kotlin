@@ -14,6 +14,7 @@ import com.example.fuelly.classes.*
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.viewpager2.widget.ViewPager2
+import androidx.core.content.ContextCompat
 import com.example.fuelly.supabase.SupabaseInstance
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -105,9 +106,9 @@ class DettagliActivity : AppCompatActivity() {
     //funzione di inizializzazione dell'UI dell'header per i benzinai
     private fun setupUIBenzina(b: Benzinaio) {
         findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.stationHeader)
-            ?.setBackgroundColor("#0B3D2E".toColorInt())
+            ?.setBackgroundColor(ContextCompat.getColor(this, R.color.fuelly_green_dark))
 
-        val color = "#DFFF00".toColorInt()
+        val color = ContextCompat.getColor(this, R.color.fuelly_yellow_fluo)
         findViewById<TextView>(R.id.txtStationName)?.apply {
             setTextColor(color)
             text = b.bandiera + " "
@@ -131,9 +132,9 @@ class DettagliActivity : AppCompatActivity() {
     //funzione di inizializzazione dell'UI dell'header per le colonnine
     private fun setupUIElettrica(ev: ColonninaEV) {
         findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.stationHeader)
-            ?.setBackgroundColor("#0B101E".toColorInt())
+            ?.setBackgroundColor(ContextCompat.getColor(this, R.color.ev_dark_blue))
 
-        val color = "#00FFC2".toColorInt()
+        val color = ContextCompat.getColor(this, R.color.ev_cyan)
         findViewById<TextView>(R.id.txtStationName)?.apply {
             setTextColor(color)
             text = ev.titolo + " "

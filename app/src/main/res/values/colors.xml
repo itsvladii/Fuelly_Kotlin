@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
     <resources>
         <color name="fuelly_green_dark">#0B3D2E</color>
-        <color name="fuelly_yellow_fluo">#DFFF00</color>
-        <color name="grey_inactive">#A0A0A0</color>
-        <color name="white">#FFFFFF</color>
-        <color name="black">#000000</color>
-    </resources>
+    <color name="fuelly_yellow_fluo">#DFFF00</color>
+    <color name="grey_inactive">#A0A0A0</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- Project-wide extra colors -->
+    <color name="ev_dark_blue">#0B101E</color>
+    <color name="ev_cyan">#00FFC2</color>
+    <color name="error_red">#CC3838</color>
+    <color name="dialog_grey">#666666</color>
+</resources>

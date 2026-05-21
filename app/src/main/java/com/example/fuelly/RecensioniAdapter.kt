@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import android.widget.ImageButton
 import android.widget.RatingBar
 import android.widget.TextView
@@ -51,9 +52,9 @@ class RecensioniAdapter(private var lista: MutableList<Recensione>, private val 
 
                 //impostazione dei colori dei pulsanti dell'AlertDialog
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                    ?.setTextColor(android.graphics.Color.parseColor("#CC3838"))
+                    ?.setTextColor(ContextCompat.getColor(context, R.color.error_red))
                 dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-                    ?.setTextColor(android.graphics.Color.parseColor("#666666"))
+                    ?.setTextColor(ContextCompat.getColor(context, R.color.dialog_grey))
 
                 dialog.show()
 
