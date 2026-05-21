@@ -27,7 +27,6 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var credentialManager: CredentialManager
 
     //client ID ottenuto dalla Google Cloud Console per l'autenticazione OAuth 2.0
-    //TODO: da mettere nell' .env e non nel codice, per sicurezza
     private val WEB_CLIENT_ID = "348141692404-0fe09qj3s2a9msl9ndep5sf433hcv1rl.apps.googleusercontent.com"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,41 +56,13 @@ class LoginActivity : AppCompatActivity() {
             finish()
         }
 
-        //TODO: da migrare in una funzione a parte, per evitare di avere tutto il codice del login manuale in un unico posto
         val emailEdit = findViewById<TextInputEditText>(R.id.emailEdit)
         val passwordEdit = findViewById<TextInputEditText>(R.id.passwordEdit)
         findViewById<Button>(R.id.btnNext).setOnClickListener {
             val email = emailEdit.text.toString().trim()
             val password = passwordEdit.text.toString()
+            startManualSignIn(email,password)
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, getString(R.string.error_login_failed), Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            lifecycleScope.launch {
-                try {
-                    //eseguiamo
-                    SupabaseInstance.client.auth.signInWith(Email) {
-                        this.email = email
-                        this.password = password
-                    }
-
-                    //se il login ha successo, andiamo alla mappa
-                    runOnUiThread {
-                        Toast.makeText(this@LoginActivity, getString(R.string.welcome_back), Toast.LENGTH_SHORT).show()
-                        val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                        startActivity(intent)
-                        finish() // chiude l' activity con il login così non si torna indietro con il tasto back
-                    }
-
-                } catch (e: Exception) {
-                    runOnUiThread {
-                        Toast.makeText(this@LoginActivity, "Accesso fallito: Credenziali errate", Toast.LENGTH_LONG)
-                            .show()
-                    }
-                }
-            }
         }
     }
 
@@ -118,6 +89,37 @@ class LoginActivity : AppCompatActivity() {
                 handleSignIn(result)
             } catch (e: GetCredentialException) {
                 Log.e("Auth", "Errore Google Sign-In: ${e.message}")
+            }
+        }
+    }
+
+    private fun startManualSignIn(email:String,password:String)
+    {
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, getString(R.string.error_login_failed), Toast.LENGTH_SHORT).show()
+        }
+
+        lifecycleScope.launch {
+            try {
+                //eseguiamo
+                SupabaseInstance.client.auth.signInWith(Email) {
+                    this.email = email
+                    this.password = password
+                }
+
+                //se il login ha successo, andiamo alla mappa
+                runOnUiThread {
+                    Toast.makeText(this@LoginActivity, getString(R.string.welcome_back), Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                    startActivity(intent)
+                    finish() // chiude l' activity con il login così non si torna indietro con il tasto back
+                }
+
+            } catch (e: Exception) {
+                runOnUiThread {
+                    Toast.makeText(this@LoginActivity, "Accesso fallito: Credenziali errate", Toast.LENGTH_LONG)
+                        .show()
+                }
             }
         }
     }
