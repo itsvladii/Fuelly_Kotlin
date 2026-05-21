@@ -9,9 +9,10 @@
     <!-- Header coerente con la registrazione (300dp) -->
     <View
         android:id="@+id/headerView"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:background="@drawable/bg_login"
+        android:layout_width="0dp"
+        android:layout_height="241dp"
+        android:background="@drawable/bg_header_cerca"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -46,7 +47,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="40dp"
         android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/subHeaderText">
