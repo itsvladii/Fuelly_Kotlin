@@ -9,7 +9,6 @@ import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.graphics.toColorInt
 import com.example.fuelly.classes.*
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
@@ -277,8 +276,8 @@ class DettagliActivity : AppCompatActivity() {
                         findViewById<ImageButton>(R.id.btnSalva)?.setImageResource(R.drawable.ic_bookmark_saved)
                     }
                 }
-                Utils.BenzinaiSalvati(session)
-                Utils.ColonnineSalvate(session)
+                Utils.benzinaiSalvati(session)
+                Utils.colonnineSalvate(session)
             } catch (e: Exception) {
                 runOnUiThread {
                     Toast.makeText(this@DettagliActivity, "Errore nella gestione dei salvati", Toast.LENGTH_SHORT)

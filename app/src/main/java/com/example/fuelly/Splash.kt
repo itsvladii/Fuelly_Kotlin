@@ -12,13 +12,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.classes.*
-import com.example.fuelly.classes.Benzinaio.Companion.parseTopSalvatiIds
 import com.example.fuelly.utils.Utils
 import com.example.fuelly.supabase.SupabaseInstance
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.auth.user.UserSession
 import io.github.jan.supabase.postgrest.*
 import kotlinx.coroutines.*
 
@@ -224,8 +222,8 @@ class Splash : AppCompatActivity() {
         //se l'utente è già loggato, salviamo i dati dei benzinai e delle colonnine salvati
         val session = SupabaseInstance.client.auth.currentSessionOrNull()
         if (session != null) {
-            Utils.ColonnineSalvate(session)
-            Utils.BenzinaiSalvati(session)
+            Utils.colonnineSalvate(session)
+            Utils.benzinaiSalvati(session)
             //dopo aver precaricato i dati, passiamo alla home
             startActivity(Intent(this, MainActivity::class.java))
         } else {

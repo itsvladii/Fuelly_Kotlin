@@ -10,7 +10,6 @@ import androidx.core.view.WindowCompat
 import androidx.credentials.*
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
-import com.example.fuelly.classes.Benzinaio
 import com.google.android.libraries.identity.googleid.*
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -22,9 +21,6 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.auth.providers.Google
 import io.github.jan.supabase.auth.providers.builtin.Email
-import io.github.jan.supabase.auth.user.UserSession
-import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.postgrest.rpc
 
 class LoginActivity : AppCompatActivity() {
 
@@ -152,8 +148,8 @@ class LoginActivity : AppCompatActivity() {
                         //se l'utente ha gia effettuato l'accesso, vado direttamente alla MainActivity, altrimenti alla login
                         if (session != null) {
                             //carico i preferiti dell'utente (se loggato)
-                            Utils.BenzinaiSalvati(session)
-                            Utils.ColonnineSalvate(session)
+                            Utils.benzinaiSalvati(session)
+                            Utils.colonnineSalvate(session)
 
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             goToMappa()

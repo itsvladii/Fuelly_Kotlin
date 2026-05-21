@@ -14,7 +14,7 @@ object Utils {
      * @param session La sessione dell'utente corrente.
      */
 
-    suspend fun BenzinaiSalvati(session:UserSession)
+    suspend fun benzinaiSalvati(session:UserSession)
     {
         val userId = session.user?.id ?: return // Esci se non c'è un utente loggato
 
@@ -39,7 +39,7 @@ object Utils {
         }
     }
 
-    suspend fun ColonnineSalvate(session:UserSession)
+    suspend fun colonnineSalvate(session:UserSession)
     {
         val userId = session.user?.id ?: return // Esci se non c'è un utente loggato
 
