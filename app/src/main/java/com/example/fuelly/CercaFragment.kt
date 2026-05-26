@@ -13,15 +13,14 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.fuelly.classes.Benzinaio
-import com.example.fuelly.classes.ColonninaEV
+import com.example.fuelly.repository.model.Benzinaio
+import com.example.fuelly.repository.model.ColonninaEV
 import com.example.fuelly.databinding.DialogFiltriBinding
 import com.example.fuelly.databinding.FragmentCercaBinding
 import com.example.fuelly.utils.Utils
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.chip.ChipGroup
 
 class CercaFragment : Fragment() {
     private var _binding: FragmentCercaBinding? = null

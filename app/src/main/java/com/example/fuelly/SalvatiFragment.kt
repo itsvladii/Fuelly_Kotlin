@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.fuelly.classes.Benzinaio
-import com.example.fuelly.classes.ColonninaEV
+import com.example.fuelly.repository.model.Benzinaio
+import com.example.fuelly.repository.model.ColonninaEV
 import com.example.fuelly.databinding.FragmentSalvatiBinding
 
 class SalvatiFragment : Fragment() {
