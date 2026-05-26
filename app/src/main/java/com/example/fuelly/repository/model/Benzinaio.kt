@@ -1,9 +1,8 @@
-package com.example.fuelly.classes
+package com.example.fuelly.repository.model
 
 import android.util.Log
 import com.example.fuelly.R
 import org.json.JSONArray
-
 
 data class Benzinaio(
     val id: Int,

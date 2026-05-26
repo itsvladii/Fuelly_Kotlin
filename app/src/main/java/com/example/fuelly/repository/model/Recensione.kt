@@ -1,7 +1,8 @@
-package com.example.fuelly.classes
+package com.example.fuelly.repository.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.util.UUID
 
 
 //classe Recensione per memorizzare le recensioni degli utenti sui benzinai,
@@ -10,7 +11,7 @@ import kotlinx.serialization.Serializable
 data class Recensione(
     @SerialName("idUtente") val idUtente: String,
     @SerialName("idImpianto") val idBenzinaio: Long,
-    @SerialName("idRecensione") val idRecensione: String = java.util.UUID.randomUUID().toString(),
+    @SerialName("idRecensione") val idRecensione: String = UUID.randomUUID().toString(),
     @SerialName("rating") val rating: Int,
     @SerialName("descRecensione") val descRecensione: String,
     @SerialName("created_at") val data_inserimento: String? = null,

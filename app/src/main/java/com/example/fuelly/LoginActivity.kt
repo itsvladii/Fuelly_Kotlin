@@ -13,7 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.libraries.identity.googleid.*
 import kotlinx.coroutines.launch
 import java.util.UUID
-import com.example.fuelly.supabase.SupabaseInstance
+import com.example.fuelly.repository.supabase.SupabaseInstance
 import com.example.fuelly.utils.Utils
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.material.textfield.TextInputEditText

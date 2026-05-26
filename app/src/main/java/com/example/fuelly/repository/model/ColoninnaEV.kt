@@ -1,4 +1,4 @@
-package com.example.fuelly.classes
+package com.example.fuelly.repository.model
 
 import org.json.JSONArray
 import com.example.fuelly.R
@@ -76,7 +76,7 @@ data class ColonninaEV(
         private fun parseTopSalvatiIds(data: Any?): List<Int> {
             val ids = mutableListOf<Int>()
             try {
-                val jsonArray = org.json.JSONArray(data.toString())
+                val jsonArray = JSONArray(data.toString())
                 for (i in 0 until jsonArray.length()) {
                     ids.add(jsonArray.getJSONObject(i).getInt("idImpianto"))
                 }

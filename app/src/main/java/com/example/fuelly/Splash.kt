@@ -11,9 +11,10 @@ import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.fuelly.classes.*
+import com.example.fuelly.repository.model.Benzinaio
+import com.example.fuelly.repository.model.ColonninaEV
 import com.example.fuelly.utils.Utils
-import com.example.fuelly.supabase.SupabaseInstance
+import com.example.fuelly.repository.supabase.SupabaseInstance
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import io.github.jan.supabase.auth.auth

@@ -18,7 +18,6 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import com.example.fuelly.classes.*
 import com.example.fuelly.databinding.FragmentMapsBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -38,7 +37,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
-import com.example.fuelly.supabase.SupabaseInstance
+import com.example.fuelly.repository.model.Benzinaio
+import com.example.fuelly.repository.model.ColonninaEV
+import com.example.fuelly.repository.supabase.SupabaseInstance
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc
 import kotlinx.coroutines.Dispatchers

@@ -1,4 +1,4 @@
-package com.example.fuelly.supabase
+package com.example.fuelly.repository.supabase
 
 import com.example.fuelly.BuildConfig
 import io.github.jan.supabase.createSupabaseClient

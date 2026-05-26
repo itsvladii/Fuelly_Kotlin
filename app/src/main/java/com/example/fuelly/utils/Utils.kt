@@ -1,9 +1,9 @@
 package com.example.fuelly.utils
 
 import android.util.Log
-import com.example.fuelly.classes.Benzinaio
-import com.example.fuelly.classes.ColonninaEV
-import com.example.fuelly.supabase.SupabaseInstance
+import com.example.fuelly.repository.model.Benzinaio
+import com.example.fuelly.repository.model.ColonninaEV
+import com.example.fuelly.repository.supabase.SupabaseInstance
 import io.github.jan.supabase.auth.user.UserSession
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc

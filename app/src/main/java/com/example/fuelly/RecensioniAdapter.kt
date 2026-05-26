@@ -9,8 +9,8 @@ import android.widget.ImageButton
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.fuelly.classes.Recensione
-import com.example.fuelly.supabase.SupabaseInstance
+import com.example.fuelly.repository.model.Recensione
+import com.example.fuelly.repository.supabase.SupabaseInstance
 import io.github.jan.supabase.auth.auth
 
 class RecensioniAdapter(private var lista: MutableList<Recensione>, private val onEliminaClick: (Recensione) -> Unit) :

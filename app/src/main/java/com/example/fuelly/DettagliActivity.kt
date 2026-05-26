@@ -9,12 +9,11 @@ import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.example.fuelly.classes.*
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.viewpager2.widget.ViewPager2
 import androidx.core.content.ContextCompat
-import com.example.fuelly.supabase.SupabaseInstance
+import com.example.fuelly.repository.supabase.SupabaseInstance
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.tabs.TabLayout
@@ -23,6 +22,9 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
+import com.example.fuelly.repository.model.Benzinaio
+import com.example.fuelly.repository.model.ColonninaEV
+import com.example.fuelly.repository.model.Salvato
 import com.example.fuelly.utils.Utils
 
 class DettagliActivity : AppCompatActivity() {

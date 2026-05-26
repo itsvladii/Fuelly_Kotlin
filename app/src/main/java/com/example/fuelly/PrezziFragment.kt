@@ -13,9 +13,9 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.fuelly.classes.Benzinaio
-import com.example.fuelly.classes.ColonninaEV
-import com.example.fuelly.supabase.SupabaseInstance
+import com.example.fuelly.repository.model.Benzinaio
+import com.example.fuelly.repository.model.ColonninaEV
+import com.example.fuelly.repository.supabase.SupabaseInstance
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch

@@ -1,4 +1,4 @@
-package com.example.fuelly.classes
+package com.example.fuelly.repository.model
 
 import kotlinx.serialization.Serializable
 

@@ -1,6 +1,5 @@
-package com.example.fuelly.classes
+package com.example.fuelly.repository.model
 
-import kotlinx.datetime.LocalTime
 import kotlinx.serialization.Serializable
 
 

@@ -6,12 +6,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.core.graphics.toColorInt
 import androidx.recyclerview.widget.RecyclerView
-import com.example.fuelly.classes.Benzinaio
-import com.example.fuelly.classes.ColonninaEV
+import com.example.fuelly.repository.model.Benzinaio
+import com.example.fuelly.repository.model.ColonninaEV
 import org.json.JSONArray
-import android.location.Location
 import androidx.core.content.ContextCompat
 import com.example.fuelly.utils.Utils
 

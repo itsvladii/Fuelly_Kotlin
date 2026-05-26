@@ -13,8 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.fuelly.classes.Recensione
-import com.example.fuelly.supabase.SupabaseInstance
+import com.example.fuelly.repository.model.Recensione
+import com.example.fuelly.repository.supabase.SupabaseInstance
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.auth.auth

@@ -11,8 +11,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.fuelly.classes.Info
-import com.example.fuelly.supabase.SupabaseInstance
+import com.example.fuelly.repository.model.Info
+import com.example.fuelly.repository.supabase.SupabaseInstance
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputEditText
