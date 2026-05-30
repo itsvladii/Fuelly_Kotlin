@@ -10,6 +10,10 @@ import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import com.example.fuelly.databinding.ActivityMainBinding
 import com.example.fuelly.repository.supabase.SupabaseInstance
+import com.example.fuelly.ui.cerca.CercaFragment
+import com.example.fuelly.ui.maps.MapsFragment
+import com.example.fuelly.ui.profilo.ProfiloFragment
+import com.example.fuelly.ui.salvati.SalvatiFragment
 import io.github.jan.supabase.auth.auth
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive

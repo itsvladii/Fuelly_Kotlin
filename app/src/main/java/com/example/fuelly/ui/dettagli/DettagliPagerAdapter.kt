@@ -1,8 +1,9 @@
-package com.example.fuelly
+package com.example.fuelly.ui.dettagli
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.fuelly.ui.dettagli.InfoFragment
 
 //adapter per gestire i fragment all'interno del ViewPager2
 class DettagliPagerAdapter(activity: FragmentActivity, private val tipo: String?) : FragmentStateAdapter(activity) {

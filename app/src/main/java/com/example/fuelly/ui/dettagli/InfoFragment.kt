@@ -1,4 +1,4 @@
-package com.example.fuelly
+package com.example.fuelly.ui.dettagli
 
 import android.content.Intent
 import android.net.Uri
@@ -11,6 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.example.fuelly.R
 import com.example.fuelly.repository.model.Info
 import com.example.fuelly.repository.supabase.SupabaseInstance
 import com.google.android.material.button.MaterialButton
@@ -56,7 +57,7 @@ class InfoFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val datiBenzinaio = SupabaseInstance.client.from("benzinai")
-                    .select(columns = Columns.list("Gestore")) {
+                    .select(columns = Columns.Companion.list("Gestore")) {
                         filter { eq("idImpianto", idRicevuto) }
                     }.decodeSingle<Map<String, String>>()
                 nomeBenzinaio.text = datiBenzinaio["Gestore"] ?: "Sconosciuto"

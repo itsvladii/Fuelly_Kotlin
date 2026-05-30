@@ -1,9 +1,10 @@
-package com.example.fuelly
+package com.example.fuelly.ui.dettagli
 
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.example.fuelly.R
 import com.example.fuelly.repository.model.Benzinaio
 import com.example.fuelly.repository.model.ColonninaEV
 import com.example.fuelly.repository.supabase.SupabaseInstance
@@ -322,7 +324,7 @@ class PrezziFragment : Fragment() {
             val txt = TextView(ctx).apply {
                 text = "Nessun prezzo disponibile per il ${if (soloServito) "servito" else "self"}."
                 setTextColor(Color.GRAY)
-                gravity = android.view.Gravity.CENTER
+                gravity = Gravity.CENTER
                 setPadding(0, 50, 0, 50)
                 try {
                     typeface = ResourcesCompat.getFont(ctx, R.font.dm_sans_medium)

@@ -1,4 +1,4 @@
-package com.example.fuelly
+package com.example.fuelly.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
+import com.example.fuelly.R
 import com.example.fuelly.repository.supabase.SupabaseInstance
 import com.google.android.material.textfield.TextInputEditText
 import io.github.jan.supabase.auth.auth

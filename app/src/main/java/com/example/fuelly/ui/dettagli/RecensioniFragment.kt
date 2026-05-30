@@ -1,4 +1,4 @@
-package com.example.fuelly
+package com.example.fuelly.ui.dettagli
 
 import android.content.res.ColorStateList
 import android.graphics.Color
@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.fuelly.R
 import com.example.fuelly.repository.model.Recensione
 import com.example.fuelly.repository.supabase.SupabaseInstance
 import com.google.android.material.bottomsheet.BottomSheetDialog

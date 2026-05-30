@@ -1,4 +1,4 @@
-package com.example.fuelly
+package com.example.fuelly.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,6 +10,8 @@ import androidx.core.view.WindowCompat
 import androidx.credentials.*
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
+import com.example.fuelly.MainActivity
+import com.example.fuelly.R
 import com.google.android.libraries.identity.googleid.*
 import kotlinx.coroutines.launch
 import java.util.UUID

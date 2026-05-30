@@ -1,4 +1,4 @@
-package com.example.fuelly
+package com.example.fuelly.ui.dettagli
 
 import android.app.AlertDialog
 import android.view.LayoutInflater
@@ -9,6 +9,7 @@ import android.widget.ImageButton
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.fuelly.R
 import com.example.fuelly.repository.model.Recensione
 import com.example.fuelly.repository.supabase.SupabaseInstance
 import io.github.jan.supabase.auth.auth

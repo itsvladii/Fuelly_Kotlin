@@ -1,4 +1,4 @@
-package com.example.fuelly
+package com.example.fuelly.ui.profilo
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,9 +10,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.fuelly.repository.model.Recensione
+import com.example.fuelly.R
 import com.example.fuelly.databinding.FragmentProfiloBinding
+import com.example.fuelly.repository.model.Recensione
 import com.example.fuelly.repository.supabase.SupabaseInstance
+import com.example.fuelly.ui.auth.LoginActivity
+import com.example.fuelly.ui.dettagli.RecensioniAdapter
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
@@ -107,9 +110,10 @@ class ProfiloFragment : Fragment() {
                         binding.listaRecensioni.visibility = View.VISIBLE
 
                         // Passiamo la lista e la lambda che chiama la funzione di eliminazione locale
-                        val adapter = RecensioniAdapter(recensioni.toMutableList()) { recensioneDaEliminare ->
-                            eliminaRecensioneDalProfilo(recensioneDaEliminare)
-                        }
+                        val adapter =
+                            RecensioniAdapter(recensioni.toMutableList()) { recensioneDaEliminare ->
+                                eliminaRecensioneDalProfilo(recensioneDaEliminare)
+                            }
                         binding.listaRecensioni.adapter = adapter
                     } else {
                         binding.listaRecensioni.visibility = View.GONE

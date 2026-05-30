@@ -1,9 +1,11 @@
-package com.example.fuelly
+package com.example.fuelly.ui.maps
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.location.Geocoder
 import android.os.Build
 import android.os.Bundle
@@ -16,41 +18,48 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.toColorInt
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.example.fuelly.ui.dettagli.DettagliActivity
+import com.example.fuelly.R
 import com.example.fuelly.databinding.FragmentMapsBinding
+import com.example.fuelly.repository.model.Benzinaio
+import com.example.fuelly.repository.model.ColonninaEV
+import com.example.fuelly.repository.supabase.SupabaseInstance
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import androidx.core.view.isVisible
-import androidx.core.graphics.toColorInt
-import androidx.core.view.WindowCompat
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import androidx.core.graphics.createBitmap
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
-import androidx.lifecycle.lifecycleScope
-import com.example.fuelly.repository.model.Benzinaio
-import com.example.fuelly.repository.model.ColonninaEV
-import com.example.fuelly.repository.supabase.SupabaseInstance
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import java.util.Locale
 
 class MapsFragment : Fragment(), OnMapReadyCallback {
     //lista di tutti i marker della mappa
-    private val markersBenzina = mutableListOf<com.google.android.gms.maps.model.Marker>()
-    private val markersEV = mutableListOf<com.google.android.gms.maps.model.Marker>()
+    private val markersBenzina = mutableListOf<Marker>()
+    private val markersEV = mutableListOf<Marker>()
 
     private lateinit var mMap: GoogleMap
 
@@ -168,7 +177,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), getString(R.string.location_not_found), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.location_not_found),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             } catch (e: Exception) {
@@ -213,7 +226,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             }
 
             //recupero il layout della card
-            val card = binding.root.findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
+            val card = binding.root.findViewById<CardView>(R.id.stationCard)
             val btnMyLocation = binding.btnMyLocation
 
             //ricavo la custom bottom navbar
@@ -268,7 +281,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         //aggiungo i nuovi marker dei benzinai e delle colonnine EV
         val iconaCustom = vectorToBitmap(R.drawable.ic_fuel_marker)
-        for (stazione in Benzinaio.listaVicini) {
+        for (stazione in Benzinaio.Companion.listaVicini) {
             val marker = mMap.addMarker(
                 MarkerOptions()
                     .position(LatLng(stazione.lat, stazione.lon))
@@ -281,7 +294,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         }
 
         val iconaEV = vectorToBitmap(R.drawable.ic_ev_marker)
-        for (ev in ColonninaEV.listaVicini) {
+        for (ev in ColonninaEV.Companion.listaVicini) {
             val marker = mMap.addMarker(
                 MarkerOptions()
                     .position(LatLng(ev.lat, ev.lon))
@@ -307,7 +320,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     "raggio_km" to 10.0
                 )
             )
-            Benzinaio.listaVicini = Benzinaio.parseLista(response.data)
+            Benzinaio.Companion.listaVicini = Benzinaio.Companion.parseLista(response.data)
 
             //esegui la chiamata RPC per ottenere le colonnine EV vicine,
             // passando latitudine, longitudine e raggio di ricerca
@@ -319,7 +332,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     "raggio_km" to 10.0
                 )
             )
-            ColonninaEV.listaVicini = ColonninaEV.parseLista(responseEV.data)
+            ColonninaEV.Companion.listaVicini = ColonninaEV.Companion.parseLista(responseEV.data)
 
             //aggiorna la mappa con i nuovi risultati
             aggiornaMarkerMappa()
@@ -366,7 +379,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
     //funzione di setup della card se cliccato un marker di un benzinaio
     private fun setupCardBenzinaio(b: Benzinaio) {
-        val card = binding.root.findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
+        val card = binding.root.findViewById<CardView>(R.id.stationCard)
         card.setCardBackgroundColor("#0B3D2E".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationName).setTextColor("#DFFF00".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationCity).setTextColor("#DFFF00".toColorInt())
@@ -391,7 +404,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
     //funzione di setup della card se cliccato un marker di una colonnina EV
     private fun setupCardElettrica(ev: ColonninaEV) {
-        val card = binding.root.findViewById<androidx.cardview.widget.CardView>(R.id.stationCard)
+        val card = binding.root.findViewById<CardView>(R.id.stationCard)
         card.setCardBackgroundColor("#0B101E".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationName).setTextColor("#00FFC2".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationCity).setTextColor("#00FFC2".toColorInt())
@@ -412,7 +425,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         var totalePrese = 0
         if (!ev.connettoriJson.isNullOrEmpty()) {
             try {
-                val array = org.json.JSONArray(ev.connettoriJson)
+                val array = JSONArray(ev.connettoriJson)
                 for (i in 0 until array.length()) {
                     val obj = array.getJSONObject(i)
                     // Sommiamo il campo 'quantita' che abbiamo aggiunto alla RPC
@@ -462,15 +475,15 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         } else startActivity(intent)
     }
 
-    private fun vectorToBitmap(drawableId: Int): com.google.android.gms.maps.model.BitmapDescriptor {
-        val vectorDrawable = androidx.core.content.res.ResourcesCompat.getDrawable(resources, drawableId, null)
+    private fun vectorToBitmap(drawableId: Int): BitmapDescriptor {
+        val vectorDrawable = ResourcesCompat.getDrawable(resources, drawableId, null)
             ?: return BitmapDescriptorFactory.defaultMarker()
 
         val width = vectorDrawable.intrinsicWidth
         val height = vectorDrawable.intrinsicHeight
 
         val bitmap = createBitmap(width, height)
-        val canvas = android.graphics.Canvas(bitmap)
+        val canvas = Canvas(bitmap)
         vectorDrawable.setBounds(0, 0, width, height)
         vectorDrawable.draw(canvas)
 
@@ -496,7 +509,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         if (maxX < minX || maxY < minY) return BitmapDescriptorFactory.fromBitmap(bitmap)
 
         // Crea un nuovo bitmap ritagliato solo sull'area visibile del pin
-        val croppedBitmap = android.graphics.Bitmap.createBitmap(
+        val croppedBitmap = Bitmap.createBitmap(
             bitmap,
             minX,
             minY,

@@ -1,4 +1,4 @@
-package com.example.fuelly
+package com.example.fuelly.ui.dettagli
 
 import android.Manifest
 import android.content.Intent
@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
@@ -22,6 +23,7 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
+import com.example.fuelly.R
 import com.example.fuelly.repository.model.Benzinaio
 import com.example.fuelly.repository.model.ColonninaEV
 import com.example.fuelly.repository.model.Salvato
@@ -106,7 +108,7 @@ class DettagliActivity : AppCompatActivity() {
 
     //funzione di inizializzazione dell'UI dell'header per i benzinai
     private fun setupUIBenzina(b: Benzinaio) {
-        findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.stationHeader)
+        findViewById<ConstraintLayout>(R.id.stationHeader)
             ?.setBackgroundColor(ContextCompat.getColor(this, R.color.fuelly_green_dark))
 
         val color = ContextCompat.getColor(this, R.color.fuelly_yellow_fluo)
@@ -132,7 +134,7 @@ class DettagliActivity : AppCompatActivity() {
 
     //funzione di inizializzazione dell'UI dell'header per le colonnine
     private fun setupUIElettrica(ev: ColonninaEV) {
-        findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.stationHeader)
+        findViewById<ConstraintLayout>(R.id.stationHeader)
             ?.setBackgroundColor(ContextCompat.getColor(this, R.color.ev_dark_blue))
 
         val color = ContextCompat.getColor(this, R.color.ev_cyan)
