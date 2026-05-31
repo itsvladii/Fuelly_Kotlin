@@ -79,4 +79,6 @@ dependencies {
     implementation("androidx.credentials:credentials:1.7.0-alpha01")
     implementation("androidx.credentials:credentials-play-services-auth:1.7.0-alpha01")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
 }

@@ -88,9 +88,9 @@ class BenzinaiRepository {
             .decodeList<Salvato>()
 
         return if (esistente.isNotEmpty()) {
-            false //non è salvato
-        } else {
             true //è salvato
+        } else {
+            false //non è salvato
         }
     }
 
