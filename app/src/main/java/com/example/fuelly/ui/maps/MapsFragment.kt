@@ -29,13 +29,14 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.fuelly.ui.dettagli.DettagliActivity
 import com.example.fuelly.R
 import com.example.fuelly.databinding.FragmentMapsBinding
 import com.example.fuelly.repository.model.Benzinaio
 import com.example.fuelly.repository.model.ColonninaEV
-import com.example.fuelly.repository.supabase.SupabaseInstance
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -48,8 +49,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.postgrest.rpc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,6 +56,8 @@ import org.json.JSONArray
 import java.util.Locale
 
 class MapsFragment : Fragment(), OnMapReadyCallback {
+    private val viewModel: MapsViewModel by viewModels()
+
     //lista di tutti i marker della mappa
     private val markersBenzina = mutableListOf<Marker>()
     private val markersEV = mutableListOf<Marker>()
@@ -65,11 +66,10 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
     private var _binding: FragmentMapsBinding? = null
     private val binding get() = _binding!!
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    //variabili per mantenere lo stato dei filtri dei marker
-    private var benzinaAttiva = true
-    private var evAttivo = true
+    //invece di scrivere binding.root.findViewById(R.id.id) ogni volta, cosi scrivo solo findViewById
+    private fun <T : View> findViewById(id: Int): T = binding.root.findViewById(id)
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentMapsBinding.inflate(inflater, container, false)
@@ -80,6 +80,12 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupUI(view)
+        observeViewModel()
+    }
+
+    //funzione di primo setup del fragment Maps
+    private fun setupUI(view: View) {
         //imposta la navigation bar di sistema trasparente con icone bianche
         requireActivity().window.apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -108,15 +114,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         //listener per i bottoni di filtro
         binding.btnFiltroBenzina.setOnClickListener {
-            benzinaAttiva = !benzinaAttiva
-            binding.btnFiltroBenzina.alpha = if (benzinaAttiva) 1.0f else 0.5f
-            filtraMarker(benzinaAttiva, evAttivo)
+            viewModel.toggleBenzinaFilter()
         }
 
         binding.btnFiltroEV.setOnClickListener {
-            evAttivo = !evAttivo
-            binding.btnFiltroEV.alpha = if (evAttivo) 1.0f else 0.5f
-            filtraMarker(benzinaAttiva, evAttivo)
+            viewModel.toggleEVFilter()
         }
 
         //listener per il pulsante di my location
@@ -131,6 +133,31 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         //richiamo della funzione di configurazione della barra di ricerca
         setupSearchView()
+    }
+
+    private fun observeViewModel() {
+        viewModel.benzinai.observe(viewLifecycleOwner) {
+            if (::mMap.isInitialized) {
+                aggiornaMarkerMappa()
+            }
+        }
+        viewModel.colonnine.observe(viewLifecycleOwner) {
+            if (::mMap.isInitialized) {
+                aggiornaMarkerMappa()
+            }
+        }
+        viewModel.isBenzinaActive.observe(viewLifecycleOwner) { active ->
+            binding.btnFiltroBenzina.alpha = if (active) 1.0f else 0.5f
+            if (::mMap.isInitialized) {
+                filtraMarker(active, viewModel.isEVActive.value ?: true)
+            }
+        }
+        viewModel.isEVActive.observe(viewLifecycleOwner) { active ->
+            binding.btnFiltroEV.alpha = if (active) 1.0f else 0.5f
+            if (::mMap.isInitialized) {
+                filtraMarker(viewModel.isBenzinaActive.value ?: true, active)
+            }
+        }
     }
 
     //Funzione di configurazione della barra di ricerca
@@ -171,8 +198,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     withContext(Dispatchers.Main) {
                         //centra la mappa sulla posizione
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14f))
-                        //esegui la ricerca
-                        eseguiRicerca(location.latitude, location.longitude)
+                        //esegui la ricerca tramite ViewModel
+                        viewModel.eseguiRicerca(location.latitude, location.longitude)
                         binding.btnSearchArea.visibility = View.GONE
                     }
                 } else {
@@ -281,7 +308,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         //aggiungo i nuovi marker dei benzinai e delle colonnine EV
         val iconaCustom = vectorToBitmap(R.drawable.ic_fuel_marker)
-        for (stazione in Benzinaio.Companion.listaVicini) {
+        for (stazione in viewModel.benzinai.value ?: emptyList()) {
             val marker = mMap.addMarker(
                 MarkerOptions()
                     .position(LatLng(stazione.lat, stazione.lon))
@@ -289,12 +316,12 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     .anchor(0.5f, 1.0f)
             )
             marker?.tag = stazione
-            marker?.isVisible = benzinaAttiva
+            marker?.isVisible = viewModel.isBenzinaActive.value ?: true
             marker?.let { markersBenzina.add(it) }
         }
 
         val iconaEV = vectorToBitmap(R.drawable.ic_ev_marker)
-        for (ev in ColonninaEV.Companion.listaVicini) {
+        for (ev in viewModel.colonnine.value ?: emptyList()) {
             val marker = mMap.addMarker(
                 MarkerOptions()
                     .position(LatLng(ev.lat, ev.lon))
@@ -302,43 +329,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                     .anchor(0.5f, 1.0f)
             )
             marker?.tag = ev
-            marker?.isVisible = evAttivo
+            marker?.isVisible = viewModel.isEVActive.value ?: true
             marker?.let { markersEV.add(it) }
-        }
-    }
-
-    //funzione per eseguire una ricerca
-    private suspend fun eseguiRicerca(lat: Double, lon: Double) {
-        try {
-            //esegui la chiamata RPC per ottenere i benzinai vicini,
-            // passando latitudine, longitudine e raggio di ricerca
-            val response = SupabaseInstance.client.postgrest.rpc(
-                function = "get_benzinai_vicini",
-                parameters = mapOf(
-                    "user_lat" to lat,
-                    "user_lon" to lon,
-                    "raggio_km" to 10.0
-                )
-            )
-            Benzinaio.Companion.listaVicini = Benzinaio.Companion.parseLista(response.data)
-
-            //esegui la chiamata RPC per ottenere le colonnine EV vicine,
-            // passando latitudine, longitudine e raggio di ricerca
-            val responseEV = SupabaseInstance.client.postgrest.rpc(
-                function = "get_colonnine_vicine",
-                parameters = mapOf(
-                    "user_lat" to lat,
-                    "user_lon" to lon,
-                    "raggio_km" to 10.0
-                )
-            )
-            ColonninaEV.Companion.listaVicini = ColonninaEV.Companion.parseLista(responseEV.data)
-
-            //aggiorna la mappa con i nuovi risultati
-            aggiornaMarkerMappa()
-
-        } catch (e: Exception) {
-            Log.e("Fuelly", "Errore ricerca: ${e.message}")
         }
     }
 
@@ -347,9 +339,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         binding.btnSearchArea.visibility = View.GONE
         //ottieni le coordinate della posizione corrente
         val center = mMap.cameraPosition.target
-        lifecycleScope.launch {
-            eseguiRicerca(center.latitude, center.longitude)
-        }
+        viewModel.eseguiRicerca(center.latitude, center.longitude)
     }
 
     //funzione che sposta la camera della mappa sulla posizione corrente dell'utente
@@ -368,10 +358,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 14f))
                 if (refreshData) {
                     binding.btnSearchArea.visibility = View.GONE
-                    lifecycleScope.launch {
-                        //eseguo la ricerca in base alla posizione aggiornata dell'utente
-                        eseguiRicerca(location.latitude, location.longitude)
-                    }
+                    //eseguo la ricerca tramite ViewModel
+                    viewModel.eseguiRicerca(location.latitude, location.longitude)
                 }
             }
         }
@@ -443,9 +431,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         findViewById<ImageView>(R.id.imgPompa).setImageResource(ev.getLogoResource())
     }
 
-    private fun <T : View> findViewById(id: Int): T = binding.root.findViewById(id)
 
-    //funzione di filtraggio dei marker
+    //funzione di filtraggio dei marker (nasconde i marker)
     private fun filtraMarker(mostraBenzina: Boolean, mostraEV: Boolean) {
         markersBenzina.forEach { it.isVisible = mostraBenzina }
         markersEV.forEach { it.isVisible = mostraEV }
@@ -453,7 +440,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     }
 
     //funzione che gestisce l'intent di passaggio all'activity DettagliActivity
-    private fun apriDettaglio(id: Long, tipo: String, gestore: String) {
+    private fun  apriDettaglio(id: Long, tipo: String, gestore: String) {
         //all'intent aggiungo ID_ELEMENTO e TIPO_ELEMENTO
         val intent = Intent(requireContext(), DettagliActivity::class.java).apply {
             //passo tramite putExtra i parametri ad un' altra activity o fragment
@@ -475,6 +462,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         } else startActivity(intent)
     }
 
+    //TODO: da valutare
     private fun vectorToBitmap(drawableId: Int): BitmapDescriptor {
         val vectorDrawable = ResourcesCompat.getDrawable(resources, drawableId, null)
             ?: return BitmapDescriptorFactory.defaultMarker()
