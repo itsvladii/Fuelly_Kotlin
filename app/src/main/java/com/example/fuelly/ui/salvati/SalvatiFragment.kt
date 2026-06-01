@@ -6,12 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fuelly.R
 import com.example.fuelly.StazioneAdapter
 import com.example.fuelly.databinding.FragmentSalvatiBinding
-import com.example.fuelly.repository.data.BenzinaiRepository
-import com.example.fuelly.repository.data.ColonnineRepository
 import com.example.fuelly.repository.model.Benzinaio
 import com.example.fuelly.repository.model.ColonninaEV
 import com.example.fuelly.ui.dettagli.DettagliActivity
@@ -21,6 +20,7 @@ class SalvatiFragment : Fragment() {
     private var _binding: FragmentSalvatiBinding? = null
     private val binding get() = _binding!!
 
+    private val viewModel: SalvatiViewModel by viewModels()
     private lateinit var adapter: StazioneAdapter
     private var userLat: Double? = null
     private var userLon: Double? = null
@@ -42,19 +42,24 @@ class SalvatiFragment : Fragment() {
 
         //richiamo la funzione che configura la recyclerView
         setupRecyclerView()
+        observeViewModel()
 
         //in base al pulsante selezionato nella toggleGroup, eseguo il "cambio" delle liste dei salvati in base alla tipologia
         binding.toggleGroupSalvati.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
-                when (checkedId) {
-                    R.id.btnSalvatiBenzina -> caricaBenzinaiSalvate()
-                    R.id.btnSalvatiEV -> caricaColonnineSalvate()
-                }
+                viewModel.selezionaTipo(checkedId)
             }
         }
 
         //stato iniziale al caricamento del fragment (solo i salvati dei benzinai)
         binding.toggleGroupSalvati.check(R.id.btnSalvatiBenzina)
+    }
+
+    private fun observeViewModel() {
+        viewModel.listaSalvati.observe(viewLifecycleOwner) { lista ->
+            adapter.updateData(lista)
+            riportaInCima()
+        }
     }
 
     //funzione che configura la RecyclerView
@@ -81,18 +86,6 @@ class SalvatiFragment : Fragment() {
             startActivity(intent)
         }
         binding.rvSalvati.adapter = adapter
-    }
-
-    //funzione di caricamento della lista benzinai salvati
-    private fun caricaBenzinaiSalvate() {
-        adapter.updateData(BenzinaiRepository.listaSalvati)
-        riportaInCima()
-    }
-
-    //funzione di caricamento della lista delle colonnine salvate
-    private fun caricaColonnineSalvate() {
-        adapter.updateData(ColonnineRepository.listaSalvati)
-        riportaInCima()
     }
 
     //funzione che riporta la recycleView al primo elemento (usato quando applicato il filtro)
