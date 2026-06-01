@@ -39,7 +39,7 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
         <activity
-            android:name=".Splash"
+            android:name=".ui.splash.Splash"
             android:exported="true"
             android:screenOrientation="portrait" >
             <intent-filter>

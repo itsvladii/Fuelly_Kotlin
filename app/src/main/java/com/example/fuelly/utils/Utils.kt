@@ -1,8 +1,6 @@
 package com.example.fuelly.utils
 
 import android.util.Log
-import com.example.fuelly.repository.model.Benzinaio
-import com.example.fuelly.repository.model.ColonninaEV
 import com.example.fuelly.repository.data.BenzinaiRepository
 import com.example.fuelly.repository.data.ColonnineRepository
 import com.example.fuelly.repository.supabase.SupabaseInstance
@@ -18,48 +16,30 @@ object Utils {
 
     suspend fun benzinaiSalvati(session:UserSession)
     {
-        val userId = session.user?.id ?: return // Esci se non c'è un utente loggato
+        val userId = session.user?.id ?: return 
 
         try
         {
-            // 1. Caricamento Benzinai
-            val respBenzinai = SupabaseInstance.client.postgrest.rpc(
-                function = "get_benzinai_salvati",
-                parameters = mapOf("user_id" to userId)
-            )
-
-            //Riempo la listasalvati dell'oggeto Benzinaio con il metodo parseLista
-            BenzinaiRepository.listaSalvati = Benzinaio.parseLista(respBenzinai.data)
-
-            //Log di eventuale successo
+            val repository = BenzinaiRepository()
+            BenzinaiRepository.listaSalvati = repository.getBenzinaiSalvati(userId)
             Log.d("Fuelly", "Caricati ${BenzinaiRepository.listaSalvati.size} benzinai")
-
-        }catch(e:Exception)
+        } catch(e:Exception)
         {
             Log.e("Fuelly", "Errore caricamento benzinai: ${e.message}")
-            BenzinaiRepository.listaSalvati = emptyList() // Evita null pointer
+            BenzinaiRepository.listaSalvati = emptyList()
         }
     }
 
     suspend fun colonnineSalvate(session:UserSession)
     {
-        val userId = session.user?.id ?: return // Esci se non c'è un utente loggato
+        val userId = session.user?.id ?: return 
 
         try
         {
-            // 2. Caricamento Colonnine EV
-            val respColonnine = SupabaseInstance.client.postgrest.rpc(
-                function = "get_colonnine_salvati",
-                parameters = mapOf("user_id" to userId)
-            )
-
-            //Riempo la listasalvati dell'oggeto ColonninaEV con il metodo parseLista
-            ColonnineRepository.listaSalvati = ColonninaEV.parseLista(respColonnine.data)
-
-            //Log di eventuale successo
+            val repository = ColonnineRepository()
+            ColonnineRepository.listaSalvati = repository.getColonnineSalvate(userId)
             Log.d("Fuelly", "Caricati ${ColonnineRepository.listaSalvati.size} colonnine")
-
-        }catch(e:Exception)
+        } catch(e:Exception)
         {
             Log.e("Fuelly", "Errore caricamento colonnine: ${e.message}")
             ColonnineRepository.listaSalvati = emptyList()

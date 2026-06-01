@@ -1,0 +1,65 @@
+package com.example.fuelly.ui.splash
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.fuelly.repository.data.BenzinaiRepository
+import com.example.fuelly.repository.data.ColonnineRepository
+import com.example.fuelly.repository.supabase.SupabaseInstance
+import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.launch
+
+class SplashViewModel : ViewModel() {
+
+    private val benzinaiRepository = BenzinaiRepository()
+    private val colonnineRepository = ColonnineRepository()
+
+    // true -> Vai in Home, false -> Vai al Login
+    private val _isUserLoggedIn = MutableLiveData<Boolean>()
+    val isUserLoggedIn: LiveData<Boolean> = _isUserLoggedIn
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _error = MutableLiveData<String>()
+    val error: LiveData<String> = _error
+
+    fun precaricaDati(lat: Double, lon: Double) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Carica benzinai vicini
+                val viciniBenzina = benzinaiRepository.getBenzinaiVicini(lat, lon)
+                BenzinaiRepository.listaVicini = viciniBenzina
+
+                // Carica benzinai più salvati
+                val topIds = benzinaiRepository.getTopSalvatiIds()
+                BenzinaiRepository.listaTopSalvatiIds = topIds
+
+                // Carica colonnine vicine
+                val vicineEV = colonnineRepository.getColonnineVicine(lat, lon)
+                ColonnineRepository.listaVicini = vicineEV
+
+                // Gestisci dati salvati se l'utente è loggato
+                val session = SupabaseInstance.client.auth.currentSessionOrNull()
+                if (session != null) {
+                    val userId = session.user?.id ?: ""
+                    if (userId.isNotEmpty()) {
+                        BenzinaiRepository.listaSalvati = benzinaiRepository.getBenzinaiSalvati(userId)
+                        ColonnineRepository.listaSalvati = colonnineRepository.getColonnineSalvate(userId)
+                    }
+                    _isUserLoggedIn.value = true
+                } else {
+                    _isUserLoggedIn.value = false
+                }
+
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Errore durante il caricamento"
+                _isUserLoggedIn.value = false
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+}

@@ -59,7 +59,7 @@ class BenzinaiRepository {
 
     //funzione che recupera gli ID dei benzinai più salvati da tutti gli utenti
     suspend fun getTopSalvatiIds(): List<Int> {
-        val response = client.postgrest.rpc(function = "get_top_salvati")
+        val response = client.postgrest.rpc(function = "get_benzinai_piu_salvati")
         //passo l'output della query alla funzione di parsing all'interno di Benzinaio,
         //cosi da ottenere la List dei oggetti Benzinaio
         return Benzinaio.parseTopSalvatiIds(response.data)

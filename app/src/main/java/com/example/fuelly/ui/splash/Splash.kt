@@ -1,7 +1,10 @@
-package com.example.fuelly
+package com.example.fuelly.ui.splash
 
 import android.Manifest
 import android.content.Intent
+import android.content.IntentSender
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.*
 import android.util.Log
 import android.view.View
@@ -10,22 +13,20 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.lifecycleScope
-import com.example.fuelly.repository.model.Benzinaio
-import com.example.fuelly.repository.model.ColonninaEV
-import com.example.fuelly.repository.data.BenzinaiRepository
-import com.example.fuelly.repository.data.ColonnineRepository
-import com.example.fuelly.utils.Utils
-import com.example.fuelly.repository.supabase.SupabaseInstance
+import androidx.activity.viewModels
+import com.example.fuelly.MainActivity
+import com.example.fuelly.R
 import com.example.fuelly.ui.auth.LoginActivity
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
 import com.google.android.material.progressindicator.LinearProgressIndicator
-import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.postgrest.*
-import kotlinx.coroutines.*
 
 class Splash : AppCompatActivity() {
     private lateinit var progressBar: LinearProgressIndicator
+    private val viewModel: SplashViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +37,9 @@ class Splash : AppCompatActivity() {
         windowInsetsController.isAppearanceLightStatusBars = false  // icone status bar bianche
         windowInsetsController.isAppearanceLightNavigationBars = false  // icone nav bar bianche
         progressBar = findViewById(R.id.progressIndicator)
+
+        observeViewModel()
+
         try {
             //richiedo i permessi alla mappa
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 100)
@@ -45,13 +49,32 @@ class Splash : AppCompatActivity() {
 
     }
 
+    private fun observeViewModel() {
+        viewModel.isLoading.observe(this) { isLoading ->
+            progressBar.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
+        }
+
+        viewModel.isUserLoggedIn.observe(this) { isUserLoggedIn ->
+            if (isUserLoggedIn) {
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            } else {
+                vaiALogin()
+            }
+        }
+
+        viewModel.error.observe(this) { errorMsg ->
+            Log.e("Fuelly", "Errore Splash: $errorMsg")
+        }
+    }
+
     //funzione che viene invocata quando l'utente risponde al popup dei permessi (override del metodo gia presente)
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == 100) {
-            if (grantResults.isNotEmpty() && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //se l'utente ha autorizzato l'accesso alla geolocalizzazione, passa al precaricamento dei marker
                 Log.d("Fuelly", "Permesso accordato, avvio caricamento...")
                 controllaGpsEAvvia()
@@ -73,11 +96,11 @@ class Splash : AppCompatActivity() {
 
     //funzione che controlla se il GPS è attivo e, in caso contrario, mostra il popup di sistema per attivarlo
     private fun controllaGpsEAvvia() {
-        val locationRequest = com.google.android.gms.location.LocationRequest.Builder(
-            com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, 10000
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY, 10000
         ).build()
 
-        val builder = com.google.android.gms.location.LocationSettingsRequest.Builder()
+        val builder = LocationSettingsRequest.Builder()
             .addLocationRequest(locationRequest)
 
         val settingsClient = LocationServices.getSettingsClient(this)
@@ -89,11 +112,11 @@ class Splash : AppCompatActivity() {
         }
 
         task.addOnFailureListener { exception ->
-            if (exception is com.google.android.gms.common.api.ResolvableApiException) {
+            if (exception is ResolvableApiException) {
                 try {
                     //se il GPS è spento, mostriamo il popup di sistema per attivarlo
                     exception.startResolutionForResult(this, 200)
-                } catch (sendEx: android.content.IntentSender.SendIntentException) {
+                } catch (sendEx: IntentSender.SendIntentException) {
                     //errore nel mostrare il popup, procediamo al login
                     vaiALogin()
                 }
@@ -134,12 +157,11 @@ class Splash : AppCompatActivity() {
     // e di eseguire le query al database per precaricare i marker vicini
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun avviaPrecaricamento() {
-        runOnUiThread { progressBar.visibility = View.VISIBLE }
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         //se otteniamo la posizione, eseguiamo le query al database,
         // altrimenti mostriamo un messaggio di errore e procediamo al login
-        val onLocationReceived: (android.location.Location?) -> Unit = { location ->
+        val onLocationReceived: (Location?) -> Unit = { location ->
             if (location != null) {
                 eseguiQueryDatabase(location)
             } else {
@@ -157,7 +179,7 @@ class Splash : AppCompatActivity() {
                 Log.d("Fuelly", "LastLocation null, richiedo posizione attuale...")
 
                 //priority HIGH_ACCURACY per ottenere la posizione più precisa possibile
-                val priority = com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
+                val priority = Priority.PRIORITY_HIGH_ACCURACY
                 //otteniamo la posizione attuale
                 fusedLocationClient.getCurrentLocation(priority, null)
                     .addOnSuccessListener { newLocation ->
@@ -172,69 +194,8 @@ class Splash : AppCompatActivity() {
     }
 
     //funzione che esegue le query al database per ottenere i marker vicini
-    private fun eseguiQueryDatabase(location: android.location.Location) {
-        lifecycleScope.launch {
-            try {
-                Log.d("Fuelly", "Eseguo query per: ${location.latitude}, ${location.longitude}")
-
-                //ricavo i benzinai vicini tramite la funzione rpc su Supabase
-                val response = SupabaseInstance.client.postgrest.rpc(
-                    function = "get_benzinai_vicini",
-                    parameters = mapOf(
-                        "user_lat" to location.latitude,
-                        "user_lon" to location.longitude,
-                        "raggio_km" to 10.0
-                    )
-                )
-                BenzinaiRepository.listaVicini = Benzinaio.parseLista(response.data)
-
-                //ricavo i benzinai più salvati da tutti gli utenti tramite la funzione rpc su Supabase
-                // (senza parameters, quindi è una SELECT *)
-                val responseTop = SupabaseInstance.client.postgrest.rpc(
-                    function = "get_benzinai_piu_salvati"
-                )
-
-                //salviamo i dati nella variabile globale
-                BenzinaiRepository.listaTopSalvatiIds = Benzinaio.parseTopSalvatiIds(responseTop.data)
-
-                //ricavo le colonnine vicine tramite la funzione rpc su Supabase
-                val responseEV = SupabaseInstance.client.postgrest.rpc(
-                    function = "get_colonnine_vicine",
-                    parameters = mapOf(
-                        "user_lat" to location.latitude,
-                        "user_lon" to location.longitude,
-                        "raggio_km" to 10.0
-                    )
-                )
-                //salviamo i dati nella variabile globale
-                ColonnineRepository.listaVicini = ColonninaEV.parseLista(responseEV.data)
-
-                //richiamo la funzione che gestisce la navigazione dopo il caricamento,
-                //  che decide se andare al login o alla home
-                gestisciNavigazionePostCaricamento()
-
-            } catch (e: Exception) {
-                Log.e("Fuelly", "Errore Supabase: ${e.message}")
-                runOnUiThread { progressBar.visibility = View.INVISIBLE }
-                vaiALogin()
-            }
-        }
-    }
-
-    //funzione che gestisce la navigazione dopo il caricamento,
-    private suspend fun gestisciNavigazionePostCaricamento() {
-        //se l'utente è già loggato, salviamo i dati dei benzinai e delle colonnine salvati
-        val session = SupabaseInstance.client.auth.currentSessionOrNull()
-        if (session != null) {
-            Utils.colonnineSalvate(session)
-            Utils.benzinaiSalvati(session)
-            //dopo aver precaricato i dati, passiamo alla home
-            startActivity(Intent(this, MainActivity::class.java))
-        } else {
-            //se l'utente non è loggato, passiamo al login
-            startActivity(Intent(this, LoginActivity::class.java))
-        }
-        finish()
+    private fun eseguiQueryDatabase(location: Location) {
+        viewModel.precaricaDati(location.latitude, location.longitude)
     }
 
 }
