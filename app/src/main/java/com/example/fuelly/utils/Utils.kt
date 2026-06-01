@@ -3,6 +3,8 @@ package com.example.fuelly.utils
 import android.util.Log
 import com.example.fuelly.repository.model.Benzinaio
 import com.example.fuelly.repository.model.ColonninaEV
+import com.example.fuelly.repository.data.BenzinaiRepository
+import com.example.fuelly.repository.data.ColonnineRepository
 import com.example.fuelly.repository.supabase.SupabaseInstance
 import io.github.jan.supabase.auth.user.UserSession
 import io.github.jan.supabase.postgrest.postgrest
@@ -10,7 +12,7 @@ import io.github.jan.supabase.postgrest.rpc
 
 object Utils {
     /**
-     * Carica i benzinai salvati dall'utente nel contenitore statico [Benzinaio.listaSalvati].
+     * Carica i benzinai salvati dall'utente nel contenitore statico [BenzinaiRepository.listaSalvati].
      * @param session La sessione dell'utente corrente.
      */
 
@@ -27,15 +29,15 @@ object Utils {
             )
 
             //Riempo la listasalvati dell'oggeto Benzinaio con il metodo parseLista
-            Benzinaio.listaSalvati = Benzinaio.parseLista(respBenzinai.data)
+            BenzinaiRepository.listaSalvati = Benzinaio.parseLista(respBenzinai.data)
 
             //Log di eventuale successo
-            Log.d("Fuelly", "Caricati ${Benzinaio.listaSalvati.size} benzinai")
+            Log.d("Fuelly", "Caricati ${BenzinaiRepository.listaSalvati.size} benzinai")
 
         }catch(e:Exception)
         {
             Log.e("Fuelly", "Errore caricamento benzinai: ${e.message}")
-            Benzinaio.listaSalvati = emptyList() // Evita null pointer
+            BenzinaiRepository.listaSalvati = emptyList() // Evita null pointer
         }
     }
 
@@ -52,15 +54,15 @@ object Utils {
             )
 
             //Riempo la listasalvati dell'oggeto ColonninaEV con il metodo parseLista
-            ColonninaEV.listaSalvati = ColonninaEV.parseLista(respColonnine.data)
+            ColonnineRepository.listaSalvati = ColonninaEV.parseLista(respColonnine.data)
 
             //Log di eventuale successo
-            Log.d("Fuelly", "Caricati ${ColonninaEV.listaSalvati.size} colonnine")
+            Log.d("Fuelly", "Caricati ${ColonnineRepository.listaSalvati.size} colonnine")
 
         }catch(e:Exception)
         {
             Log.e("Fuelly", "Errore caricamento colonnine: ${e.message}")
-            ColonninaEV.listaSalvati = emptyList()
+            ColonnineRepository.listaSalvati = emptyList()
         }
     }
 

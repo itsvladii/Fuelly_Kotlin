@@ -13,6 +13,8 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.repository.model.Benzinaio
 import com.example.fuelly.repository.model.ColonninaEV
+import com.example.fuelly.repository.data.BenzinaiRepository
+import com.example.fuelly.repository.data.ColonnineRepository
 import com.example.fuelly.utils.Utils
 import com.example.fuelly.repository.supabase.SupabaseInstance
 import com.example.fuelly.ui.auth.LoginActivity
@@ -184,7 +186,7 @@ class Splash : AppCompatActivity() {
                         "raggio_km" to 10.0
                     )
                 )
-                Benzinaio.listaVicini = Benzinaio.parseLista(response.data)
+                BenzinaiRepository.listaVicini = Benzinaio.parseLista(response.data)
 
                 //ricavo i benzinai più salvati da tutti gli utenti tramite la funzione rpc su Supabase
                 // (senza parameters, quindi è una SELECT *)
@@ -193,7 +195,7 @@ class Splash : AppCompatActivity() {
                 )
 
                 //salviamo i dati nella variabile globale
-                Benzinaio.listaTopSalvatiIds = Benzinaio.parseTopSalvatiIds(responseTop.data)
+                BenzinaiRepository.listaTopSalvatiIds = Benzinaio.parseTopSalvatiIds(responseTop.data)
 
                 //ricavo le colonnine vicine tramite la funzione rpc su Supabase
                 val responseEV = SupabaseInstance.client.postgrest.rpc(
@@ -205,7 +207,7 @@ class Splash : AppCompatActivity() {
                     )
                 )
                 //salviamo i dati nella variabile globale
-                ColonninaEV.listaVicini = ColonninaEV.parseLista(responseEV.data)
+                ColonnineRepository.listaVicini = ColonninaEV.parseLista(responseEV.data)
 
                 //richiamo la funzione che gestisce la navigazione dopo il caricamento,
                 //  che decide se andare al login o alla home

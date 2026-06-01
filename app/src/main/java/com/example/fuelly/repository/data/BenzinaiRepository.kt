@@ -24,6 +24,22 @@ import kotlin.collections.mapOf
 * - FETCHING DEL NOME DEL GESTORE DEI BENZINAI
 */
 class BenzinaiRepository {
+
+    companion object {
+        //lista dei benzinai vicini alla poszione dell'utente, da aggiornare ogni volta che si aggiorna la posizione
+        var listaVicini: List<Benzinaio> = emptyList()
+
+        //lista dei benzinai salvati dall'utente
+        var listaSalvati: List<Benzinaio> = emptyList()
+
+        //lista dei benzinai piu salvati dagli utenti
+        var listaTopSalvatiIds: List<Int> = emptyList()
+
+        //lista completa che unisce i benzinai vicini e quelli salvati (evitando duplicati)
+        val listaCompleta: List<Benzinaio>
+            get() = (listaSalvati + listaVicini).distinctBy { it.id }
+    }
+
     //creo il client Supabase
     private val client= SupabaseInstance.client
 
@@ -58,7 +74,7 @@ class BenzinaiRepository {
         )
 
         //Log di eventuale successo
-        Log.d("Fuelly", "Caricati ${Benzinaio.listaSalvati.size} benzinai")
+        Log.d("Fuelly", "Caricati ${listaSalvati.size} benzinai")
 
         //Riempo la lista salvati dell'oggetto Benzinaio con il metodo parseLista
         return Benzinaio.parseLista(response.data)

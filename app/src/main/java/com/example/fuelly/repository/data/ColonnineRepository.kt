@@ -23,6 +23,18 @@ import io.github.jan.supabase.postgrest.query.Order
 */
 class ColonnineRepository {
 
+    companion object {
+        //lista delle colonnine vicine alla posizione dell'utente
+        var listaVicini: List<ColonninaEV> = emptyList()
+
+        //lista delle colonnine salvate dall'utente
+        var listaSalvati: List<ColonninaEV> = emptyList()
+
+        //lista che unisce salvati e vicini senza duplicati
+        val listaCompleta: List<ColonninaEV>
+            get() = (listaSalvati + listaVicini).distinctBy { it.id }
+    }
+
     //creo il client Supabase
     private val client = SupabaseInstance.client
 
@@ -46,7 +58,7 @@ class ColonnineRepository {
         )
 
         //Log di eventuale successo
-        Log.d("Fuelly", "Caricati ${ColonninaEV.listaSalvati.size} colonnine")
+        Log.d("Fuelly", "Caricati ${listaSalvati.size} colonnine")
 
         //Riempo la lista salvati dell'oggetto ColonninaEV con il metodo parseLista
         return ColonninaEV.parseLista(response.data)

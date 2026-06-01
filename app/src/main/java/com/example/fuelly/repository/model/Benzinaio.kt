@@ -22,18 +22,6 @@ data class Benzinaio(
 ) {
 
     companion object {
-        //lista dei benzinai vicini alla poszione dell'utente, da aggiornare ogni volta che si aggiorna la posizione
-        var listaVicini: List<Benzinaio> = emptyList()
-
-        //lista dei benzinai salvati dall'utente
-        var listaSalvati: List<Benzinaio> = emptyList()
-
-        //lista dei benzinai piu salvati dagli utenti
-        var listaTopSalvatiIds: List<Int> = emptyList()
-
-        //lista completa che unisce i benzinai vicini e quelli salvati (evitando duplicati)
-        val listaCompleta: List<Benzinaio>
-            get() = (listaSalvati + listaVicini).distinctBy { it.id }
 
         //funzione di parsing che prende in input l'array di benzinai ottenuti da Supabase e
         // lo trasforma in una lista di oggetti Benzinaio

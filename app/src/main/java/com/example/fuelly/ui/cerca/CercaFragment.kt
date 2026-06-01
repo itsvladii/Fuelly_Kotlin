@@ -18,6 +18,8 @@ import com.example.fuelly.R
 import com.example.fuelly.StazioneAdapter
 import com.example.fuelly.databinding.DialogFiltriBinding
 import com.example.fuelly.databinding.FragmentCercaBinding
+import com.example.fuelly.repository.data.BenzinaiRepository
+import com.example.fuelly.repository.data.ColonnineRepository
 import com.example.fuelly.repository.model.Benzinaio
 import com.example.fuelly.repository.model.ColonninaEV
 import com.example.fuelly.utils.Utils
@@ -74,7 +76,7 @@ class CercaFragment : Fragment() {
             mostraDialogFiltri()
         }
 
-        //listner per i filtri rapidi (benzina economica, diesel economico, ect.)
+        //listener per i filtri rapidi (benzina economica, diesel economico, ect.)
         binding.filterChipGroup.setOnCheckedChangeListener { _, _ ->
             applicaFiltri()
         }
@@ -126,8 +128,8 @@ class CercaFragment : Fragment() {
     //funzione che unisce le liste di benzinai e colonnine EV in un'unica lista totale originale e
     // aggiorna l'adapter con i benzinai (di default)
     private fun caricaDatiIniziali() {
-        listaTotaleOriginale = Benzinaio.Companion.listaVicini + ColonninaEV.Companion.listaVicini
-        adapter.updateData(Benzinaio.Companion.listaVicini, userLat, userLon)
+        listaTotaleOriginale = BenzinaiRepository.listaVicini + ColonnineRepository.listaVicini
+        adapter.updateData(BenzinaiRepository.listaVicini, userLat, userLon)
     }
 
     //funzione che gestisce il dialog con i filtri avanzati
@@ -260,8 +262,8 @@ class CercaFragment : Fragment() {
                 // Mostra solo i benzinai che compaiono nella classifica "Top" globale
                 // e ordinali in base alla loro posizione in classifica (indexOf)
                 listaFiltrata.filterIsInstance<Benzinaio>()
-                    .filter { Benzinaio.Companion.listaTopSalvatiIds.contains(it.id) }
-                    .sortedBy { Benzinaio.Companion.listaTopSalvatiIds.indexOf(it.id) }
+                    .filter { BenzinaiRepository.listaTopSalvatiIds.contains(it.id) }
+                    .sortedBy { BenzinaiRepository.listaTopSalvatiIds.indexOf(it.id) }
             }
 
             R.id.chipPiuVicini -> {

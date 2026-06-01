@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fuelly.R
 import com.example.fuelly.StazioneAdapter
 import com.example.fuelly.databinding.FragmentSalvatiBinding
+import com.example.fuelly.repository.data.BenzinaiRepository
+import com.example.fuelly.repository.data.ColonnineRepository
 import com.example.fuelly.repository.model.Benzinaio
 import com.example.fuelly.repository.model.ColonninaEV
 import com.example.fuelly.ui.dettagli.DettagliActivity
@@ -83,13 +85,13 @@ class SalvatiFragment : Fragment() {
 
     //funzione di caricamento della lista benzinai salvati
     private fun caricaBenzinaiSalvate() {
-        adapter.updateData(Benzinaio.Companion.listaSalvati)
+        adapter.updateData(BenzinaiRepository.listaSalvati)
         riportaInCima()
     }
 
     //funzione di caricamento della lista delle colonnine salvate
     private fun caricaColonnineSalvate() {
-        adapter.updateData(ColonninaEV.Companion.listaSalvati)
+        adapter.updateData(ColonnineRepository.listaSalvati)
         riportaInCima()
     }
 

@@ -18,12 +18,12 @@ class MapsViewModel : ViewModel() {
     private val colonnineRepository = ColonnineRepository()
 
     //lista effettiva dei benzinai
-    private val _benzinai = MutableLiveData(Benzinaio.listaVicini) //lista accessibile solo dal ViewModel (posso fare le operazioni CRUD)
+    private val _benzinai = MutableLiveData(BenzinaiRepository.listaVicini) //lista accessibile solo dal ViewModel (posso fare le operazioni CRUD)
     val benzinai: LiveData<List<Benzinaio>> get() = _benzinai //lista "pubblica" di sola lettura, funge da "vista" per l'esterno
     //ogni volta che qualcuno accede a benzinai, viene richiamata la funzione get() che restituisce l'istanza attuale di _benzinai)
 
     //lista effettiva dei benzinai
-    private val _colonnine = MutableLiveData(ColonninaEV.listaVicini) //lista accessibile solo dal ViewModel (posso fare le operazioni CRUD)
+    private val _colonnine = MutableLiveData(ColonnineRepository.listaVicini) //lista accessibile solo dal ViewModel (posso fare le operazioni CRUD)
     val colonnine: LiveData<List<ColonninaEV>> get() = _colonnine //lista "pubblica" di sola lettura, funge da "vista" per l'esterno
 
     //variabili booleane per i filtri dei marker
@@ -57,12 +57,12 @@ class MapsViewModel : ViewModel() {
                 val listaBenzinai = benzinaiRepository.getBenzinaiVicini(lat, lon)
                 //passo i valori dell'output
                 _benzinai.value = listaBenzinai
-                Benzinaio.listaVicini = listaBenzinai
+                BenzinaiRepository.listaVicini = listaBenzinai
 
                 //ricerco le colonnine EV richiamando la funzione getColonnineVicine dalla rispettiva repository
                 val listaEV = colonnineRepository.getColonnineVicine(lat, lon)
                 _colonnine.value = listaEV
-                ColonninaEV.listaVicini = listaEV
+                ColonnineRepository.listaVicini = listaEV
 
             } catch (e: Exception) {
                 Log.e("MapsViewModel", "Errore ricerca: ${e.message}")

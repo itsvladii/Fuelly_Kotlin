@@ -19,15 +19,6 @@ data class ColonninaEV(
     val connettoriJson: String?
 ) {
     companion object {
-        //lista delle colonnine vicine alla posizione dell'utente
-        var listaVicini: List<ColonninaEV> = emptyList()
-
-        //lista delle colonnine salvate dall'utente
-        var listaSalvati: List<ColonninaEV> = emptyList()
-
-        //lista che unisce salvati e vicini senza duplicati
-        val listaCompleta: List<ColonninaEV>
-            get() = (listaSalvati + listaVicini).distinctBy { it.id }
 
         //funzione di parsing che prende in input l'array di colonnine ottenuti da Supabase e
         // lo trasforma in una lista di oggetti ColonninaEV

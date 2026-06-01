@@ -17,6 +17,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.R
 import com.example.fuelly.repository.model.Benzinaio
 import com.example.fuelly.repository.model.ColonninaEV
+import com.example.fuelly.repository.data.BenzinaiRepository
+import com.example.fuelly.repository.data.ColonnineRepository
 import com.example.fuelly.repository.supabase.SupabaseInstance
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.async
@@ -74,7 +76,7 @@ class PrezziFragment : Fragment() {
         when (tipoRicevuto) {
             "BENZINA" -> ricavaPrezziBenzinaio(view, idRicevuto.toInt(), false)
             "EV" -> {
-                val colonnina = ColonninaEV.listaCompleta.find { it.id.toLong() == idRicevuto }
+                val colonnina = ColonnineRepository.listaCompleta.find { it.id.toLong() == idRicevuto }
                 colonnina?.let { ricavaInfoEV(view, it) }
             }
         }
@@ -83,7 +85,7 @@ class PrezziFragment : Fragment() {
     //funzione di fetching dei prezzi del benzinaio
     private fun ricavaPrezziBenzinaio(view: View, idImpianto: Int, soloServito: Boolean) {
         val loader = view.findViewById<ProgressBar>(R.id.loadingPrezzi)
-        val stazione = Benzinaio.listaCompleta.find { it.id == idImpianto }
+        val stazione = BenzinaiRepository.listaCompleta.find { it.id == idImpianto }
         val siglaProvincia = stazione?.provincia ?: ""
 
         lifecycleScope.launch {

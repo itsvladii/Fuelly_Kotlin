@@ -26,6 +26,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.fuelly.R
 import com.example.fuelly.repository.model.Benzinaio
 import com.example.fuelly.repository.model.ColonninaEV
+import com.example.fuelly.repository.data.BenzinaiRepository
+import com.example.fuelly.repository.data.ColonnineRepository
 import com.example.fuelly.repository.model.Salvato
 import com.example.fuelly.utils.Utils
 
@@ -71,12 +73,12 @@ class DettagliActivity : AppCompatActivity() {
         //in base al tipo di elemento ricevuto, aggiorno l'UI dell'header
         when (tipoRicevuto) {
             "BENZINA" -> {
-                val stazione = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
+                val stazione = BenzinaiRepository.listaCompleta.find { it.id.toLong() == idRicevuto }
                 stazione?.let { setupUIBenzina(it) }
             }
 
             "EV" -> {
-                val colonnina = ColonninaEV.listaCompleta.find { it.id.toLong() == idRicevuto }
+                val colonnina = ColonnineRepository.listaCompleta.find { it.id.toLong() == idRicevuto }
                 colonnina?.let { setupUIElettrica(it) }
             }
         }
@@ -198,12 +200,12 @@ class DettagliActivity : AppCompatActivity() {
                     //dopo aver ottenuto la posizione, calcoliamo la distanza per mostrarla correttamente
                     when (tipoRicevuto) {
                         "BENZINA" -> {
-                            val b = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
+                            val b = BenzinaiRepository.listaCompleta.find { it.id.toLong() == idRicevuto }
                             b?.let { calcolaDistanzaDettaglio(it.lat, it.lon) }
                         }
 
                         "EV" -> {
-                            val ev = ColonninaEV.listaCompleta.find { it.id.toLong() == idRicevuto }
+                            val ev = ColonnineRepository.listaCompleta.find { it.id.toLong() == idRicevuto }
                             ev?.let { calcolaDistanzaDettaglio(it.lat, it.lon) }
                         }
                     }
@@ -330,10 +332,10 @@ class DettagliActivity : AppCompatActivity() {
         var lon: Double?=0.0
         //recupero le coordinate della stazione/colonnina
         if (tipoRicevuto == "BENZINA") {
-            val s = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
+            val s = BenzinaiRepository.listaCompleta.find { it.id.toLong() == idRicevuto }
             lat = s?.lat; lon = s?.lon
         } else if (tipoRicevuto == "EV") {
-            val c = ColonninaEV.listaCompleta.find { it.id.toLong() == idRicevuto }
+            val c = ColonnineRepository.listaCompleta.find { it.id.toLong() == idRicevuto }
             lat = c?.lat; lon = c?.lon
         }
 
@@ -352,12 +354,12 @@ class DettagliActivity : AppCompatActivity() {
         //recupero il tipo della stazione ricevuto e quindi il testo da condividere in base al tipo
         val testoDaCondividere = when (tipoRicevuto) {
             "BENZINA" -> {
-                val stazione = Benzinaio.listaCompleta.find { it.id.toLong() == idRicevuto }
+                val stazione = BenzinaiRepository.listaCompleta.find { it.id.toLong() == idRicevuto }
                 stazione?.getShareText()
             }
 
             "EV" -> {
-                val colonnina = ColonninaEV.listaVicini.find { it.id.toLong() == idRicevuto }
+                val colonnina = ColonnineRepository.listaVicini.find { it.id.toLong() == idRicevuto }
                 colonnina?.getShareText()
             }
 
