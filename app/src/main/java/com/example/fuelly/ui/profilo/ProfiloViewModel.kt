@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 
 class ProfiloViewModel : ViewModel() {
 
+    //inizializzazione dei repository
     private val benzinaiRepo = BenzinaiRepository()
     private val colonnineRepo = ColonnineRepository()
 
@@ -35,15 +36,16 @@ class ProfiloViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // Carichiamo entrambe le tipologie di recensioni in parallelo
+                //carichiamo entrambe le tipologie di recensioni in parallelo
                 val defBenzina = async { benzinaiRepo.getRecensioniUtente(userId) }
                 val defEV = async { colonnineRepo.getRecensioniUtente(userId) }
 
+                //aspettiamo che finiscano la chiamata Supabase
                 val listaRecBenzina = defBenzina.await()
                 val listaRecEV = defEV.await()
 
-                // Uniamo le liste e le ordiniamo per data (se presente)
-                _recensioni.value = (listaRecBenzina + listaRecEV).sortedByDescending { it.idRecensione } // Usiamo id o data se disponibile
+                //uniamo le liste e le ordiniamo per data
+                _recensioni.value = (listaRecBenzina + listaRecEV).sortedByDescending { it.idRecensione }
             } catch (e: Exception) {
                 _error.value = e.message ?: "Errore nel caricamento delle recensioni"
             } finally {
@@ -52,16 +54,19 @@ class ProfiloViewModel : ViewModel() {
         }
     }
 
+    //funzione di eliminazione della recensione
     fun eliminaRecensione(recensione: Recensione) {
         viewModelScope.launch {
             try {
+                //in base alla tipologia di stazione della recensione, richiamo la funzione di eliminazione
+                //della recensione nel rispettivo repository
                 if (recensione.tipo == "BENZINA") {
                     benzinaiRepo.eliminaRecensione(recensione.idRecensione, recensione.idUtente)
                 } else {
                     colonnineRepo.eliminaRecensione(recensione.idRecensione, recensione.idUtente)
                 }
                 
-                // Aggiorniamo la lista locale dopo l'eliminazione
+                //aggiorniamo la lista locale dopo l'eliminazione
                 val listaAttuale = _recensioni.value?.toMutableList()
                 listaAttuale?.removeAll { it.idRecensione == recensione.idRecensione }
                 _recensioni.value = listaAttuale ?: emptyList()
@@ -72,10 +77,11 @@ class ProfiloViewModel : ViewModel() {
         }
     }
 
+    //funzione di logout
     fun logout() {
         viewModelScope.launch {
             try {
-                SupabaseInstance.client.auth.signOut()
+                SupabaseInstance.client.auth.signOut() //effettuo la funzione di logout fornita da Supabase
                 _logoutSuccess.value = true
             } catch (e: Exception) {
                 _error.value = "Errore durante il logout"

@@ -12,46 +12,49 @@ import com.example.fuelly.utils.Utils
 
 class CercaViewModel : ViewModel() {
 
-    private val _listaFiltrata = MutableLiveData<List<Any>>()
-    val listaFiltrata: LiveData<List<Any>> = _listaFiltrata
+    private val _listaFiltrata = MutableLiveData<List<Any>>() //versione "privata" della listaFiltrata (visibile e modificabile sono nello scope della ViewModel
+    val listaFiltrata: LiveData<List<Any>> = _listaFiltrata //versione "pubblica" della listaFiltrata (read-only e visibile all'esterno)
 
     private var listaTotaleOriginale: List<Any> = emptyList()
 
-    // Stato dei filtri
-    var query: String = ""
+
+    var query: String = "" //stringa di query (della barra di ricerca)
     var filtroTipoSelezionatoId: Int = R.id.btnTipoBenzina
     var soloOperative: Boolean = false
-    val carburantiSelezionatiIds = mutableSetOf<Int>()
-    val connettoriSelezionatiIds = mutableSetOf<Int>()
-    var selectedChipId: Int = R.id.chipAll
+    val carburantiSelezionatiIds = mutableSetOf<Int>() //per il filtro avanzato dei carburanti selezionati
+    val connettoriSelezionatiIds = mutableSetOf<Int>() //per il filtro avanzato dei connettori selezionati
+    var selectedChipId: Int = R.id.chipAll //per il filtro rapido nel fragment
 
+    //latitudine e longitudine dell'utente
     var userLat: Double? = null
     var userLon: Double? = null
 
+    //funzione di caricamento dei dati quando l'utente passa a Cerca fragment
     fun caricaDatiIniziali() {
         listaTotaleOriginale = BenzinaiRepository.listaVicini + ColonnineRepository.listaVicini
-        applicaFiltri()
+        applicaFiltri() //richiamo la funzione di applicazione dei filtri (in questo caso non fa nulla)
     }
 
+    //funzione di applicazione dei filtri
     fun applicaFiltri() {
-        val q = query.lowercase().trim()
+        val q = query.lowercase().trim() //
 
         var filtrata = listaTotaleOriginale.filter { item ->
-            // --- A. FILTRO PER CATEGORIA (Benzinai/EV) ---
+            // --- A. FILTRO PER CATEGORIA ( pulsanti Benzinai/EV nei filtri avanzati) ---
             val passaTipo = when (filtroTipoSelezionatoId) {
                 R.id.btnTipoBenzina -> item is Benzinaio
                 R.id.btnTipoEV -> item is ColonninaEV
                 else -> true
             }
 
-            // --- B. FILTRO TESTUALE ---
+            // --- B. FILTRO TESTUALE (barra di ricerca) ---
             val passaRicerca = when (item) {
                 is Benzinaio -> item.bandiera.lowercase().contains(q) || item.comune.lowercase().contains(q)
                 is ColonninaEV -> item.titolo.lowercase().contains(q) || item.indirizzo.lowercase().contains(q)
                 else -> false
             }
 
-            // --- C. FILTRO SPECIFICO BENZINAIO ---
+            // --- C. FILTRO SPECIFICO CARBURANTE (filtri avanzati) ---
             val passaBenzinaio = if (item is Benzinaio && carburantiSelezionatiIds.isNotEmpty()) {
                 var match = false
                 if (carburantiSelezionatiIds.contains(R.id.chipBenzina) && item.prezzoBenzina > 0) match = true
@@ -61,7 +64,7 @@ class CercaViewModel : ViewModel() {
                 match
             } else true
 
-            // --- D. FILTRO SPECIFICO EV ---
+            // --- D. FILTRO SPECIFICO CONNETTORE EV (filtri avanzati)---
             val passaEV = if (item is ColonninaEV) {
                 val passaOperativo = if (soloOperative) item.stato.contains("Operational", true) else true
                 val passaConnettori = if (connettoriSelezionatiIds.isNotEmpty()) {
@@ -79,8 +82,9 @@ class CercaViewModel : ViewModel() {
             passaTipo && passaRicerca && passaBenzinaio && passaEV
         }
 
-        // --- ORDINAMENTO E FILTRAGGIO FINALE ---
+        // ---FILTRI RAPIDI ---
         filtrata = when (selectedChipId) {
+            //in base al chip selezionato, filtro la lista se rispetta i rispettivi parametri
             R.id.chipBenzinaEconomica -> {
                 filtrata.filterIsInstance<Benzinaio>()
                     .filter { it.prezzoBenzina > 0 }
@@ -99,6 +103,7 @@ class CercaViewModel : ViewModel() {
             R.id.chipPiuVicini -> {
                 filtrata.filterIsInstance<Benzinaio>()
                     .sortedBy { Utils.calcolaDistanza(userLat ?: 0.0, userLon ?: 0.0, it.lat, it.lon) }
+                //calcolaDistanza è una funzione su Utils.kt per il calcolo della distanza data la lat e lon dell'utente e della stazione
             }
             else -> filtrata
         }

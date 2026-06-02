@@ -40,6 +40,7 @@ class ProfiloFragment : Fragment() {
         setupUserData()
         observeViewModel()
 
+        //listener per il logout
         binding.Logout.setOnClickListener {
             viewModel.logout()
         }
@@ -53,23 +54,26 @@ class ProfiloFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        //se recensioni cambia in qualche modo nella ViewModel, effettua le seguenti operazioni
         viewModel.recensioni.observe(viewLifecycleOwner) { recensioni ->
             if (recensioni.isNotEmpty()) {
-                binding.listaRecensioni.visibility = View.VISIBLE
+                binding.listaRecensioni.visibility = View.VISIBLE //mostra listaRecensioni
                 val adapter = RecensioniAdapter(recensioni.toMutableList()) { recensione ->
                     viewModel.eliminaRecensione(recensione)
                     Toast.makeText(requireContext(), getString(R.string.profile_review_deleted), Toast.LENGTH_SHORT).show()
                 }
                 binding.listaRecensioni.adapter = adapter
             } else {
-                binding.listaRecensioni.visibility = View.GONE
+                binding.listaRecensioni.visibility = View.GONE //nascondi listaRecensioni se non ci sono recensioni
             }
         }
 
+        //se isLoading è true nella ViewModel, mostra la progress bar, altrimenti nascondila
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
+        //se il logout è stato effettuato con successo, passa alla activity Login con un intent
         viewModel.logoutSuccess.observe(viewLifecycleOwner) { success ->
             if (success) {
                 Toast.makeText(requireContext(), getString(R.string.profile_logout_success), Toast.LENGTH_SHORT).show()
@@ -77,10 +81,6 @@ class ProfiloFragment : Fragment() {
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
             }
-        }
-
-        viewModel.error.observe(viewLifecycleOwner) { errorMsg ->
-            Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_SHORT).show()
         }
     }
 

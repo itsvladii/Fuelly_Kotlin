@@ -29,7 +29,8 @@ class CercaFragment : Fragment() {
     private var _binding: FragmentCercaBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: CercaViewModel by viewModels()
+
+    private val viewModel: CercaViewModel by viewModels() //"dichiarazione" della viewModel associata al fragment
     private lateinit var adapter: StazioneAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -43,12 +44,12 @@ class CercaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        //impostazione del fusedLocationClient per ottenere la posizione dell'utente
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        setupRecyclerView()
-        observeViewModel()
-        recuperaPosizioneECaricaDati()
+        setupRecyclerView() //richiamo della funzione di setup della RecyclerView che contiene le stazioni
+        observeViewModel() //richiamo della funzione c
+        recuperaPosizioneECaricaDati() //funzione di "fallback" in caso in cui non abbiamo la posizione dell'utente
 
         //ricerca testuale (mano a mano che l'utente scrive, applichiamo i filtri)
         binding.editSearch.addTextChangedListener(object : TextWatcher {
@@ -69,13 +70,17 @@ class CercaFragment : Fragment() {
         //listener per i filtri rapidi (benzina economica, diesel economico, ect.)
         binding.filterChipGroup.setOnCheckedChangeListener { _, checkedId ->
             viewModel.selectedChipId = checkedId
-            viewModel.applicaFiltri()
+            viewModel.applicaFiltri() //richiamo la funzione nel ViewModel che applica i filtri (sia quelli rapidi che avanzati)
         }
     }
 
+    //funzione che contiene gli observe per la comunicazione tra View e ViewModel
     private fun observeViewModel() {
+        //durante tutto il ciclo di vita della View, essa osserva listaFiltrata su CercaViewModel per eventuali cambiamenti
         viewModel.listaFiltrata.observe(viewLifecycleOwner) { lista ->
+            //ad ogni cambiamento su listaFiltrata, aggiorna l'adapter della RecycleView affinche sia aggiornata
             adapter.updateData(lista, viewModel.userLat, viewModel.userLon)
+            //scroll al primo elemento della RecycleView
             binding.rvCerca.scrollToPosition(0)
         }
     }
@@ -84,8 +89,9 @@ class CercaFragment : Fragment() {
     private fun setupRecyclerView() {
         binding.rvCerca.layoutManager = LinearLayoutManager(requireContext())
         adapter = StazioneAdapter(emptyList(), viewModel.userLat, viewModel.userLon) { item ->
-            val intent = Intent(requireContext(), DettagliActivity::class.java)
+            val intent = Intent(requireContext(), DettagliActivity::class.java) //imposto l'intent di passaggio alla DettagliActivity quando seleziono una stazione
             when (item) {
+                //in base alla tipologia di stazione, passo un Extra specifico all'intent
                 is Benzinaio -> {
                     intent.putExtra("ID_ELEMENTO", item.id.toLong())
                     intent.putExtra("TIPO_ELEMENTO", "BENZINA")
@@ -99,6 +105,7 @@ class CercaFragment : Fragment() {
             //passiamo la posizione utente ai dettagli
             intent.putExtra("USER_LAT", viewModel.userLat ?: 0.0)
             intent.putExtra("USER_LON", viewModel.userLon ?: 0.0)
+            //passo a DettagliActivity
             startActivity(intent)
         }
         binding.rvCerca.adapter = adapter
@@ -116,10 +123,10 @@ class CercaFragment : Fragment() {
                     viewModel.userLat = location.latitude
                     viewModel.userLon = location.longitude
                 }
-                viewModel.caricaDatiIniziali()
+                viewModel.caricaDatiIniziali() //richiamo la funzione carciaDatiIniziali dal viewModel
             }
         } else {
-            viewModel.caricaDatiIniziali()
+            viewModel.caricaDatiIniziali() //richiamo la funzione carciaDatiIniziali dal viewModel (anche se non ho problemi)
         }
     }
 
@@ -129,7 +136,7 @@ class CercaFragment : Fragment() {
         val dialogBinding = DialogFiltriBinding.inflate(layoutInflater)
         dialog.setContentView(dialogBinding.root)
 
-        // 1. INIZIALIZZAZIONE STATO INIZIALE DEL DIALOG
+        //inizializzo gli elementi UI del fragment
         dialogBinding.toggleGroupTipo.check(viewModel.filtroTipoSelezionatoId)
         dialogBinding.switchSoloOperative.isChecked = viewModel.soloOperative
         viewModel.carburantiSelezionatiIds.forEach { dialogBinding.chipGroupCarburante.check(it) }
@@ -141,12 +148,12 @@ class CercaFragment : Fragment() {
         }
         aggiornaSezioni(viewModel.filtroTipoSelezionatoId)
 
-        // 2. LISTENERS INTERNI AL DIALOG
+        //listener per il filtro della tipologia di stazione
         dialogBinding.toggleGroupTipo.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) aggiornaSezioni(checkedId)
         }
 
-        // Listener per il tasto "Reset" che riporta tutti i filtri allo stato iniziale di default
+        //listener per il tasto "Reset" che riporta tutti i filtri allo stato iniziale di default
         dialogBinding.btnReset.setOnClickListener {
             dialogBinding.toggleGroupTipo.check(R.id.btnTipoBenzina)
             dialogBinding.chipGroupCarburante.clearCheck()
@@ -154,11 +161,12 @@ class CercaFragment : Fragment() {
             dialogBinding.switchSoloOperative.isChecked = false
         }
 
-        // Listener per il tasto "Annulla" che chiude semplicemente il dialog senza salvare le modifiche
+        //listener per il tasto "Annulla" (chiude semplicemente il dialog senza salvare le modifiche)
         dialogBinding.btnAnnulla.setOnClickListener { dialog.dismiss() }
 
-        // Listener per il tasto "Applica" che salva lo stato dei filtri, applica i filtri alla lista e chiude il dialog
+        //listener per il tasto "Applica" (salva lo stato dei filtri, applica i filtri alla lista e chiude il dialog)
         dialogBinding.btnApplicaFiltri.setOnClickListener {
+            //passo i valori della UI del filtro alle rispettive variabili "pubbliche" nel ViewModel
             viewModel.filtroTipoSelezionatoId = dialogBinding.toggleGroupTipo.checkedButtonId
             viewModel.soloOperative = dialogBinding.switchSoloOperative.isChecked
 
@@ -168,7 +176,7 @@ class CercaFragment : Fragment() {
             viewModel.connettoriSelezionatiIds.clear()
             viewModel.connettoriSelezionatiIds.addAll(dialogBinding.chipGroupConnettori.checkedChipIds)
 
-            viewModel.applicaFiltri()
+            viewModel.applicaFiltri() //richiamo la funzione nel ViewModelo che applica i filtri
             dialog.dismiss()
         }
 

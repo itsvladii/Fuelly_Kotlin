@@ -33,7 +33,7 @@ class MapsViewModel : ViewModel() {
     private val _isEVActive = MutableLiveData(true)
     val isEVActive: LiveData<Boolean> = _isEVActive
 
-    //da vedere se effetivamente serve
+    //da vedere se effectiveness serve
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
