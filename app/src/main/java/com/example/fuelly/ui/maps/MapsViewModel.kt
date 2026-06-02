@@ -30,12 +30,8 @@ class MapsViewModel : ViewModel() {
     private val _isBenzinaActive = MutableLiveData(true) //versione "privata" della variabile, usata solo dal ViewModel
     val isBenzinaActive: LiveData<Boolean> = _isBenzinaActive //versione "pubblica" della variabile, funge come "vista"
 
-    private val _isEVActive = MutableLiveData(true)
-    val isEVActive: LiveData<Boolean> = _isEVActive
-
-    //da vedere se effectiveness serve
-    private val _isLoading = MutableLiveData(false)
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _isEVActive = MutableLiveData(true)//versione "privata" della variabile, usata solo dal ViewModel
+    val isEVActive: LiveData<Boolean> = _isEVActive //versione "pubblica" della variabile, funge come "vista"
 
     //funzione di filtraggio dei marker solo benzinai
     fun toggleBenzinaFilter() {
@@ -51,7 +47,6 @@ class MapsViewModel : ViewModel() {
     fun eseguiRicerca(lat: Double, lon: Double) {
         //la "durata" delle operazioni è legata alla durata del ViewModel, e dunque del fragment MapsFragment
         viewModelScope.launch {
-            _isLoading.value = true
             try {
                 //ricerco i benzinai richiamando la funzione getBenzinaiVicini dalla rispettiva repository
                 val listaBenzinai = benzinaiRepository.getBenzinaiVicini(lat, lon)
@@ -66,8 +61,6 @@ class MapsViewModel : ViewModel() {
 
             } catch (e: Exception) {
                 Log.e("MapsViewModel", "Errore ricerca: ${e.message}")
-            } finally {
-                _isLoading.value = false
             }
         }
     }

@@ -394,6 +394,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     private fun setupCardElettrica(ev: ColonninaEV) {
         val card = binding.root.findViewById<CardView>(R.id.stationCard)
         card.setCardBackgroundColor("#0B101E".toColorInt())
+        //setup dei colori della card per le colonnine elettriche
         binding.root.findViewById<TextView>(R.id.txtStationName).setTextColor("#00FFC2".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationCity).setTextColor("#00FFC2".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationAddress).setTextColor("#00FFC2".toColorInt())
@@ -462,7 +463,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         } else startActivity(intent)
     }
 
-    //TODO: da valutare
+    //funzione che converte un SVG in un bitmap (necessario per implementare custom markers in quanto
+    //l'API di Google Maps non supporta SVG e si aspetta un PNG)
     private fun vectorToBitmap(drawableId: Int): BitmapDescriptor {
         val vectorDrawable = ResourcesCompat.getDrawable(resources, drawableId, null)
             ?: return BitmapDescriptorFactory.defaultMarker()
