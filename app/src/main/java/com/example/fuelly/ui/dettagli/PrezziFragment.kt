@@ -13,7 +13,7 @@ import com.google.android.material.materialswitch.MaterialSwitch
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.activityViewModels
 import com.example.fuelly.R
 import com.example.fuelly.repository.model.Benzinaio
 import com.example.fuelly.repository.model.ColonninaEV
@@ -33,6 +33,7 @@ class PrezziFragment : Fragment() {
     private var tipoRicevuto: String? = null
     private var userLat: Double = 0.0
     private var userLon: Double = 0.0
+    private val viewModel: DettagliViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,9 +48,20 @@ class PrezziFragment : Fragment() {
         userLon = activity?.intent?.getDoubleExtra("USER_LON", 0.0) ?: 0.0
 
         setupListeners(view)
+        observeViewModel(view)
         inizializzaDati(view)
         
         return view
+    }
+
+    private fun observeViewModel(view: View) {
+        viewModel.prezziBenzinaio.observe(viewLifecycleOwner) { (prezzi, medie) ->
+            popolaListaCarburante(view, prezzi, medie, view.findViewById<MaterialSwitch>(R.id.switchServito)?.isChecked ?: false)
+        }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            view.findViewById<ProgressBar>(R.id.loadingPrezzi)?.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
     }
 
     //funzione di setup dei listeners nel fragment
@@ -60,7 +72,8 @@ class PrezziFragment : Fragment() {
             btn.text = if (isChecked) "Servito" else "Self-Service"
             //se sono su un benzinaio, ricavo i prezzi in base allo stato dello switch
             if (tipoRicevuto == "BENZINA") {
-                ricavaPrezziBenzinaio(view, idRicevuto.toInt(), isChecked)
+                val stazione = BenzinaiRepository.listaCompleta.find { it.id == idRicevuto.toInt() }
+                viewModel.caricaPrezzi(stazione?.provincia ?: "", isChecked)
             }
         }
 
@@ -74,52 +87,13 @@ class PrezziFragment : Fragment() {
     //funzione di prima inizializzazione dei prezzi/prese
     private fun inizializzaDati(view: View) {
         when (tipoRicevuto) {
-            "BENZINA" -> ricavaPrezziBenzinaio(view, idRicevuto.toInt(), false)
+            "BENZINA" -> {
+                val stazione = BenzinaiRepository.listaCompleta.find { it.id == idRicevuto.toInt() }
+                viewModel.caricaPrezzi(stazione?.provincia ?: "", false)
+            }
             "EV" -> {
                 val colonnina = ColonnineRepository.listaCompleta.find { it.id.toLong() == idRicevuto }
                 colonnina?.let { ricavaInfoEV(view, it) }
-            }
-        }
-    }
-
-    //funzione di fetching dei prezzi del benzinaio
-    private fun ricavaPrezziBenzinaio(view: View, idImpianto: Int, soloServito: Boolean) {
-        val loader = view.findViewById<ProgressBar>(R.id.loadingPrezzi)
-        val stazione = BenzinaiRepository.listaCompleta.find { it.id == idImpianto }
-        val siglaProvincia = stazione?.provincia ?: ""
-
-        lifecycleScope.launch {
-            loader?.visibility = View.VISIBLE
-            try {
-                //in maniera asincrona, vado a ricavare la provincia di appartenenza e i prezzi del benzinaio
-                val defMapping = async { SupabaseInstance.client.from("province_regioni").select{ filter{ eq("provincia", siglaProvincia) } } }
-                val defPrezzi = async { SupabaseInstance.client.from("prezzi").select{ filter{ eq("idImpianto", idImpianto) } } }
-
-                val resMapping = defMapping.await()
-                val resPrezzi = defPrezzi.await()
-
-                //ricavo la regione di appartenenza del benzinaio, grazie alla provincia ottenuta prima
-                val nomeRegione = JSONArray(resMapping.data).optJSONObject(0)?.optString("regione") ?: ""
-                //ricavo la media regionale
-                val resMedie = SupabaseInstance.client.from("media_regionale").select {
-                    filter {
-                        eq("regione", nomeRegione)
-                        eq("isSelf", if (soloServito) "0" else "1")
-                    }
-                }
-
-                //salvo le medie e i prezzi su un array JSON
-                val arrayPrezzi = JSONArray(resPrezzi.data)
-                val arrayMedie = JSONArray(resMedie.data)
-
-                //finite le richieste, popolo la lista dei prezzi
-                activity?.runOnUiThread {
-                    popolaListaCarburante(view, arrayPrezzi, arrayMedie, soloServito)
-                    loader?.visibility = View.GONE
-                }
-            } catch (e: Exception) {
-                Log.e("Fuelly", "Errore caricamento dati: ${e.message}")
-                loader?.visibility = View.GONE
             }
         }
     }
