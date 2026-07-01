@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:iconifiedByDefault="false"
-            app:queryHint="Cerca stazione..."
+            app:queryHint="Cerca città..."
             app:theme="@style/WhiteSearchViewText" />
     </androidx.cardview.widget.CardView>
 
