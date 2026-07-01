@@ -12,18 +12,20 @@ import kotlinx.coroutines.launch
 
 class SplashViewModel : ViewModel() {
 
-    private val benzinaiRepository = BenzinaiRepository()
-    private val colonnineRepository = ColonnineRepository()
+    private val benzinaiRepository = BenzinaiRepository() //nuovo oggetto BenzinaiRepository
+    private val colonnineRepository = ColonnineRepository() //nuovo oggetto ColonnineRepository
 
     // true -> Vai in Home, false -> Vai al Login
-    private val _isUserLoggedIn = MutableLiveData<Boolean>()
-    val isUserLoggedIn: LiveData<Boolean> = _isUserLoggedIn
+    // MutableLiveData: dati che possono essere modificati
+    //LiveData: dati che non possono essere modificati
+    private val _isUserLoggedIn = MutableLiveData<Boolean>() //se l'utente è loggato o meno
+    val isUserLoggedIn: LiveData<Boolean> = _isUserLoggedIn //se l'utente è loggato o meno
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _isLoading = MutableLiveData<Boolean>() //se stiamo caricando i dati
+    val isLoading: LiveData<Boolean> = _isLoading //se stiamo caricando i dati
 
-    private val _error = MutableLiveData<String>()
-    val error: LiveData<String> = _error
+    private val _error = MutableLiveData<String>() //se c'è un errore
+    val error: LiveData<String> = _error //se c'è un errore
 
     fun precaricaDati(lat: Double, lon: Double) {
         viewModelScope.launch {

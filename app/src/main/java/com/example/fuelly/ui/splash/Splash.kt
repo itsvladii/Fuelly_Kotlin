@@ -156,7 +156,7 @@ class Splash : AppCompatActivity() {
     //funzione che si occupa di ottenere la posizione dell'utente
     // e di eseguire le query al database per precaricare i marker vicini
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    private fun avviaPrecaricamento() {
+    private fun avviaPrecaricamento(){
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         //se otteniamo la posizione, eseguiamo le query al database,
