@@ -74,7 +74,7 @@
             app:iconGravity="textStart"
             app:iconSize="16dp"
             app:iconTint="@color/grey_inactive"
-            app:strokeColor="@color/ic_launcher_background"
+            app:strokeColor="#DFFF00"
             app:strokeWidth="1.5dp" />
 
         <com.google.android.material.button.MaterialButton
