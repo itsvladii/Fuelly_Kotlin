@@ -92,7 +92,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnTipoBenzina"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="36dp"
+                android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:layout_weight="1"
                 android:fontFamily="@font/dm_sans_medium"

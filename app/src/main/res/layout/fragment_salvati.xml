@@ -59,7 +59,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSalvatiBenzina"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="36dp"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:drawableTint="@color/black"
