@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         //carica il fragment iniziale (Mappa)
         if (savedInstanceState == null) {
             replaceFragment(MapsFragment(), "MAPPA")
+            updateNavbarUI("MAPPA")
         }
 
         setupNavigation()
@@ -98,6 +99,10 @@ class MainActivity : AppCompatActivity() {
         val yellow = ContextCompat.getColor(this, R.color.fuelly_yellow_fluo)
         val grey = ContextCompat.getColor(this, R.color.grey_inactive)
 
+        // Otteniamo il controller per gestire l'aspetto delle barre di sistema
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+
+
         //di default, resetta tutti i bottoni della navbar con i colori di default (grigio)
         // prima di evidenziare quello selezionato
         resetItem(binding.imgNavMappa, binding.txtNavMappa, grey)
@@ -105,12 +110,30 @@ class MainActivity : AppCompatActivity() {
         resetItem(binding.imgNavCerca, binding.txtNavCerca, grey)
         resetItem(binding.imgNavProfilo, binding.txtNavProfilo, grey)
 
+
+        // Assicuriamoci che la barra di sistema rimanga sempre trasparente
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
+
         //evidenzia il selezionato
         when (selectedTag) {
-            "MAPPA" -> highlightItem(binding.imgNavMappa, binding.txtNavMappa, yellow)
-            "SALVATI" -> highlightItem(binding.imgNavSalvati, binding.txtNavSalvati, yellow)
-            "CERCA" -> highlightItem(binding.imgNavCerca, binding.txtNavCerca, yellow)
-            "PROFILO" -> highlightItem(binding.imgNavProfilo, binding.txtNavProfilo, yellow)
+            "MAPPA" -> {
+                highlightItem(binding.imgNavMappa, binding.txtNavMappa, yellow)
+                // Nella mappa vogliamo la navigation bar chiara (icone scure) se il tema è chiaro
+                windowInsetsController.isAppearanceLightNavigationBars = false
+            }
+            "SALVATI" -> {
+                highlightItem(binding.imgNavSalvati, binding.txtNavSalvati, yellow)
+                // Nei fragment richiesti, navigation bar scura (icone chiare/bianche)
+                windowInsetsController.isAppearanceLightNavigationBars = true
+            }
+            "CERCA" -> {
+                highlightItem(binding.imgNavCerca, binding.txtNavCerca, yellow)
+                windowInsetsController.isAppearanceLightNavigationBars = true
+            }
+            "PROFILO" -> {
+                highlightItem(binding.imgNavProfilo, binding.txtNavProfilo, yellow)
+                windowInsetsController.isAppearanceLightNavigationBars = true
+            }
         }
     }
 
