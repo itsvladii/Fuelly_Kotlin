@@ -60,7 +60,7 @@ class DettagliActivity : AppCompatActivity() {
             recuperaPosizioneEAggiorna()
         }
     }
-
+    //Configura gli osservatori del ViewModel per aggiornare l'icona del salvataggio (preferiti) e mostrare eventuali messaggi di errore.
     private fun observeViewModel() {
         viewModel.isSalvato.observe(this) { salvato ->
             val icon = if (salvato) R.drawable.ic_bookmark_saved else R.drawable.ic_bookmark
@@ -72,6 +72,7 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    //Identifica la tipologia di elemento (BENZINA o EV) e delega il popolamento dei dati dell'intestazione alla funzione specifica.
     private fun setupHeader() {
         when (tipoRicevuto) {
             "BENZINA" -> {
@@ -85,6 +86,7 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    //Configura il componente ViewPager2 con il relativo TabLayoutMediator per gestire la navigazione tra le schede Prezzi, Recensioni e Info.
     private fun setupViewPager() {
         val viewPager = findViewById<ViewPager2>(R.id.viewPager)
         val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
@@ -105,6 +107,7 @@ class DettagliActivity : AppCompatActivity() {
         }.attach()
     }
 
+    // Personalizza la grafica dell'intestazione con i colori e i dati del distributore di carburante, calcolandone la distanza.
     private fun setupUIBenzina(b: Benzinaio) {
         findViewById<ConstraintLayout>(R.id.stationHeader)
             ?.setBackgroundColor(ContextCompat.getColor(this, R.color.fuelly_green_dark))
@@ -130,6 +133,7 @@ class DettagliActivity : AppCompatActivity() {
         calcolaDistanzaDettaglio(b.lat, b.lon)
     }
 
+    //Personalizza la grafica dell'intestazione con i colori e i dati della colonnina elettrica, modificando anche lo stile dei tab e dei pulsanti.
     private fun setupUIElettrica(ev: ColonninaEV) {
         findViewById<ConstraintLayout>(R.id.stationHeader)
             ?.setBackgroundColor(ContextCompat.getColor(this, R.color.ev_dark_blue))
@@ -160,6 +164,7 @@ class DettagliActivity : AppCompatActivity() {
         calcolaDistanzaDettaglio(ev.lat, ev.lon)
     }
 
+    //Associa i comportamenti ai click sui pulsanti della UI (navigazione, ritorno alla schermata precedente, salvataggio e condivisione).
     private fun setupListeners() {
         findViewById<Button>(R.id.btnOttieniIndicazioni)?.setOnClickListener {
             avviaNavigatore()
@@ -175,6 +180,7 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    //Richiede l'ultima posizione GPS nota del dispositivo per ricalcolare e aggiornare la distanza in tempo reale.
     private fun recuperaPosizioneEAggiorna() {
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -200,6 +206,7 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    //Calcola la distanza tra la posizione dell'utente e la stazione, formattando il testo in metri o chilometri nella UI.
     private fun calcolaDistanzaDettaglio(latDest: Double, lonDest: Double) {
         val latUser = intent.getDoubleExtra("USER_LAT", 0.0)
         val lonUser = intent.getDoubleExtra("USER_LON", 0.0)
@@ -215,6 +222,7 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    //Recupera le coordinate geografiche della struttura e lancia un Intent per avviare la navigazione stradale su Google Maps.
     private fun avviaNavigatore() {
         var lat: Double? = 0.0
         var lon: Double? = 0.0
@@ -234,6 +242,7 @@ class DettagliActivity : AppCompatActivity() {
         }
     }
 
+    //Genera il testo riassuntivo specifico dell'impianto e apre il selettore di sistema per condividerlo tramite app esterne.
     private fun shareStazione() {
         val testoDaCondividere = when (tipoRicevuto) {
             "BENZINA" -> {

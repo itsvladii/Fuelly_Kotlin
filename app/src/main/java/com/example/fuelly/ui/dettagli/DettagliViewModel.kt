@@ -49,6 +49,8 @@ class DettagliViewModel : ViewModel() {
     private var currentId: Long = -1
     private var currentTipo: String = ""
 
+
+    //Riceve l'ID e il tipo di impianto, inizializzando lo stato del ViewModel e avviando i controlli sul salvataggio e il caricamento dei dati correlati.
     fun initData(id: Long, tipo: String?) {
         currentId = id
         currentTipo = tipo ?: ""
@@ -61,6 +63,7 @@ class DettagliViewModel : ViewModel() {
         }
     }
 
+    //Cerca la stazione o la colonnina specifica all'interno dei rispettivi repository locali in base all'ID e ne aggiorna il relativo LiveData.
     private fun loadElemento() {
         if (currentTipo == "BENZINA") {
             _stazione.value = BenzinaiRepository.listaCompleta.find { it.id.toLong() == currentId }
@@ -69,6 +72,7 @@ class DettagliViewModel : ViewModel() {
         }
     }
 
+    //Interroga il database Supabase per verificare se l'elemento corrente è già presente tra i preferiti dell'utente loggato.
     private fun checkSalvataggio() {
         val session = SupabaseInstance.client.auth.currentSessionOrNull() ?: return
         viewModelScope.launch {
@@ -85,6 +89,7 @@ class DettagliViewModel : ViewModel() {
         }
     }
 
+    // Aggiunge o rimuove l'elemento corrente dai preferiti dell'utente su Supabase, richiedendo obbligatoriamente una sessione di login attiva.
     fun toggleSalvataggio() {
         val session = SupabaseInstance.client.auth.currentSessionOrNull()
         if (session == null) {
@@ -106,6 +111,7 @@ class DettagliViewModel : ViewModel() {
         }
     }
 
+    //Recupera asincronamente da Supabase i prezzi correnti dell'impianto, la mappatura regionale e la media dei prezzi della regione per il confronto.
     fun caricaPrezzi(siglaProvincia: String, soloServito: Boolean) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -133,6 +139,7 @@ class DettagliViewModel : ViewModel() {
         }
     }
 
+    //Recupera la lista dei feedback e dei voti degli utenti associati all'ID dell'impianto (sia distributore che colonnina).
     fun caricaRecensioni() {
         viewModelScope.launch {
             try {
@@ -148,6 +155,7 @@ class DettagliViewModel : ViewModel() {
         }
     }
 
+    //Invia una nuova recensione al database tramite il repository corretto e avvia il successivo aggiornamento della lista visualizzata.
     fun inserisciRecensione(recensione: Recensione) {
         viewModelScope.launch {
             try {
@@ -163,6 +171,7 @@ class DettagliViewModel : ViewModel() {
         }
     }
 
+    //Rimuove una recensione esistente dal database (verificando ID recensione e ID utente) e aggiorna l'elenco dei commenti.
     fun eliminaRecensione(recensione: Recensione) {
         viewModelScope.launch {
             try {
@@ -178,6 +187,7 @@ class DettagliViewModel : ViewModel() {
         }
     }
 
+    //Recupera dal database le informazioni per i distributori di carburante (es. orari, presenza bar/bagno).
     private fun caricaInfoBenzinaio() {
         viewModelScope.launch {
             try {
@@ -188,6 +198,7 @@ class DettagliViewModel : ViewModel() {
         }
     }
 
+    //Aggiorna o inserisce nel database i dati extra di un benzinaio, notificando poi l'interfaccia con le modifiche salvate.
     fun salvaInfoBenzinaio(info: Info) {
         viewModelScope.launch {
             try {
@@ -198,7 +209,8 @@ class DettagliViewModel : ViewModel() {
             }
         }
     }
-    
+
+    //Esegue una query asincrona per ottenere il nome del gestore dell'impianto e lo restituisce alla UI tramite una funzione di callback.
     fun getGestoreBenzinaio(callback: (String) -> Unit) {
         viewModelScope.launch {
             try {

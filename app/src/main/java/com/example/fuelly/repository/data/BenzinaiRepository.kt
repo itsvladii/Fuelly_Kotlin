@@ -25,6 +25,7 @@ import kotlin.collections.mapOf
 */
 class BenzinaiRepository {
 
+
     companion object {
         //lista dei benzinai vicini alla poszione dell'utente, da aggiornare ogni volta che si aggiorna la posizione
         var listaVicini: List<Benzinaio> = emptyList()
