@@ -50,6 +50,7 @@ class CercaFragment : Fragment() {
         setupRecyclerView() //richiamo della funzione di setup della RecyclerView che contiene le stazioni
         observeViewModel() //richiamo della funzione c
         recuperaPosizioneECaricaDati() //funzione di "fallback" in caso in cui non abbiamo la posizione dell'utente
+        aggiornaVisibilitaFiltriRapidi() //aggiorna la visibilità dei filtri rapidi in base al tipo di stazione selezionato
 
         //ricerca testuale (mano a mano che l'utente scrive, applichiamo i filtri)
         binding.editSearch.addTextChangedListener(object : TextWatcher {
@@ -177,10 +178,26 @@ class CercaFragment : Fragment() {
             viewModel.connettoriSelezionatiIds.addAll(dialogBinding.chipGroupConnettori.checkedChipIds)
 
             viewModel.applicaFiltri() //richiamo la funzione nel ViewModelo che applica i filtri
+            aggiornaVisibilitaFiltriRapidi() //aggiorna la visibilità dei filtri rapidi dopo l'applicazione dei filtri avanzati
             dialog.dismiss()
         }
 
         dialog.show()
+    }
+
+
+     //Aggiorna la visibilità dei chip "Benzina Economica" e "Diesel Economico".
+     //Se il filtro selezionato è EV, questi chip vengono nascosti e, se selezionati, resettati a "Tutti".
+    private fun aggiornaVisibilitaFiltriRapidi() {
+        val isEV = viewModel.filtroTipoSelezionatoId == R.id.btnTipoEV
+        binding.chipBenzinaEconomica.isVisible = !isEV
+        binding.chipDieselEconomico.isVisible = !isEV
+
+        // Se uno dei filtri benzina/diesel era selezionato ma ora siamo in modalità EV, resettiamo a chipAll
+        if (isEV && (viewModel.selectedChipId == R.id.chipBenzinaEconomica || viewModel.selectedChipId == R.id.chipDieselEconomico)) {
+            binding.filterChipGroup.check(R.id.chipAll)
+            viewModel.selectedChipId = R.id.chipAll
+        }
     }
 
     override fun onDestroyView() {
