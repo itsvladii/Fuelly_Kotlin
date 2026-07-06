@@ -1,4 +1,4 @@
-# Progetto TMOB
+# Progetto Programmazione Mobile (Barcan Vladut, Mosca Matteo, Mandolini Mirco)
 
 ## Avviso
 Effettuare la registrazione e il login manualmente, NON tramite Google in quanto è necessario registrare lo SHA256 della build su Google Cloud!
