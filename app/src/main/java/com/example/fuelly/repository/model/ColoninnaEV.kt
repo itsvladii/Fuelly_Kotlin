@@ -64,7 +64,7 @@ data class ColonninaEV(
 
         //funzione di parsing che prende in input l'array di colonnine più salvate ottenuti da Supabase e
         // lo trasforma in una lista di ID di colonnine
-        private fun parseTopSalvatiIds(data: Any?): List<Int> {
+        fun parseTopSalvatiIds(data: Any?): List<Int> {
             val ids = mutableListOf<Int>()
             try {
                 val jsonArray = JSONArray(data.toString())

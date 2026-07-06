@@ -96,14 +96,29 @@ class CercaViewModel : ViewModel() {
                     .sortedBy { it.prezzoDiesel }
             }
             R.id.chipTopSalvati -> {
-                filtrata.filterIsInstance<Benzinaio>()
-                    .filter { BenzinaiRepository.listaTopSalvatiIds.contains(it.id) }
-                    .sortedBy { BenzinaiRepository.listaTopSalvatiIds.indexOf(it.id) }
+                filtrata.filter { item ->
+                    when (item) {
+                        is Benzinaio -> BenzinaiRepository.listaTopSalvatiIds.contains(item.id)
+                        is ColonninaEV -> ColonnineRepository.listaTopSalvatiIds.contains(item.id)
+                        else -> false
+                    }
+                }.sortedBy { item ->
+                    when (item) {
+                        is Benzinaio -> BenzinaiRepository.listaTopSalvatiIds.indexOf(item.id)
+                        is ColonninaEV -> ColonnineRepository.listaTopSalvatiIds.indexOf(item.id)
+                        else -> Int.MAX_VALUE
+                    }
+                }
             }
             R.id.chipPiuVicini -> {
-                filtrata.filterIsInstance<Benzinaio>()
-                    .sortedBy { Utils.calcolaDistanza(userLat ?: 0.0, userLon ?: 0.0, it.lat, it.lon) }
-                //calcolaDistanza è una funzione su Utils.kt per il calcolo della distanza data la lat e lon dell'utente e della stazione
+                filtrata.sortedBy { item ->
+                    val (lat, lon) = when (item) {
+                        is Benzinaio -> item.lat to item.lon
+                        is ColonninaEV -> item.lat to item.lon
+                        else -> (userLat ?: 0.0) to (userLon ?: 0.0)
+                    }
+                    Utils.calcolaDistanza(userLat ?: 0.0, userLon ?: 0.0, lat, lon)
+                }
             }
             else -> filtrata
         }

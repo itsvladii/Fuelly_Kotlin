@@ -15,6 +15,7 @@ import io.github.jan.supabase.postgrest.query.Order
 /*
 * FUNZIONI DI:
 * - FETCHING DELLE COLONNINE VICINE
+* - FETCHING DELLE COLONNINE PIU SALVATE
 * - FETCHING DELLE COLONNINE SALVATE DALL'UTENTE
 * - AGGIUNTA/RIMOZIONE DELLE COLONNINE DAI SALVATI DELL'UTENTE
 * - VERIFICA SE LA COLONNINA E' TRA I SALVATI
@@ -29,6 +30,9 @@ class ColonnineRepository {
 
         //lista delle colonnine salvate dall'utente
         var listaSalvati: List<ColonninaEV> = emptyList()
+
+        //lista delle colonnine piu salvate dagli utenti
+        var listaTopSalvatiIds: List<Int> = emptyList()
 
         //lista che unisce salvati e vicini senza duplicati
         val listaCompleta: List<ColonninaEV>
@@ -47,6 +51,12 @@ class ColonnineRepository {
         //passo l'output della query alla funzione di parsing all'interno di ColonninaEV,
         // cosi da ottenere la List dei oggetti ColonninaEV
         return ColonninaEV.parseLista(response.data)
+    }
+
+    //funzione che recupera gli ID delle colonnine più salvate da tutti gli utenti
+    suspend fun getTopSalvatiIds(): List<Int> {
+        val response = client.postgrest.rpc(function = "get_colonnine_piu_salvate")
+        return ColonninaEV.parseTopSalvatiIds(response.data)
     }
 
     //funzione che recupera le colonnine salvate dall'utente corrente

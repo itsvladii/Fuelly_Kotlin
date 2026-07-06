@@ -43,6 +43,10 @@ class SplashViewModel : ViewModel() {
                 val vicineEV = colonnineRepository.getColonnineVicine(lat, lon)
                 ColonnineRepository.listaVicini = vicineEV
 
+                // Carica colonnine più salvate
+                val topEVIds = colonnineRepository.getTopSalvatiIds()
+                ColonnineRepository.listaTopSalvatiIds = topEVIds
+
                 // Gestisci dati salvati se l'utente è loggato
                 val session = SupabaseInstance.client.auth.currentSessionOrNull()
                 if (session != null) {
