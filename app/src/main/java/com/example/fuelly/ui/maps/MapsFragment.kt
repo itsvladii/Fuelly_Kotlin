@@ -65,6 +65,8 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
 
     private var _binding: FragmentMapsBinding? = null
+
+    //l'operatore '!!' (not-null assertion) forza Kotlin a considerarla sicuramente non nulla.
     private val binding get() = _binding!!
 
     //invece di scrivere binding.root.findViewById(R.id.id) ogni volta, cosi scrivo solo findViewById
@@ -88,26 +90,34 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     private fun setupUI(view: View) {
         //imposta la navigation bar di sistema trasparente con icone bianche
         requireActivity().window.apply {
+            // Se la versione di Android è pari o superiore ad Android 10 (API 29 - Q)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Disattiva il contrasto forzato per rendere la barra totalmente trasparente
                 isNavigationBarContrastEnforced = false
             }
+            // Forza le icone della barra di navigazione inferiore a essere BIANCHE
             WindowCompat.getInsetsController(this, decorView).isAppearanceLightNavigationBars = false
         }
 
-        //inizializza il fusedLocationClient (servizio di geolocalizzazione di Google)
-        // per ottenere la posizione dell'utente
+        //inizializza il fusedLocationClient (servizio di geolocalizzazione di Google) per ottenere la posizione dell'utente
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
+        // 3. Trova il frammento della mappa nel layout XML usando il childFragmentManager (corretto perché siamo all'interno di un altro Fragment)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+
+        // 4. Avvia il caricamento asincrono della mappa. 'this' indica che il Fragment implementa l'interfaccia OnMapReadyCallback
         mapFragment.getMapAsync(this)
 
+        // 5. Ascolta le variazioni delle barre di sistema (Status Bar, Notch) per riposizionare la barra di ricerca
         ViewCompat.setOnApplyWindowInsetsListener(binding.searchCard) { view, windowInsets ->
+            // Recupera l'altezza effettiva in pixel delle barre di sistema superiori e inferiori
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
 
+            // Aggiorna dinamicamente i margini del contenitore della barra di ricerca (searchCard)
             view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 topMargin = insets.top + (16 * resources.displayMetrics.density).toInt()
             }
-
+            // Restituisce gli insets inalterati per permettere ad altri componenti figli di usarli
             windowInsets
         }
 
@@ -136,8 +146,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun observeViewModel() {
+        // 1. Resta in ascolto sulla lista dei benzinai. Ogni volta che la lista viene aggiornata (es. dopo una ricerca)
         viewModel.benzinai.observe(viewLifecycleOwner) {
+            //2. controlla che l'oggetto GoogleMap ('mMap') sia già stato inizializzato e pronto
             if (::mMap.isInitialized) {
+                //3. richiamo la funzione
                 aggiornaMarkerMappa()
             }
         }
@@ -146,9 +159,14 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 aggiornaMarkerMappa()
             }
         }
+
+        // 3. Resta in ascolto sullo stato del filtro Benzina (attivo/disattivo)
         viewModel.isBenzinaActive.observe(viewLifecycleOwner) { active ->
+            // Modifica l'opacità (trasparenza) del pulsante: 1.0f (opaco/acceso) se attivo, 0.5f (semitrasparente/spento) se disattivato
             binding.btnFiltroBenzina.alpha = if (active) 1.0f else 0.5f
+            //controllo se la mappa è inizializzata
             if (::mMap.isInitialized) {
+                // Recupera lo stato del filtro EV (se è null, fa il fallback su true) e applica il filtraggio
                 filtraMarker(active, viewModel.isEVActive.value ?: true)
             }
         }

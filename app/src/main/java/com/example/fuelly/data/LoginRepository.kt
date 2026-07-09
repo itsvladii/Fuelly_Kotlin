@@ -29,8 +29,11 @@ class LoginRepository(val dataSource: LoginDataSource) {
 
     fun login(username: String, password: String): Result<LoggedInUser> {
         // handle login
+        // 1. Delega al data source (la sorgente dati) il compito di effettuare l'autenticazione vera e propria
+        // passando le credenziali inserite dall'utente. Il risultato viene salvato nella variabile 'result'.
         val result = dataSource.login(username, password)
 
+        // 2. Controlla se il risultato dell'operazione è un successo (grazie al pattern sealed class)
         if (result is Result.Success) {
             setLoggedInUser(result.data)
         }

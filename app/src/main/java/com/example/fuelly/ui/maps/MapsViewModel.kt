@@ -22,7 +22,7 @@ class MapsViewModel : ViewModel() {
     val benzinai: LiveData<List<Benzinaio>> get() = _benzinai //lista "pubblica" di sola lettura, funge da "vista" per l'esterno
     //ogni volta che qualcuno accede a benzinai, viene richiamata la funzione get() che restituisce l'istanza attuale di _benzinai)
 
-    //lista effettiva dei benzinai
+    //lista effettiva delle colonnine
     private val _colonnine = MutableLiveData(ColonnineRepository.listaVicini) //lista accessibile solo dal ViewModel (posso fare le operazioni CRUD)
     val colonnine: LiveData<List<ColonninaEV>> get() = _colonnine //lista "pubblica" di sola lettura, funge da "vista" per l'esterno
 
@@ -35,11 +35,16 @@ class MapsViewModel : ViewModel() {
 
     //funzione di filtraggio dei marker solo benzinai
     fun toggleBenzinaFilter() {
+        // 1. Prende il valore attuale del filtro (_isBenzinaActive.value).
+        // 2. L'operatore ?: true (Elvis Operator) è una sicurezza: se il valore attuale dovesse essere null, assume che sia true.
+        // 3. L'operatore ! (NOT) inverte il booleano: se era true diventa false, se era false diventa true.
+        // 4. Il nuovo valore invertito viene assegnato nuovamente a .value, notificando così la UI (es. aggiornando la mappa).
         _isBenzinaActive.value = !(_isBenzinaActive.value ?: true)
     }
 
     //funzione di filtraggio dei marker solo elettrico
     fun toggleEVFilter() {
+        //basta guardare toggleBenzinaFilter()
         _isEVActive.value = !(_isEVActive.value ?: true)
     }
 

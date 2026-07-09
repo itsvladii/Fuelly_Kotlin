@@ -25,6 +25,8 @@ class RegistrazioneActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registrazione)
         enableEdgeToEdge()
+        // 1. Ottiene il controller (WindowInsetsControllerCompat) associato alla finestra dell'Activity corrente.
+        // Questo oggetto serve a modificare l'aspetto visivo e il comportamento delle barre di sistema (status bar e navigation bar).
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.isAppearanceLightStatusBars = false
         windowInsetsController.isAppearanceLightNavigationBars = true

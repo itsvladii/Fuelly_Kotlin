@@ -96,16 +96,22 @@ class Splash : AppCompatActivity() {
 
     //funzione che controlla se il GPS è attivo e, in caso contrario, mostra il popup di sistema per attivarlo
     private fun controllaGpsEAvvia() {
+        // 1. Crea una configurazione per richiedere la posizione dell'utente
         val locationRequest = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY, 10000
-        ).build()
+        ).build() // Costruisce l'oggetto LocationRequest con i parametri appena impostati
 
+        // 2. Inserisce la richiesta di posizione in un "contenitore" di impostazioni
         val builder = LocationSettingsRequest.Builder()
             .addLocationRequest(locationRequest)
 
+        // 3. Ottiene il client di sistema per verificare lo stato delle impostazioni di localizzazione
         val settingsClient = LocationServices.getSettingsClient(this)
+
+        // 4. Avvia il controllo asincrono per vedere se il GPS del telefono è attivo e configurato come richiesto
         val task = settingsClient.checkLocationSettings(builder.build())
 
+        // 5. Gestisce il caso in cui il controllo ha Successo (il GPS è già acceso)
         task.addOnSuccessListener {
             // Il GPS è attivo, procediamo con il precaricamento
             avviaPrecaricamento()
@@ -147,6 +153,8 @@ class Splash : AppCompatActivity() {
     //funzione di passaggio alla schermata di login,
     //con un piccolo delay per permettere all'utente di leggere eventuali messaggi
     private fun vaiALogin() {
+        // 1. Crea un Handler associato al Looper principale (Main Thread / UI Thread).
+        // Servirà per eseguire del codice sulla UI in modo asincrono dopo un certo tempo.
         Handler(Looper.getMainLooper()).postDelayed({
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
@@ -157,6 +165,7 @@ class Splash : AppCompatActivity() {
     // e di eseguire le query al database per precaricare i marker vicini
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun avviaPrecaricamento(){
+        // 1. Inizializza il client di Google Play Services per interagire con la geolocalizzazione del dispositivo
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         //se otteniamo la posizione, eseguiamo le query al database,

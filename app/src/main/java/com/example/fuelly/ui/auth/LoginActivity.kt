@@ -57,6 +57,7 @@ class LoginActivity : AppCompatActivity() {
             finish()
         }
 
+        //CHIAMO IL LOGIN MANUALE PASSANDO email e password
         val emailEdit = findViewById<TextInputEditText>(R.id.emailEdit)
         val passwordEdit = findViewById<TextInputEditText>(R.id.passwordEdit)
         findViewById<Button>(R.id.btnNext).setOnClickListener {
@@ -80,14 +81,20 @@ class LoginActivity : AppCompatActivity() {
             .build()
 
         //lancio la richiesta
+        //Avvia una Coroutine agganciata al ciclo di vita dell'Activity (lifecycleScope).
         lifecycleScope.launch {
             try {
+                // 4. Esegue la richiesta effettiva. Questo comando farà apparire a schermo
+                // il bottom sheet nativo di Android che mostra gli account Google disponibili sul telefono.
                 val result = credentialManager.getCredential(
                     request = request,
                     context = this@LoginActivity
                 )
                 //gestisco il risultato
+                // 5. Se l'utente seleziona l'account e l'operazione ha successo,
+                // passa il risultato (che contiene il token ID di Google) al metodo handleSignIn per completare l'autenticazione.
                 handleSignIn(result)
+
             } catch (e: GetCredentialException) {
                 Log.e("Auth", "Errore Google Sign-In: ${e.message}")
             }
@@ -127,35 +134,50 @@ class LoginActivity : AppCompatActivity() {
 
     private fun handleSignIn(result: GetCredentialResponse) {
         Log.d("Fuelly_Debug", "handleSignIn CHIAMATA! Tipo credenziale: ${result.credential.type}")
+
+        // 2. Estrae l'oggetto credential dal risultato del Credential Manager
         val credential = result.credential
 
+        // 3. Verifica che la credenziale sia di tipo "Custom" e che corrisponda nello specifico a un ID Token di Google
         if (credential is CustomCredential &&
             credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
         ) {
-
+            // 4. Converte i dati grezzi della credenziale in un oggetto strutturato GoogleIdTokenCredential
             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
 
+            // 5. Avvia una Coroutine per eseguire le chiamate di rete a Supabase in modo asincrono (non bloccante)
             //salvo l'utente su Supabase Auth
             lifecycleScope.launch {
                 try {
                     Log.d("Supabase_Debug", "Sto inviando il token a Supabase...")
+
+                    // 6. Invia l'ID Token di Google a Supabase Auth
                     //valida il token e crea l'utente su Supabase Auth
                     SupabaseInstance.client.auth.signInWith(IDToken) {
                         idToken = googleIdTokenCredential.idToken
                         provider = Google
                     }
 
+                    // 7. Blocco try secondario per gestire la navigazione post-login in sicurezza
                     //controllo se l'utente ha gia effetuato l'accesso
                     try {
+
+                        // 8. Recupera la sessione appena creata da Supabase (restituisce null se qualcosa è andato storto)
                         val session = SupabaseInstance.client.auth.currentSessionOrNull()
+
                         //se l'utente ha gia effettuato l'accesso, vado direttamente alla MainActivity, altrimenti alla login
                         if (session != null) {
+
+                            // 10. Chiamate asincrone per scaricare dal database i benzinai e le colonnine preferite salvate dall'utente
                             //carico i preferiti dell'utente (se loggato)
                             Utils.benzinaiSalvati(session)
                             Utils.colonnineSalvate(session)
 
+                            // 11. Imposta i flag dell'Intent per ripulire la cronologia delle Activity.
+                            // Cancella tutte le schermate precedenti (incluso il Login) in modo che premendo "Indietro" l'app si chiuda semplicemente.
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                             goToMappa()
+
                             finish()
                         }
                     } catch (e: Exception) {

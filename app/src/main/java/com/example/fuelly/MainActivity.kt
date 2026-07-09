@@ -25,11 +25,19 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //effettua l'inflate
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+        // 3. Abilita la modalità "Edge-to-Edge", facendo sì che il layout dell'app si estenda
         enableEdgeToEdge()
+
+        // 4. Ottiene il controller per gestire l'aspetto e il comportamento delle barre di sistema (finestra dei controlli)
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+
+        // 5. Imposta le icone della barra di stato in modalità scura (false = icone bianche/chiare).
         windowInsetsController.isAppearanceLightStatusBars = false  // icone status bar bianche
 
+        // 6. Mostra effettivamente a schermo la vista principale dell'Activity, recuperando la radice (root) del layout xml
         setContentView(binding.root)
 
         //carica il fragment iniziale (Mappa)
