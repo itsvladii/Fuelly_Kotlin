@@ -145,6 +145,7 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         setupSearchView()
     }
 
+    //FUNZIONE OSSERVATRICE PER AGGIORNARE I MARKER NELLA MAPPA E I PULSANTI DI FILTRO IN ALTO
     private fun observeViewModel() {
         // 1. Resta in ascolto sulla lista dei benzinai. Ogni volta che la lista viene aggiornata (es. dopo una ricerca)
         viewModel.benzinai.observe(viewLifecycleOwner) {
@@ -180,13 +181,19 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
     //Funzione di configurazione della barra di ricerca
     private fun setupSearchView() {
+        // 1. Associa un (Listener) ai testi inseriti all'interno del componente SearchView
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
             //listener per l'invio del testo nella barra di ricerca
             override fun onQueryTextSubmit(query: String?): Boolean {
+
                 //quando l'utente preme invio, esegui la ricerca
+                // 2. Sicurezza: controlla che il testo inserito non sia nullo, vuoto o composto solo da spazi
                 if (!query.isNullOrBlank()) {
+                    //chiama la funzione usando quel preciso parametro che gli passo
                     cercaLuogo(query)
                 }
+                // 4. Toglie il focus (la selezione) dalla barra di ricerca. fa scomparire la tastiera dello schermo
                 binding.searchView.clearFocus()
                 return true
             }
@@ -200,27 +207,37 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
     //Funzione per cercare un luogo tramite Geocoding
     private fun cercaLuogo(indirizzo: String) {
-        // Geocoding per ottenere le coordinate geografiche
+        // 1. Inizializza l'oggetto Geocoder di Android usando il contesto del Fragment e la lingua predefinita del telefono
         val geocoder = Geocoder(requireContext(), Locale.getDefault())
+
+        // 2. Avvia una Coroutine sul thread "Dispatchers.IO".
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 //ottieni le coordinate geografiche in base all'indirizzo fornito
                 val list = geocoder.getFromLocationName(indirizzo, 1)
+
                 //se ci sono risultati, ottieni la prima posizione e crea un marker
                 if (!list.isNullOrEmpty()) {
+
                     val location = list[0]
+
                     //crea un LatLng con le coordinate geografiche
                     val latLng = LatLng(location.latitude, location.longitude)
 
                     //centra la mappa sulla posizione e esegui la ricerca
                     withContext(Dispatchers.Main) {
+
                         //centra la mappa sulla posizione
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14f))
+
                         //esegui la ricerca tramite ViewModel
                         viewModel.eseguiRicerca(location.latitude, location.longitude)
+
+                        //nascondi il pulsante di ricerca in questa zona
                         binding.btnSearchArea.visibility = View.GONE
                     }
                 } else {
+                    // 6. Sposta temporaneamente l'esecuzione del codice sul Thread Principale (Dispatchers.Main).
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             requireContext(),
@@ -235,12 +252,20 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
+    //FUNZIONE onMapReady:
+    /*
+        - elimino delle caratteristiche dalla mappa
+        - se ho i permessi posiziono la schermata sulla posizione dell'utente
+        - verifico se l'utente sposta la mappa e gestisco il pulsante cerca in questa zona
+        - gestione card e marker quando clicco sulla mappa
+     */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
         try {
-            //imposto lo sitle custom presente su res/raw
+            //imposto lo stile custom presente su res/raw
             val success = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style))
+
             if (!success) Log.e("Fuelly", "Errore nel caricamento dello stile JSON.")
 
             //rimozione di alcune feature non necessarie sulla mappa
@@ -266,12 +291,15 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             //listener per il movimento della camera per mostrare il pulsante "Cerca in questa zona"
             mMap.setOnCameraMoveStartedListener { reason ->
                 if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+                    //rendo visibile il pulsante cerca in quesa zona
                     binding.btnSearchArea.visibility = View.VISIBLE
                 }
             }
 
             //recupero il layout della card
             val card = binding.root.findViewById<CardView>(R.id.stationCard)
+
+            //pulsante per la posizione attuale dell'utente
             val btnMyLocation = binding.btnMyLocation
 
             //ricavo la custom bottom navbar
@@ -326,20 +354,25 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         //aggiungo i nuovi marker dei benzinai e delle colonnine EV
         val iconaCustom = vectorToBitmap(R.drawable.ic_fuel_marker)
+
+        //per ogni elemento "stazione" che trovo nella lista dei benzinai
         for (stazione in viewModel.benzinai.value ?: emptyList()) {
-            val marker = mMap.addMarker(
+            val marker = mMap.addMarker( //assegno un marker alla posizione della stazione
                 MarkerOptions()
                     .position(LatLng(stazione.lat, stazione.lon))
                     .icon(iconaCustom)
                     .anchor(0.5f, 1.0f)
             )
-            marker?.tag = stazione
-            marker?.isVisible = viewModel.isBenzinaActive.value ?: true
-            marker?.let { markersBenzina.add(it) }
+            marker?.tag = stazione //aggiungo l'oggetto stazione come tag del marker
+            marker?.isVisible = viewModel.isBenzinaActive.value ?: true //mostra solo i marker attivi
+            marker?.let { markersBenzina.add(it) } //aggiungo il marker alla lista
         }
 
+        //STESSA COSA PER LE COLONNINE ELETTRICHE
         val iconaEV = vectorToBitmap(R.drawable.ic_ev_marker)
+
         for (ev in viewModel.colonnine.value ?: emptyList()) {
+
             val marker = mMap.addMarker(
                 MarkerOptions()
                     .position(LatLng(ev.lat, ev.lon))
@@ -368,14 +401,25 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) return
+
+        //recupero la posizione corrente dell'utente
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+
+            // se ho una posizione, creo un LatLng con le coordinate della posizione
             if (location != null) {
+
                 //creo un LatLng con le coordinate della posizione dell'utente
                 val currentLatLng = LatLng(location.latitude, location.longitude)
+
                 //centro la mappa sulla posizione dell'utente
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 14f))
+
+                //se refreshData è true, eseguo la ricerca
                 if (refreshData) {
+
+                    //nascondo la barra di ricerca
                     binding.btnSearchArea.visibility = View.GONE
+
                     //eseguo la ricerca tramite ViewModel
                     viewModel.eseguiRicerca(location.latitude, location.longitude)
                 }
@@ -385,7 +429,11 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
     //funzione di setup della card se cliccato un marker di un benzinaio
     private fun setupCardBenzinaio(b: Benzinaio) {
+
+        //recupero la card della mappa
         val card = binding.root.findViewById<CardView>(R.id.stationCard)
+
+        //settaglio colori della card e informazioni della card
         card.setCardBackgroundColor("#0B3D2E".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationName).setTextColor("#DFFF00".toColorInt())
         binding.root.findViewById<TextView>(R.id.txtStationCity).setTextColor("#DFFF00".toColorInt())
@@ -402,15 +450,19 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             isSelected = true
         }
 
+        //setup del prezzo
         val benzinaStr = if (b.prezzoBenzina > 0) "${b.prezzoBenzina}" else "N.D."
         val dieselStr = if (b.prezzoDiesel > 0) "${b.prezzoDiesel}" else "N.D."
+        //recupero altri dettagli sulla card del benzinaio
         findViewById<TextView>(R.id.txtPrice).text = "Self | B: $benzinaStr · D: $dieselStr"
         findViewById<ImageView>(R.id.imgPompa).setImageResource(b.getLogoResource())
     }
 
     //funzione di setup della card se cliccato un marker di una colonnina EV
     private fun setupCardElettrica(ev: ColonninaEV) {
+        //recupero la card della colonnina
         val card = binding.root.findViewById<CardView>(R.id.stationCard)
+        //vari settaggi colori e informazioni della colonnina
         card.setCardBackgroundColor("#0B101E".toColorInt())
         //setup dei colori della card per le colonnine elettriche
         binding.root.findViewById<TextView>(R.id.txtStationName).setTextColor("#00FFC2".toColorInt())
@@ -430,11 +482,20 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
 
         // --- LOGICA DI CALCOLO REALE DELLE PRESE ---
         var totalePrese = 0
+
+        //se ho dei valori
         if (!ev.connettoriJson.isNullOrEmpty()) {
             try {
+
+                //recupero l'array dei connettori e lo casto in un jsonarray
                 val array = JSONArray(ev.connettoriJson)
+
+                //per ogni elemento
                 for (i in 0 until array.length()) {
+
+                    //recupero l'elemento in formato json
                     val obj = array.getJSONObject(i)
+
                     // Sommiamo il campo 'quantita' che abbiamo aggiunto alla RPC
                     totalePrese += obj.optInt("quantita", 1)
                 }
@@ -467,11 +528,13 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
             putExtra("TIPO_ELEMENTO", tipo)
             putExtra("NOME_BENZINAIO", gestore)
         }
+        //verifica di avere i permessi di geolocalizzazione
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
+            //recupero la posizione corrente dell'utente
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 //all'intent aggiungo anche la posizione, se ho i permessi
                 intent.putExtra("USER_LAT", location?.latitude ?: 0.0)
@@ -484,16 +547,21 @@ class MapsFragment : Fragment(), OnMapReadyCallback {
     //funzione che converte un SVG in un bitmap (necessario per implementare custom markers in quanto
     //l'API di Google Maps non supporta SVG e si aspetta un PNG)
     private fun vectorToBitmap(drawableId: Int): BitmapDescriptor {
+
+        //recupero il drawable
         val vectorDrawable = ResourcesCompat.getDrawable(resources, drawableId, null)
             ?: return BitmapDescriptorFactory.defaultMarker()
 
+        //recupero le dimensioni del drawable
         val width = vectorDrawable.intrinsicWidth
         val height = vectorDrawable.intrinsicHeight
 
+        //creo un bitmap
         val bitmap = createBitmap(width, height)
+        //creo un canvas
         val canvas = Canvas(bitmap)
-        vectorDrawable.setBounds(0, 0, width, height)
-        vectorDrawable.draw(canvas)
+        vectorDrawable.setBounds(0, 0, width, height) //imposto le dimensioni del drawable
+        vectorDrawable.draw(canvas) //disegno il drawable su canvas
 
         // Trova i limiti dei pixel non trasparenti per "restringere" la hitbox
         var minX = width

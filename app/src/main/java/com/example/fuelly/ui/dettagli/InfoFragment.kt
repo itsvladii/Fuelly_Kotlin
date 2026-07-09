@@ -54,18 +54,21 @@ class InfoFragment : Fragment() {
         //di default i campi sono disabilitati, si abilitano solo quando l'utente clicca su "Modifica"
         setFieldsEnabled(false, orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
 
+        //richiamo Funzione per visualizzare i dati della stazione
         observeViewModel(nomeBenzinaio, orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
 
-        //gestione click sui pulsanti
+        //MODIFICA INFORMAZIONI
         btnModifica.setOnClickListener {
             setFieldsEnabled(true, orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
             Toast.makeText(context, getString(R.string.info_edit_mode), Toast.LENGTH_SHORT).show()
         }
 
+        //SALVATAGGIO INFORMAZIONI
         btnSalva.setOnClickListener {
             salvaInformazioni(orarioApertura, orarioChiusura, bagnoPresente, barPresente, textDescrizione)
         }
 
+        //BOTTONE SEGNALAZIONE
         btnSegnala.setOnClickListener {
             inviaSegnalazione()
         }
@@ -73,16 +76,22 @@ class InfoFragment : Fragment() {
         return view
     }
 
+
+    //Funzione visualizza dati del benzinaio (orari, bagno ecc)
     private fun observeViewModel(
+        //PARAMETRI: assegno alle variabili UI gli elementi della view
         nomeBenzinaio: TextView, ap: TextInputEditText, ch: TextInputEditText,
         bagno: SwitchMaterial, bar: SwitchMaterial, desc: TextInputEditText
     ) {
+        //recupero il gestore del benzinaio e lo visualizzo
         viewModel.getGestoreBenzinaio { gestore ->
             activity?.runOnUiThread { nomeBenzinaio.text = gestore }
         }
-
+        //uso un observe sulla variabile infoBenzinaio per vedere se cambia (DettagliVIewModel)
         viewModel.infoBenzinaio.observe(viewLifecycleOwner) { info ->
+            //se ho delle informazioni
             if (info != null) {
+                //assegno alle variabili di interfaccia questi valori
                 infoId = info.id
                 ap.setText(info.orarioApertura?.take(5) ?: "")
                 ch.setText(info.orarioChiusura?.take(5) ?: "")
@@ -95,6 +104,7 @@ class InfoFragment : Fragment() {
 
     //funzione di gestione della segnalazione, con intent per inviare una email precompilata all'indirizzo di supporto
     fun inviaSegnalazione() {
+        //creo un intent di tipo email passandogli vari parametri
         val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
             putExtra(Intent.EXTRA_EMAIL, arrayOf("info@fuelly.com"))
@@ -109,12 +119,15 @@ class InfoFragment : Fragment() {
         ap: TextInputEditText, ch: TextInputEditText,
         bagno: SwitchMaterial, bar: SwitchMaterial, desc: TextInputEditText
     ) {
+        //recupero l'utente loggato
         val user = SupabaseInstance.client.auth.currentUserOrNull()
+
         if (user == null) {
             Toast.makeText(context, getString(R.string.info_login_required), Toast.LENGTH_SHORT).show()
             return
         }
 
+        //recupero i valori inseriti dall'utente
         val apStr = ap.text.toString().trim()
         val chStr = ch.text.toString().trim()
         val descStr = desc.text.toString().trim()
@@ -124,6 +137,7 @@ class InfoFragment : Fragment() {
             return
         }
 
+        //creo un oggetto Info con i valori inseriti dall'utente
         val nuovaInfo = Info(
             id = infoId,
             idImpianto = idRicevuto,
@@ -134,12 +148,14 @@ class InfoFragment : Fragment() {
             isBagno = bagno.isChecked,
             descEstesa = descStr
         )
-
+        //richiamo il metodo del ViewModel per salvare le informazioni nel database passando l'oogetto nuovaInfo di tipo Info
         viewModel.salvaInfoBenzinaio(nuovaInfo)
         Toast.makeText(context, getString(R.string.info_save_success), Toast.LENGTH_SHORT).show()
         setFieldsEnabled(false, ap, ch, bagno, bar, desc)
     }
 
+
+    //funzione per abilitare/disabilitare i campi di testo
     private fun setFieldsEnabled(enabled: Boolean, vararg views: View) {
         views.forEach { v ->
             v.isEnabled = enabled
