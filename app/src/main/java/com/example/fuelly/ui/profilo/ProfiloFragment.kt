@@ -27,6 +27,7 @@ class ProfiloFragment : Fragment() {
         savedInstanceState: Bundle?
 
     ): View {
+        //INFLATE DEL FRAGMENT PER L'INTERFACCIA
         _binding = FragmentProfiloBinding.inflate(inflater, container, false)
 
         return binding.root
@@ -35,6 +36,7 @@ class ProfiloFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        //imposto il layoutManager della RecyclerView
         binding.listaRecensioni.layoutManager = LinearLayoutManager(requireContext())
 
         setupUserData()
@@ -45,23 +47,35 @@ class ProfiloFragment : Fragment() {
             viewModel.logout()
         }
 
+        //richiamato automaticamente per precaricare i dati
         viewModel.caricaDatiUtente(arguments?.getString("USER_ID"))
     }
 
     private fun setupUserData() {
+
+        //visualizzo nome e email dell'utente passato tramite gli argomenti della navigation
         binding.nomeUtente.text = arguments?.getString("NomeUtente")
         binding.emailUtente.text = arguments?.getString("EmailUtente")
     }
 
     private fun observeViewModel() {
+
         //se recensioni cambia in qualche modo nella ViewModel, effettua le seguenti operazioni
         viewModel.recensioni.observe(viewLifecycleOwner) { recensioni ->
+
+            //se la lista non è vuota
             if (recensioni.isNotEmpty()) {
+
                 binding.listaRecensioni.visibility = View.VISIBLE //mostra listaRecensioni
+
+                //crea un adapter con le recensioni --> lista vuota inizialmente
                 val adapter = RecensioniAdapter(recensioni.toMutableList()) { recensione ->
+
                     viewModel.eliminaRecensione(recensione)
+
                     Toast.makeText(requireContext(), getString(R.string.profile_review_deleted), Toast.LENGTH_SHORT).show()
                 }
+                //ASSEGNO ALLA RECYCLERVIEW IL MIO ADAPTER
                 binding.listaRecensioni.adapter = adapter
             } else {
                 binding.listaRecensioni.visibility = View.GONE //nascondi listaRecensioni se non ci sono recensioni
@@ -70,15 +84,21 @@ class ProfiloFragment : Fragment() {
 
         //se isLoading è true nella ViewModel, mostra la progress bar, altrimenti nascondila
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
         //se il logout è stato effettuato con successo, passa alla activity Login con un intent
         viewModel.logoutSuccess.observe(viewLifecycleOwner) { success ->
+
             if (success) {
                 Toast.makeText(requireContext(), getString(R.string.profile_logout_success), Toast.LENGTH_SHORT).show()
+
+                //RIPORTA ALLA LOGIN ACTIVITY
                 val intent = Intent(requireContext(), LoginActivity::class.java)
+
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
                 startActivity(intent)
             }
         }

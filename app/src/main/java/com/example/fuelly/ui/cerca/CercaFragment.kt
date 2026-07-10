@@ -38,37 +38,41 @@ class CercaFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        //INFLATE DEL FRAGMENT PER L'INTERFACCIA
         _binding = FragmentCercaBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         //impostazione del fusedLocationClient per ottenere la posizione dell'utente
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         setupRecyclerView() //richiamo della funzione di setup della RecyclerView che contiene le stazioni
-        observeViewModel() //richiamo della funzione c
+        observeViewModel() //richiamo della funzione che contiene gli observe per la comunicazione tra View e ViewModel
         recuperaPosizioneECaricaDati() //funzione di "fallback" in caso in cui non abbiamo la posizione dell'utente
         aggiornaVisibilitaFiltriRapidi() //aggiorna la visibilità dei filtri rapidi in base al tipo di stazione selezionato
 
-        //ricerca testuale (mano a mano che l'utente scrive, applichiamo i filtri)
+        //RICERCA TEASTUALE (mano a mano che l'utente scrive, applichiamo i filtri)
         binding.editSearch.addTextChangedListener(object : TextWatcher {
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                viewModel.query = s?.toString() ?: ""
-                viewModel.applicaFiltri()
+                viewModel.query = s?.toString() ?: "" //setto come "query per la barra di ricerca" cosa sto scrivendo nella textbox
+                viewModel.applicaFiltri() //richiamo la funzione del viemodel
             }
 
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        //listener per il click sull'icona dei filtri all'interno della SearchView
+        //APERTURA PANNELLO FILTRI AVANZATI
         binding.searchLayout.setEndIconOnClickListener {
             mostraDialogFiltri()
         }
 
-        //listener per i filtri rapidi (benzina economica, diesel economico, ect.)
+        //FILTRI RAPIDI (BENZ.ECNOMICA, VICINO A ME....)
         binding.filterChipGroup.setOnCheckedChangeListener { _, checkedId ->
             viewModel.selectedChipId = checkedId
             viewModel.applicaFiltri() //richiamo la funzione nel ViewModel che applica i filtri (sia quelli rapidi che avanzati)
@@ -114,52 +118,75 @@ class CercaFragment : Fragment() {
 
     //funzione che recupera la posizione dell'utente (se permesso) nel caso in cui non sia già stata recuperata in precedenza
     private fun recuperaPosizioneECaricaDati() {
+
+        //controllo dei permessi
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
+            //recupero posizione utente e salvo le sue coordinate nel ViewModel
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     viewModel.userLat = location.latitude
                     viewModel.userLon = location.longitude
                 }
+                //richiamo la funzione di caricamento dei dati iniziali del viewmodel
                 viewModel.caricaDatiIniziali() //richiamo la funzione carciaDatiIniziali dal viewModel
             }
         } else {
-            viewModel.caricaDatiIniziali() //richiamo la funzione carciaDatiIniziali dal viewModel (anche se non ho problemi)
+            viewModel.caricaDatiIniziali() //richiamo la funzione caricaDatiIniziali dal viewModel (anche se non ho problemi)
         }
     }
 
     //funzione che gestisce il dialog con i filtri avanzati
     private fun mostraDialogFiltri() {
+
+        // Crea l'oggetto del dialog che scorrerà dal basso verso l'alto, associandolo al contesto del Fragment
         val dialog = BottomSheetDialog(requireContext())
+
+        // Sfrutta il View Binding per gonfiare il layout XML del dialog, rendendo i componenti UI accessibili via codice
         val dialogBinding = DialogFiltriBinding.inflate(layoutInflater)
+
+        // Imposta la vista radice del layout appena gonfiato come contenuto visivo del dialog
         dialog.setContentView(dialogBinding.root)
 
-        //inizializzo gli elementi UI del fragment
+        // Imposta il pulsante del Toggle Group (es. Benzina o EV) recuperando l'ultimo ID salvato nel ViewModel
         dialogBinding.toggleGroupTipo.check(viewModel.filtroTipoSelezionatoId)
+
+        // Imposta lo stato dello Switch (attivato/disattivato) in base al valore booleano presente nel ViewModel
         dialogBinding.switchSoloOperative.isChecked = viewModel.soloOperative
+
+        // Cicla sulla lista degli ID dei carburanti salvati e seleziona i rispettivi Chip nella UI
         viewModel.carburantiSelezionatiIds.forEach { dialogBinding.chipGroupCarburante.check(it) }
+
+        // Cicla sulla lista degli ID dei connettori salvati e seleziona i rispettivi Chip nella UI
         viewModel.connettoriSelezionatiIds.forEach { dialogBinding.chipGroupConnettori.check(it) }
 
+        //funzione interna per mostrare/nascondere le sezioni in base al tipo di stazione selezionata
         fun aggiornaSezioni(id: Int) {
+
+            // Mostra la sezione carburante solo se l'ID corrisponde al pulsante della benzina/diesel
             dialogBinding.sectionCarburante.isVisible = (id == R.id.btnTipoBenzina)
+
+            // Mostra la sezione EV (elettrico) solo se l'ID corrisponde al pulsante delle stazioni elettriche
             dialogBinding.sectionEV.isVisible = (id == R.id.btnTipoEV)
         }
+
+        // Esegue subito la funzione appena creata per mostrare la sezione corretta all'apertura del dialog
         aggiornaSezioni(viewModel.filtroTipoSelezionatoId)
 
-        //listener per il filtro della tipologia di stazione
+        // Configura un listener che si attiva ogni volta che l'utente cambia selezione nel Toggle Group principale
         dialogBinding.toggleGroupTipo.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) aggiornaSezioni(checkedId)
         }
 
         //listener per il tasto "Reset" che riporta tutti i filtri allo stato iniziale di default
         dialogBinding.btnReset.setOnClickListener {
-            dialogBinding.toggleGroupTipo.check(R.id.btnTipoBenzina)
-            dialogBinding.chipGroupCarburante.clearCheck()
-            dialogBinding.chipGroupConnettori.clearCheck()
-            dialogBinding.switchSoloOperative.isChecked = false
+            dialogBinding.toggleGroupTipo.check(R.id.btnTipoBenzina) //Seleziona di default il pulsante del tipo Benzina
+            dialogBinding.chipGroupCarburante.clearCheck() //ripulisce la selezione dei carburanti
+            dialogBinding.chipGroupConnettori.clearCheck() //ripulisce la selezione dei connettori
+            dialogBinding.switchSoloOperative.isChecked = false //disattiva lo switch solo per le stazioni operative
         }
 
         //listener per il tasto "Annulla" (chiude semplicemente il dialog senza salvare le modifiche)
@@ -167,6 +194,7 @@ class CercaFragment : Fragment() {
 
         //listener per il tasto "Applica" (salva lo stato dei filtri, applica i filtri alla lista e chiude il dialog)
         dialogBinding.btnApplicaFiltri.setOnClickListener {
+
             //passo i valori della UI del filtro alle rispettive variabili "pubbliche" nel ViewModel
             viewModel.filtroTipoSelezionatoId = dialogBinding.toggleGroupTipo.checkedButtonId
             viewModel.soloOperative = dialogBinding.switchSoloOperative.isChecked
@@ -177,7 +205,7 @@ class CercaFragment : Fragment() {
             viewModel.connettoriSelezionatiIds.clear()
             viewModel.connettoriSelezionatiIds.addAll(dialogBinding.chipGroupConnettori.checkedChipIds)
 
-            viewModel.applicaFiltri() //richiamo la funzione nel ViewModelo che applica i filtri
+            viewModel.applicaFiltri() //richiamo la funzione nel ViewModel che applica i filtri
             aggiornaVisibilitaFiltriRapidi() //aggiorna la visibilità dei filtri rapidi dopo l'applicazione dei filtri avanzati
             dialog.dismiss()
         }
@@ -189,6 +217,8 @@ class CercaFragment : Fragment() {
      //Aggiorna la visibilità dei chip "Benzina Economica" e "Diesel Economico".
      //Se il filtro selezionato è EV, questi chip vengono nascosti e, se selezionati, resettati a "Tutti".
     private fun aggiornaVisibilitaFiltriRapidi() {
+
+        // Nasconde i filtri "Benzina Economica" e "Diesel Economico" se siamo in modalità EV
         val isEV = viewModel.filtroTipoSelezionatoId == R.id.btnTipoEV
         binding.chipBenzinaEconomica.isVisible = !isEV
         binding.chipDieselEconomico.isVisible = !isEV

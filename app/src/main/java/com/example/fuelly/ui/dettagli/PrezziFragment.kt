@@ -116,31 +116,34 @@ class PrezziFragment : Fragment() {
         }
     }
 
-    //funzione di popolamento della lista dei carburanti
+    //funzione di popolamento della lista dei carburanti per la specifica stazione
     private fun popolaListaCarburante(view: View, arrayPrezzi: JSONArray, arrayMedie: JSONArray, soloServito: Boolean) {
 
-        //recupero il container della lista
+        //container (LINEAR LAYOUT)
         val container = view.findViewById<LinearLayout>(R.id.containerListaDettagli)
 
         //svuoto il container
         container?.removeAllViews()
+
         var pompeTrovate = 0
 
+        //"HEADER" DELLA SCHERMATA DOVE VISUALIZZO NOME, VIA, DISTANZA E DATA DI AGGIORNAMENTO
         //se i prezzi trovati sono piu di 0, aggiorno l'header con la data dell'ultimo aggiornamento
         if (arrayPrezzi.length() > 0) {
 
-            //recupero la data dell'ultimo aggiornamento
+            //DATA DELL'ULTIMO AGGIORNAMENTO
             val dataGrezza = arrayPrezzi.getJSONObject(0).optString("dtComu")
-            //la formatto
+            //DATA FORMATTATA
             val dataFormattata = formattaDataAggiornamento(dataGrezza)
 
             //recupero dall'interfaccia l'id della view per la text della distanza
             val txtDistance = activity?.findViewById<TextView>(R.id.txtDistance)
-            //setto il testo
+
+            //DISTANZA
             val testoDistanza = txtDistance?.text?.toString()?.split(" • ")?.get(0) ?: ""
             txtDistance?.text = "$testoDistanza • Aggiornato $dataFormattata"
         }
-
+        //NELLA RECYCLER VIEW PER OGNI POMPA DELLO SPECIFICO BENZINAIO
         //ciclo per ogni pompa del benzinaio e riempo la lista
         for (i in 0 until arrayPrezzi.length()) {
 
@@ -168,15 +171,15 @@ class PrezziFragment : Fragment() {
              */
             val itemView = layoutInflater.inflate(R.layout.item_carburante, container, false)
 
-            //asseno alle variabili la proprietà descCarburante e prezzo dell'oggetto Json
+            //assegno alle variabili la proprietà descCarburante e prezzo dell'oggetto Json
             val nome = obj.optString("descCarburante")
             val prezzo = obj.optDouble("prezzo")
 
-            //visualizzo la descCarburante e il prezzo nelle textbox
+            //TIPO CARURANTE E PREZZO (ES: BENZINA 1,88€)
             itemView.findViewById<TextView>(R.id.lblNomeCarburante).text = nome
             itemView.findViewById<TextView>(R.id.lblValorePrezzo).text = "${String.format("%.3f", prezzo)} €"
 
-            //recupero l'id dell'elemento per l'icona e gli setto un particolare colore
+            //ICONA DELLA POMPA (COLORATA IN MANIERA DIFFERENTE IN BASE ALLA TIPOLOGIA DI CARBURANTE)
             val imgIcona = itemView.findViewById<ImageView>(R.id.imgIconaCarburante)
             imgIcona.setColorFilter(getColoreCarburante(nome).toColorInt())
 

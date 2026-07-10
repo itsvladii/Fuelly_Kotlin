@@ -24,24 +24,32 @@ class RecensioniAdapter(private var lista: MutableList<Recensione>, private val 
         val btnElimina: ImageButton = view.findViewById(R.id.btnEliminaRecensione)
     }
 
+    //FACCIO L'INFLATE DEL SINGOLO ELEMENTO PER LA RECYCLERVIEW
+    //(LA RECYCLERVIEW E' COMPOSTA DA SINGOLI ITEM CHE VENGONO AGGIUNTI MANMANO)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.item_recensione, parent, false)
         return ViewHolder(v)
     }
 
+    //SERVE PER AGGIORNARE L'ELEMENTO APPENA CAMBIA UN VALORE
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val r = lista[position]
+        val r = lista[position] //recupero la recensione in base alla posizione
         holder.nome.text = r.nome
         holder.testo.text = r.descRecensione
         holder.rating.rating = r.rating.toFloat()
 
         val idUtenteLoggato = SupabaseInstance.client.auth.currentSessionOrNull()?.user?.id
 
+        //se sono lo stesso utente che ha scritto la recensione, mostro il pulsante di cancellazione
         if (r.idUtente == idUtenteLoggato) {
+
             holder.btnElimina.visibility = View.VISIBLE
+
             holder.btnElimina.setOnClickListener {
+
                 //alert di conferma prima di eliminare la recensione
                 val context = holder.itemView.context
+
                 val dialog = AlertDialog.Builder(context)
                     .setTitle(context.getString(R.string.review_delete_title))
                     .setMessage(context.getString(R.string.review_delete_confirm))
@@ -66,6 +74,7 @@ class RecensioniAdapter(private var lista: MutableList<Recensione>, private val 
 
     }
 
+    //CONTO IL NUMERO DI ELEMENTI
     override fun getItemCount() = lista.size
 
     // Funzione per aggiornare i dati dall'esterno

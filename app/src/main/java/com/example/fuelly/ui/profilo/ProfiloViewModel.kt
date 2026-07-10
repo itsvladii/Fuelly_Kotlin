@@ -30,22 +30,29 @@ class ProfiloViewModel : ViewModel() {
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
 
+
+    //CARICARE TUTTE LE RECENSIONI DELLO SPECIFICO UTENTE
     fun caricaDatiUtente(userId: String?) {
+
         if (userId == null) return
         
         viewModelScope.launch {
+
             _isLoading.value = true
+
             try {
+
                 //carichiamo entrambe le tipologie di recensioni in parallelo
                 val defBenzina = async { benzinaiRepo.getRecensioniUtente(userId) }
                 val defEV = async { colonnineRepo.getRecensioniUtente(userId) }
 
-                //aspettiamo che finiscano la chiamata Supabase
+                //aspettiamo che finiscano la chiamata Supabase e assegno il risultato alle liste
                 val listaRecBenzina = defBenzina.await()
                 val listaRecEV = defEV.await()
 
                 //uniamo le liste e le ordiniamo per data
                 _recensioni.value = (listaRecBenzina + listaRecEV).sortedByDescending { it.idRecensione }
+
             } catch (e: Exception) {
                 _error.value = e.message ?: "Errore nel caricamento delle recensioni"
             } finally {
@@ -54,7 +61,7 @@ class ProfiloViewModel : ViewModel() {
         }
     }
 
-    //funzione di eliminazione della recensione
+    //ELIMINAZIONE RECENSIONE
     fun eliminaRecensione(recensione: Recensione) {
         viewModelScope.launch {
             try {
@@ -68,7 +75,9 @@ class ProfiloViewModel : ViewModel() {
                 
                 //aggiorniamo la lista locale dopo l'eliminazione
                 val listaAttuale = _recensioni.value?.toMutableList()
+
                 listaAttuale?.removeAll { it.idRecensione == recensione.idRecensione }
+
                 _recensioni.value = listaAttuale ?: emptyList()
                 
             } catch (e: Exception) {
@@ -77,7 +86,7 @@ class ProfiloViewModel : ViewModel() {
         }
     }
 
-    //funzione di logout
+    //LOGOUT
     fun logout() {
         viewModelScope.launch {
             try {

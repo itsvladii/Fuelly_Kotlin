@@ -21,7 +21,7 @@ class SalvatiFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: SalvatiViewModel by viewModels()
-    private lateinit var adapter: StazioneAdapter
+    private lateinit var adapter: StazioneAdapter //ADAPTER POLIMORFO
     private var userLat: Double? = null
     private var userLon: Double? = null
 
@@ -29,6 +29,7 @@ class SalvatiFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        //INFLATE DEL FRAGMENT
         _binding = FragmentSalvatiBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -47,6 +48,7 @@ class SalvatiFragment : Fragment() {
         //in base al pulsante selezionato nella toggleGroup, eseguo il "cambio" delle liste dei salvati in base alla tipologia
         binding.toggleGroupSalvati.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
+                //chiamo il metodo del SALVATI_VIEWMODEL PER CARICARE LA LISTA CORRETTA
                 viewModel.selezionaTipo(checkedId)
             }
         }
@@ -56,19 +58,30 @@ class SalvatiFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        //osserva l'aggiornamento della lista dei salvati
         viewModel.listaSalvati.observe(viewLifecycleOwner) { lista ->
+
+            //aggiorna l'adapter con la nuova lista
             adapter.updateData(lista)
+
+            //riporta la RecyclerView al primo elemento
             riportaInCima()
         }
     }
 
     //funzione che configura la RecyclerView
     private fun setupRecyclerView() {
+
+        //RECYCLERVIEW
         binding.rvSalvati.layoutManager = LinearLayoutManager(requireContext())
 
         //imposta l'adapter polimorfico passandogli la lambda di click per navigare ai dettagli
         adapter = StazioneAdapter(emptyList(), userLat, userLon) { item ->
+
+            //assegno l'intent
             val intent = Intent(requireContext(), DettagliActivity::class.java)
+
+            //quando ho "cliccato" passo dei parametri all'intent
             when (item) {
                 is Benzinaio -> {
                     intent.putExtra("ID_ELEMENTO", item.id.toLong())
@@ -85,11 +98,14 @@ class SalvatiFragment : Fragment() {
             intent.putExtra("USER_LON", userLon ?: 0.0)
             startActivity(intent)
         }
+        //assegno l'adapter alla RecyclerView
+        //RECYCLERVIEW.ADAPTER = MIO ADAPTER
         binding.rvSalvati.adapter = adapter
     }
 
     //funzione che riporta la recycleView al primo elemento (usato quando applicato il filtro)
     private fun riportaInCima() {
+        //scroll della RecyclerView al primo elemento
         binding.rvSalvati.scrollToPosition(0)
     }
 

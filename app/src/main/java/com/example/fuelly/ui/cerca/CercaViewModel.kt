@@ -31,12 +31,16 @@ class CercaViewModel : ViewModel() {
 
     //funzione di caricamento dei dati quando l'utente passa a Cerca fragment
     fun caricaDatiIniziali() {
+
+        //Unisco le liste dei benzinai e delle colonnine
         listaTotaleOriginale = BenzinaiRepository.listaVicini + ColonnineRepository.listaVicini
+
         applicaFiltri() //richiamo la funzione di applicazione dei filtri (in questo caso non fa nulla)
     }
 
     //funzione di applicazione dei filtri
     fun applicaFiltri() {
+
         val q = query.lowercase().trim() //
 
         var filtrata = listaTotaleOriginale.filter { item ->
@@ -49,6 +53,7 @@ class CercaViewModel : ViewModel() {
 
             // --- B. FILTRO TESTUALE (barra di ricerca) ---
             val passaRicerca = when (item) {
+                //ricerca per bandiera o comune in basse al parametro q
                 is Benzinaio -> item.bandiera.lowercase().contains(q) || item.comune.lowercase().contains(q)
                 is ColonninaEV -> item.titolo.lowercase().contains(q) || item.indirizzo.lowercase().contains(q)
                 else -> false
